@@ -10,6 +10,8 @@
      ** that is less than 1.
      ** The function returns a uniform deviate between 0.0 and 1.0
      ** (exclusive of end-point values).
+     **
+     ** Be careful using <random> methods (event this one) when it comes to parallelization, as the system may draw the same number/seed every time
 */
 
 #pragma once

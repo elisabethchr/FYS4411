@@ -7,7 +7,7 @@ public:
     WaveFunction(class System* system);
     int     getNumberOfParameters() { return m_numberOfParameters; }
     std::vector<double> getParameters() { return m_parameters; }
-    virtual double evaluate(std::vector<class Particle*> particles) = 0;
+    virtual double evaluate(std::vector<class Particle*> particles) = 0;        //"virtual" implements function elsewhere, "virtual = 0" forces to implemented elsewhere
     virtual double computeDoubleDerivative(std::vector<class Particle*> particles) = 0;
 
 protected:
