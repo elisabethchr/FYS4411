@@ -1,9 +1,13 @@
 #include "simplegaussian.h"
 #include <cmath>
 #include <cassert>
+#include <armadillo>
 #include "wavefunction.h"
 #include "../system.h"
 #include "../particle.h"
+
+using namespace std;
+using namespace arma;
 
 SimpleGaussian::SimpleGaussian(System* system, double alpha) :
         WaveFunction(system) {
@@ -13,7 +17,7 @@ SimpleGaussian::SimpleGaussian(System* system, double alpha) :
     m_parameters.push_back(alpha);
 }
 
-double SimpleGaussian::evaluate(std::vector<class Particle*> particles) {
+double SimpleGaussian::evaluate(std::vector<class Particle*> particles, double alpha) {
     /* You need to implement a Gaussian wave function here. The positions of
      * the particles are accessible through the particle[i].getPosition()
      * function.
@@ -21,6 +25,13 @@ double SimpleGaussian::evaluate(std::vector<class Particle*> particles) {
      * For the actual expression, use exp(-alpha * r^2), with alpha being the
      * (only) variational parameter.
      */
+    vec psi(particles.size()); psi.zeros();
+    double r;
+
+    for(int i=0; i<particles.size(); i++){
+        r = particles[i]->getPosition()[0];     //getPosition()[dimension]
+        psi[i] = exp(-alpha*r*r);
+    }
     return 0;
 }
 
