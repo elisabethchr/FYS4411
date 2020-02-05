@@ -1,5 +1,9 @@
 #include "system.h"
 #include <cassert>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <armadillo>
 #include "sampler.h"
 #include "particle.h"
 #include "WaveFunctions/wavefunction.h"
@@ -7,13 +11,27 @@
 #include "InitialStates/initialstate.h"
 #include "Math/random.h"
 
-bool System::metropolisStep() {
+using namespace std;
+using namespace arma;
+
+bool System::metropolisSteps(std::vector<class Particle*> particles, int numberOfParticles, int numberOfDimensions, double delta) {
     /* Perform the actual Metropolis step: Choose a particle at random and
-     * change it's position by a random amount, and check if the step is
+     * change its position by a random amount, and check if the step is
      * accepted by the Metropolis test (compare the wave function evaluated
      * at this new position with the one at the old position).
      */
+    /*
+     * Look at/draw one particle at a time. Allocate matrices which contain the position of the particle.
+    */
+    double random_d;
+    int random_i;
+    random_i = Random::nextInt(numberOfParticles);
+    random_d = Random::nextDouble();
 
+    double m_position_old, m_position_new;
+    m_position_old = particles[random_i]->getPosition()[0];
+    m_position_new = m_position_old + delta
+    Particle->setPosition(m_position_new);
     return false;
 }
 
@@ -23,8 +41,17 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
     m_numberOfMetropolisSteps   = numberOfMetropolisSteps;
     m_sampler->setNumberOfMetropolisSteps(numberOfMetropolisSteps);
 
+    /*
+     * InitialPos = GetPosition();
+*/
+
+    for(const auto i:m_particles){cout << i << endl; }
+
     for (int i=0; i < numberOfMetropolisSteps; i++) {
-        bool acceptedStep = metropolisStep();
+
+        /*Update positions of particles*/
+        bool acceptedStep = metropolisStep(m_numberOfParticles, m_numberOfDimensions);
+//        if(acceptedStep == true){}
 
         /* Here you should sample the energy (and maybe other things using
          * the m_sampler instance of the Sampler class. Make sure, though,

@@ -1,9 +1,10 @@
 #pragma once
 #include <vector>
+#include <armadillo>
 
 class System {
 public:
-    bool metropolisStep             ();
+    bool metropolisStep             (int numberOfParticles, int numberOfDimensions, double delta);
     void runMetropolisSteps         (int numberOfMetropolisSteps);
     void setNumberOfParticles       (int numberOfParticles);
     void setNumberOfDimensions      (int numberOfDimensions);
