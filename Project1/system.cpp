@@ -24,34 +24,30 @@ bool System::metropolisSteps(std::vector<class Particle*> particles, int numberO
      * Look at/draw one particle at a time. Allocate matrices which contain the position of the particle.
     */
     double random_d;
-    int random_i;
-    double s;
-    random_i = Random::nextInt(numberOfParticles);
-    random_d = Random::nextDouble();
+        int random_i;
+        double s;
+        random_i = Random::nextInt(numberOfParticles);      // Need uniform distribution
+        random_d = Random::nextDouble();
 
-    s = Random::nextDouble();
+        s = Random::nextDouble();
 
-    double oldWaveFunction = m_waveFunction->evaluate(m_particles);
+        double oldWaveFunction = m_waveFunction->evaluate(m_particles);
 
 
- //   double m_position_old, m_position_new;
- //   m_position_old = particles[random_i]->getPosition()[0];
- //   m_position_new = m_position_old + delta*(random_d - 0.5);
-    double dx = delta*(random_d - 0.5);
+     //   double m_position_old, m_position_new;
+     //   m_position_old = particles[random_i]->getPosition()[0];
+     //   m_position_new = m_position_old + delta*(random_d - 0.5);
+        double dx = delta*(random_d - 0.5);
 
-    m_particles[i]->adjustPosition(dx,0);
-    double newWaveFunction = m_waveFunction->evaluate(m_particles);
+        m_particles[random_i]->adjustPosition(dx,0);
+        double newWaveFunction = m_waveFunction->evaluate(m_particles);
 
-    double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction);
-    if(s<ratio){
-        return true;
-}else{
-        return false;
-    }
-
- //   Particle->setPosition(m_position_new);
-
-    return false;
+        double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction);
+        if(s<ratio){
+            return true;
+    }else{
+            return false;
+        }
 }
 
 void System::runMetropolisSteps(int numberOfMetropolisSteps) {
@@ -69,8 +65,8 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
     for (int i=0; i < numberOfMetropolisSteps; i++) {
 
         /*Update positions of particles*/
-        bool acceptedStep = metropolisStep(m_numberOfParticles, m_numberOfDimensions);
-//        if(acceptedStep == true){}
+        bool acceptedStep = metropolisStep(m_numberOfParticles, m_numberOfDimensions, delta);
+        //        if(acceptedStep == true){}
 
         /* Here you should sample the energy (and maybe other things using
          * the m_sampler instance of the Sampler class. Make sure, though,
