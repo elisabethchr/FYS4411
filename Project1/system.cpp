@@ -25,13 +25,32 @@ bool System::metropolisSteps(std::vector<class Particle*> particles, int numberO
     */
     double random_d;
     int random_i;
+    double s;
     random_i = Random::nextInt(numberOfParticles);
     random_d = Random::nextDouble();
 
-    double m_position_old, m_position_new;
-    m_position_old = particles[random_i]->getPosition()[0];
-    m_position_new = m_position_old + delta
-    Particle->setPosition(m_position_new);
+    s = Random::nextDouble();
+
+    double oldWaveFunction = m_waveFunction->evaluate(m_particles);
+
+
+ //   double m_position_old, m_position_new;
+ //   m_position_old = particles[random_i]->getPosition()[0];
+ //   m_position_new = m_position_old + delta*(random_d - 0.5);
+    double dx = delta*(random_d - 0.5);
+
+    m_particles[i]->adjustPosition(dx,0);
+    double newWaveFunction = m_waveFunction->evaluate(m_particles);
+
+    double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction);
+    if(s<ratio){
+        return true;
+}else{
+        return false;
+    }
+
+ //   Particle->setPosition(m_position_new);
+
     return false;
 }
 
