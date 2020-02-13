@@ -14,7 +14,7 @@
 using namespace std;
 using namespace arma;
 
-bool System::metropolisSteps(std::vector<class Particle*> particles, int numberOfParticles, int numberOfDimensions, double delta) {
+bool System::metropolisStep(int numberOfParticles, int numberOfDimensions, double delta, int i) {
     /* Perform the actual Metropolis step: Choose a particle at random and
      * change its position by a random amount, and check if the step is
      * accepted by the Metropolis test (compare the wave function evaluated
@@ -24,30 +24,48 @@ bool System::metropolisSteps(std::vector<class Particle*> particles, int numberO
      * Look at/draw one particle at a time. Allocate matrices which contain the position of the particle.
     */
     double random_d;
-        int random_i;
-        double s;
-        random_i = Random::nextInt(numberOfParticles);      // Need uniform distribution
+    int random_i;
+    double s;
+    double dx;
+
+    random_i = Random::nextInt(numberOfParticles);      // Need uniform distribution
+    random_d = Random::nextDouble();
+    s = Random::nextDouble();
+    dx = delta*2*(random_d - 0.5);
+
+    double oldWaveFunction = m_waveFunction->evaluate(m_particles);
+    double newWaveFunction;
+    double ratio;
+
+
+    m_particles[i]->adjustPosition(dx,0);
+    newWaveFunction = m_waveFunction->evaluate(m_particles);
+    ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction);
+
+
+/*
+    for(int i=0; i<m_particles.size(); i++){
+        oldWaveFunction = m_waveFunction->evaluate(m_particles);
+
         random_d = Random::nextDouble();
-
         s = Random::nextDouble();
+        dx = delta*2*(random_d - 0.5);
 
-        double oldWaveFunction = m_waveFunction->evaluate(m_particles);
+        m_particles[i]->adjustPosition(dx,0);
+        newWaveFunction = m_waveFunction->evaluate(m_particles);
+        ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction);
+    }
+*/
 
+    cout << "oldWaveFunction: " << oldWaveFunction << " ";
+    cout << "newWaveFunction: " << newWaveFunction << "\n";
+    cout << "Ratio = " << ratio << ", s = " << s << "\n";
 
-     //   double m_position_old, m_position_new;
-     //   m_position_old = particles[random_i]->getPosition()[0];
-     //   m_position_new = m_position_old + delta*(random_d - 0.5);
-        double dx = delta*(random_d - 0.5);
-
-        m_particles[random_i]->adjustPosition(dx,0);
-        double newWaveFunction = m_waveFunction->evaluate(m_particles);
-
-        double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction);
-        if(s<ratio){
-            return true;
-    }else{
-            return false;
-        }
+    if(s<ratio){cout << "True" << endl;
+        return true;
+    }else{cout << "False" << endl;
+        return false;
+    }
 }
 
 void System::runMetropolisSteps(int numberOfMetropolisSteps) {
@@ -56,16 +74,11 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
     m_numberOfMetropolisSteps   = numberOfMetropolisSteps;
     m_sampler->setNumberOfMetropolisSteps(numberOfMetropolisSteps);
 
-    /*
-     * InitialPos = GetPosition();
-*/
-
-    for(const auto i:m_particles){cout << i << endl; }
-
     for (int i=0; i < numberOfMetropolisSteps; i++) {
-
         /*Update positions of particles*/
-        bool acceptedStep = metropolisStep(m_numberOfParticles, m_numberOfDimensions, delta);
+        for(int i=0; i<m_particles.size(); i++){
+            bool acceptedStep = metropolisStep(m_numberOfParticles, m_numberOfDimensions, m_stepLength, i);
+
         //        if(acceptedStep == true){}
 
         /* Here you should sample the energy (and maybe other things using
@@ -75,10 +88,12 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
          * are equilibration steps; m_equilibrationFraction.
          */
         m_sampler->sample(acceptedStep);
+        }
     }
     m_sampler->computeAverages();
     m_sampler->printOutputToTerminal();
 }
+
 
 void System::setNumberOfParticles(int numberOfParticles) {
     m_numberOfParticles = numberOfParticles;
