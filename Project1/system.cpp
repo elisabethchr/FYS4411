@@ -37,7 +37,6 @@ bool System::metropolisStep(int numberOfParticles, int numberOfDimensions, doubl
     double newWaveFunction;
     double ratio;
 
-
     m_particles[i]->adjustPosition(dx,0);
     newWaveFunction = m_waveFunction->evaluate(m_particles);
     ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction);
