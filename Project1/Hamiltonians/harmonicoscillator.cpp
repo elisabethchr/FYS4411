@@ -7,9 +7,10 @@
 
 using std::cout;
 using std::endl;
+using namespace arma;
 
 HarmonicOscillator::HarmonicOscillator(System* system, double omega) :
-        Hamiltonian(system) {
+    Hamiltonian(system) {
     assert(omega > 0);
     m_omega  = omega;
 }
@@ -26,30 +27,18 @@ double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles) 
      * m_system->getWaveFunction()...
      */
 
-    double h = m_system->m_stepLength;
-
-    double psi_current = m_system->getWaveFunction()->evaluate(particles, 0.4);//how to get alpha?
-    std::vector<particle*> particles_new = particles;
-
-    for (int i = 0; i<particles_new.size();i++){
-         particles_new->adjust_position(h,0);
-    }
-
-    double psi_new = m_system->getWaveFunction()->evaluate(particles_new,0.4);
-
-
-    particles_new->
-
-
     int dim = m_system->getNumberOfDimensions();
-    int nPart= m_system->getNumberOfParticles();
+    int nPart = m_system->getNumberOfParticles();
 
-
-
-
-    double El = dim*0.5*m_omega*nPart;
+    // Reset energy for each individual particle (but with renewed wavefunctions)
+    double El = dim*0.5*m_omega*nPart;      //analytic expression
     double potentialEnergy = 0;
     double kineticEnergy   = 0;
+
+    // Calculate kinetic energy:
+    kineticEnergy -= m_system->getWaveFunction()->computeDoubleDerivative(particles);
+    cout << "kinetic energy: " << kineticEnergy << endl;
+
     return kineticEnergy + potentialEnergy;
 }
 
