@@ -36,18 +36,20 @@ void RandomUniform::setupInitialState() {
     double delta = 0.1;
     mat position(m_numberOfParticles, m_numberOfDimensions); position.zeros();
 
-
+/*
     // Initialize positions
     for(int i=0; i<m_numberOfParticles; i++){
         for(int j=0; j<m_numberOfDimensions; j++){
             position[i, j] = delta*(RandomNumberGenerator(gen) - 0.5);
         }
     }
-
+*/
+    double rand;
+    // Assign random number with uniform distribution to particles in dimension j
     for (int i=0; i < m_numberOfParticles; i++) {
-//        std::vector<double> position = std::vector<double>();
+        std::vector<double> position = std::vector<double>();
 
-//        for (int j=0; j < m_numberOfDimensions; j++) {
+        for (int j=0; j < m_numberOfDimensions; j++) {
             /* This is where you should actually place the particles in
              * some positions, according to some rule. Since this class is
              * called random uniform, they should be placed randomly according
@@ -59,8 +61,9 @@ void RandomUniform::setupInitialState() {
              * according to their index in the particles list (this is
              * obviously NOT a good idea).
              */
-//            position.push_back(i);
-//        }
+            rand = delta*(RandomNumberGenerator(gen) - 0.5);
+            position.push_back(rand);
+        }
 
         m_particles.push_back(new Particle());
         m_particles.at(i)->setNumberOfDimensions(m_numberOfDimensions);

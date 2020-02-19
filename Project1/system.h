@@ -4,7 +4,7 @@
 
 class System {
 public:
-    bool metropolisStep             (int numberOfParticles, int numberOfDimensions, double delta);
+    bool metropolisStep             (int numberOfParticles, int numberOfDimensions, double delta, int i);
     void runMetropolisSteps         (int numberOfMetropolisSteps);
     void setNumberOfParticles       (int numberOfParticles);
     void setNumberOfDimensions      (int numberOfDimensions);
@@ -21,6 +21,7 @@ public:
     int getNumberOfDimensions()         { return m_numberOfDimensions; }
     int getNumberOfMetropolisSteps()    { return m_numberOfMetropolisSteps; }
     double getEquilibrationFraction()   { return m_equilibrationFraction; }
+    double getStepLength()              { return m_stepLength; }
 
 private:
     int                             m_numberOfParticles = 0;
