@@ -33,9 +33,7 @@ void Sampler::sample(bool acceptedStep) {
     double localEnergy = m_system->getHamiltonian()->
                          computeLocalEnergy(m_system->getParticles());
     m_cumulativeEnergy  += localEnergy;
-
-    double localEnergyAnalytic = m_system->getHamiltonian()->computeLocalEnergy_analytic(m_system->getParticles());
-    m_cumulativeEnergyAnalytic += localEnergyAnalytic;
+//    cout <<"Energy: " << m_cumulativeEnergy << endl;
 
     m_stepNumber++;
 }
@@ -47,6 +45,11 @@ void Sampler::printOutputToTerminal() {
     int     p  = m_system->getWaveFunction()->getNumberOfParameters();
     double  ef = m_system->getEquilibrationFraction();
     std::vector<double> pa = m_system->getWaveFunction()->getParameters();
+
+    double localEnergyAnalytic = m_system->getHamiltonian()->computeLocalEnergy_analytic(m_system->getParticles());
+    m_cumulativeEnergyAnalytic = localEnergyAnalytic;
+    cout << "m_cumulativeenergy = " << m_cumulativeEnergy << endl;
+    cout << "Analytic energy: " << m_cumulativeEnergyAnalytic << endl;
 
     cout << endl;
     cout << "  -- System info -- " << endl;
@@ -63,7 +66,7 @@ void Sampler::printOutputToTerminal() {
     cout << endl;
     cout << "  -- Reults -- " << endl;
     cout << " Energy : " << m_energy << endl;
-    cout << " Analytic energy: " << m_energyAnalytic << endl;
+    cout << " Analytic energy: " << m_cumulativeEnergyAnalytic << endl;
     cout << endl;
 }
 
@@ -72,5 +75,5 @@ void Sampler::computeAverages() {
      * thoroughly through what is written here currently; is this correct?
      */
     m_energy = m_cumulativeEnergy / m_system->getNumberOfMetropolisSteps();
-    m_energyAnalytic = m_cumulativeEnergyAnalytic / m_system->getNumberOfMetropolisSteps();
+    m_energyAnalytic = m_cumulativeEnergyAnalytic; // / m_system->getNumberOfMetropolisSteps();
 }
