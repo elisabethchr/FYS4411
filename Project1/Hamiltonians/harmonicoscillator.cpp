@@ -68,8 +68,10 @@ double HarmonicOscillator::computeLocalEnergy_analytic(std::vector<Particle*> pa
         for(int j=0; j<dim; j++){
             coordinate = particles.at(i)->getPosition().at(j);
             potentialEnergy+= 0.5*m_omega*m_omega*coordinate*coordinate * psi;
-            kineticEnergy -= 0.5*2*alpha*(2*alpha*coordinate*coordinate - dim) * psi;
+//            kineticEnergy -= 0.5*2*alpha*(2*alpha*coordinate*coordinate - dim) * psi;
+            kineticEnergy -= 0.5*2*alpha*(2*alpha*coordinate*coordinate) * psi;
         }
+        kineticEnergy += 0.5*2*alpha*(dim) * psi;
     }
     double localEnergy_analytic = (kineticEnergy + potentialEnergy) / psi;
     return localEnergy_analytic;
