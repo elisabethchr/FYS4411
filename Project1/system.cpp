@@ -14,7 +14,7 @@
 using namespace std;
 using namespace arma;
 
-bool System::metropolisStep(int numberOfParticles, int numberOfDimensions, double delta, int i) {
+bool System::metropolisStep() {
     /* Perform the actual Metropolis step: Choose a particle at random and
      * change its position by a random amount, and check if the step is
      * accepted by the Metropolis test (compare the wave function evaluated
@@ -23,62 +23,62 @@ bool System::metropolisStep(int numberOfParticles, int numberOfDimensions, doubl
     /*
      * Look at/draw one particle at a time. Allocate matrices which contain the position of the particle.
     */
-    double random_d;
+
+    double random_d; //Random dimension
     int random_i;
     double s;
-    double dx;
-
-    random_i = Random::nextInt(numberOfParticles);      // Need uniform distribution
+    random_i = Random::nextInt(m_numberOfParticles);
     random_d = Random::nextDouble();
+
     s = Random::nextDouble();
-    dx = delta*2*(random_d - 0.5);
 
-    double oldWaveFunction = m_waveFunction->evaluate(m_particles);
-    double newWaveFunction;
-    double ratio;
+   std::vector<double> alphas =  m_waveFunction->getParameters();
 
-    m_particles[i]->adjustPosition(dx,0);
-    newWaveFunction = m_waveFunction->evaluate(m_particles);
-    ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction);
+ // double oldWaveFunction = m_waveFunction->evaluate(m_particles,alphas[m_sampler->m_stepNumber]); //added m_parameters[m_sampler->m_stepNumber] istead of alpha
+    double oldWaveFunction = m_waveFunction->evaluate(m_particles,alphas[0]);
 
 
-/*
-    for(int i=0; i<m_particles.size(); i++){
-        oldWaveFunction = m_waveFunction->evaluate(m_particles);
 
-        random_d = Random::nextDouble();
-        s = Random::nextDouble();
-        dx = delta*2*(random_d - 0.5);
+ //   double m_position_old, m_position_new;
+ //   m_position_old = particles[random_i]->getPosition()[0];
+ //   m_position_new = m_position_old + delta*(random_d - 0.5);
+    double dx = m_stepLength*(random_d - 0.5);
 
-        m_particles[i]->adjustPosition(dx,0);
-        newWaveFunction = m_waveFunction->evaluate(m_particles);
-        ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction);
-    }
-*/
+    m_particles[random_i]->adjustPosition(dx,0);
+    double newWaveFunction = m_waveFunction->evaluate(m_particles, 0.5);
 
-    cout << "oldWaveFunction: " << oldWaveFunction << " ";
-    cout << "newWaveFunction: " << newWaveFunction << "\n";
-    cout << "Ratio = " << ratio << ", s = " << s << "\n";
-
-    if(s<ratio){cout << "True" << endl;
+    double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
+//      cout << "Old Wavefunction:" << oldWaveFunction << "    New Wavefunction" << newWaveFunction <<endl;
+    if(s<=ratio){
         return true;
-    }else{cout << "False" << endl;
+}else{m_particles[random_i]->adjustPosition(-dx,0);
         return false;
     }
+
+ //   Particle->setPosition(m_position_new);
+
 }
 
 void System::runMetropolisSteps(int numberOfMetropolisSteps) {
     m_particles                 = m_initialState->getParticles();
-    m_sampler                   = new Sampler(this);
+    m_sampler                   = new Sampler(this); //Remove later: (this) points to the system object from which  "runMetropolisSteps" is called.
     m_numberOfMetropolisSteps   = numberOfMetropolisSteps;
     m_sampler->setNumberOfMetropolisSteps(numberOfMetropolisSteps);
 
-    for (int i=0; i < numberOfMetropolisSteps; i++) {
-        /*Update positions of particles*/
-        for(int i=0; i<m_particles.size(); i++){
-            bool acceptedStep = metropolisStep(m_numberOfParticles, m_numberOfDimensions, m_stepLength, i);
+    /*
+     * InitialPos = GetPosition();
+*/
 
-        //        if(acceptedStep == true){}
+//    for(const auto i:m_particles){cout << i << endl; }
+
+    for (int i=0; i < numberOfMetropolisSteps; i++) {
+
+        /*Update positions of particles*/
+        bool acceptedStep = metropolisStep();
+        if(acceptedStep == true){
+
+            m_sampler->sample(acceptedStep);
+
 
         /* Here you should sample the energy (and maybe other things using
          * the m_sampler instance of the Sampler class. Make sure, though,
@@ -86,13 +86,12 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
          * for a while. You may handle this using the fraction of steps which
          * are equilibration steps; m_equilibrationFraction.
          */
-        m_sampler->sample(acceptedStep);
-        }
+
     }
+ }
     m_sampler->computeAverages();
     m_sampler->printOutputToTerminal();
 }
-
 
 void System::setNumberOfParticles(int numberOfParticles) {
     m_numberOfParticles = numberOfParticles;
