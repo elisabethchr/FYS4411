@@ -8,6 +8,7 @@ public:
     void printOutputToTerminal();
     void computeAverages();
     double getEnergy()          { return m_energy; }
+    void writeToFile(int step, int steps);
 
 private:
     int     m_numberOfMetropolisSteps = 0;

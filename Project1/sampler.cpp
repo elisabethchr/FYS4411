@@ -1,15 +1,18 @@
 #include <iostream>
+#include <fstream>
 #include <cmath>
 #include <vector>
+#include <string>
+#include <iomanip>
+#include <cstdlib>
+#include <algorithm>
 #include "sampler.h"
 #include "system.h"
 #include "particle.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "WaveFunctions/wavefunction.h"
 
-using std::cout;
-using std::endl;
-
+using namespace std;
 
 Sampler::Sampler(System* system) {
     m_system = system;
@@ -31,9 +34,11 @@ void Sampler::sample(bool acceptedStep) {
      * Note that there are (way) more than the single one here currently.
      */
     double localEnergy = m_system->getHamiltonian()->
-                         computeLocalEnergy(m_system->getParticles());
+            computeLocalEnergy(m_system->getParticles());
     m_cumulativeEnergy  += localEnergy;
-//    cout <<"Energy: " << m_cumulativeEnergy << endl;
+    //    cout <<"Energy: " << m_cumulativeEnergy << endl;
+    double localEnergyAnalytic = m_system->getHamiltonian()->computeLocalEnergy_analytic(m_system->getParticles());
+    m_cumulativeEnergyAnalytic += localEnergyAnalytic;
 
     m_stepNumber++;
 }
@@ -46,8 +51,6 @@ void Sampler::printOutputToTerminal() {
     double  ef = m_system->getEquilibrationFraction();
     std::vector<double> pa = m_system->getWaveFunction()->getParameters();
 
-    double localEnergyAnalytic = m_system->getHamiltonian()->computeLocalEnergy_analytic(m_system->getParticles());
-    m_cumulativeEnergyAnalytic = localEnergyAnalytic;
     cout << "m_cumulativeenergy = " << m_cumulativeEnergy << endl;
     cout << "Analytic energy: " << m_cumulativeEnergyAnalytic << endl;
 
@@ -66,14 +69,44 @@ void Sampler::printOutputToTerminal() {
     cout << endl;
     cout << "  -- Reults -- " << endl;
     cout << " Energy : " << m_energy << endl;
-    cout << " Analytic energy: " << m_cumulativeEnergyAnalytic << endl;
-    cout << endl;
+    cout << " Analytic energy: " << m_energyAnalytic << endl;
 }
 
 void Sampler::computeAverages() {
     /* Compute the averages of the sampled quantities. You need to think
      * thoroughly through what is written here currently; is this correct?
      */
-    m_energy = m_cumulativeEnergy / m_system->getNumberOfMetropolisSteps();
-    m_energyAnalytic = m_cumulativeEnergyAnalytic; // / m_system->getNumberOfMetropolisSteps();
+    //    m_energy = m_cumulativeEnergy / (m_system->getNumberOfMetropolisSteps());
+    //    m_energy = m_cumulativeEnergy / (m_system->getNumberOfMetropolisSteps()*m_system->getNumberOfParticles());
+    m_energy = m_cumulativeEnergy / m_stepNumber;
+    m_energyAnalytic = m_cumulativeEnergyAnalytic / (m_stepNumber);
+}
+
+void Sampler::writeToFile(int step, int steps){
+    double nParticles = m_system->getNumberOfParticles();
+    double nDim = m_system->getNumberOfDimensions();
+    double nSteps = m_system->getNumberOfMetropolisSteps();
+
+    ofstream ofile;
+    string filename = "data/1b_nParticles_";
+    string arg1 = to_string(int(nParticles));
+    string arg2 = to_string(int(nDim));
+    string arg3 = to_string(int(nSteps));
+    filename.append(arg1);
+    filename.append("_nDim");
+    filename.append(arg2);
+    filename.append("_nSteps_");
+    filename.append(arg3);
+    filename.append(".txt");
+    if (steps == 0){ofile.open(filename, ios::trunc | ios::out);}
+    else{ofile.open(filename, ios::app | ios::out);}
+
+//    cout << "m_energy: " << m_energy << endl;
+//    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
+
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+    ofile << setw(10) << setprecision(8) << step;
+    ofile << setw(15) << setprecision(8) << m_cumulativeEnergy / m_stepNumber;
+    ofile << setw(15) << setprecision(8) << m_cumulativeEnergyAnalytic / m_stepNumber << "\n";
+    ofile.close();
 }
