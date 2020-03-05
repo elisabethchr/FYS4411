@@ -28,35 +28,29 @@ bool System::metropolisStep() {
     int random_i;
     double s;
     random_i = Random::nextInt(m_numberOfParticles);
-    random_d = Random::nextDouble();
-
+    random_d = Random::nextInt(m_numberOfDimensions);
     s = Random::nextDouble();
 
     std::vector<double> alphas =  m_waveFunction->getParameters();
 
-    // double oldWaveFunction = m_waveFunction->evaluate(m_particles,alphas[m_sampler->m_stepNumber]); //added m_parameters[m_sampler->m_stepNumber] istead of alpha
-    double oldWaveFunction = m_waveFunction->evaluate(m_particles);
-
-
-
-    //   double m_position_old, m_position_new;
-    //   m_position_old = particles[random_i]->getPosition()[0];
-    //   m_position_new = m_position_old + delta*(random_d - 0.5);
     double dx = m_stepLength*(random_d - 0.5);
 
-    m_particles[random_i]->adjustPosition(dx,0);
+    double oldWaveFunction = m_waveFunction->evaluate(m_particles);
+
+    for(int dim=0; dim<m_numberOfDimensions; dim++){
+        m_particles[random_i]->adjustPosition(dx, dim);
+    }
+
     double newWaveFunction = m_waveFunction->evaluate(m_particles);
 
     double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
-    //      cout << "Old Wavefunction:" << oldWaveFunction << "    New Wavefunction" << newWaveFunction <<endl;
     if(s<=ratio){
         return true;
-    }else{m_particles[random_i]->adjustPosition(-dx,0);
+    }else{    for(int dim=0; dim<m_numberOfDimensions; dim++){
+            m_particles[random_i]->adjustPosition(dx, dim);
+        }
         return false;
     }
-
-    //   Particle->setPosition(m_position_new);
-
 }
 
 bool System::importanceSampling(){
@@ -65,29 +59,23 @@ bool System::importanceSampling(){
     double s;
     random_i = Random::nextInt(m_numberOfParticles);
     random_d = Random::nextDouble();
-
     s = Random::nextDouble();
 
     std::vector<double> alphas =  m_waveFunction->getParameters();
 
-    // double oldWaveFunction = m_waveFunction->evaluate(m_particles,alphas[m_sampler->m_stepNumber]); //added m_parameters[m_sampler->m_stepNumber] istead of alpha
-    double oldWaveFunction = m_waveFunction->evaluate(m_particles);
-
     double dx = m_stepLength*(random_d - 0.5);
+
+    double oldWaveFunction = m_waveFunction->evaluate(m_particles);
 
     m_particles[random_i]->adjustPosition(dx,0);
     double newWaveFunction = m_waveFunction->evaluate(m_particles);
 
     double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
-    //      cout << "Old Wavefunction:" << oldWaveFunction << "    New Wavefunction" << newWaveFunction <<endl;
     if(s<=ratio){
         return true;
     }else{m_particles[random_i]->adjustPosition(-dx,0);
         return false;
     }
-
-    //   Particle->setPosition(m_position_new);
-
 }
 
 void System::runMetropolisSteps(int numberOfMetropolisSteps) {
