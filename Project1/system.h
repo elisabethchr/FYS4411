@@ -4,7 +4,8 @@
 
 class System {
 public:
-    bool metropolisStep             (int numberOfParticles, int numberOfDimensions, double delta, int i);
+    bool metropolisStep             ();
+    bool importanceSampling         ();     // Metropolis-Hastings
     void runMetropolisSteps         (int numberOfMetropolisSteps);
     void setNumberOfParticles       (int numberOfParticles);
     void setNumberOfDimensions      (int numberOfDimensions);
@@ -22,6 +23,7 @@ public:
     int getNumberOfMetropolisSteps()    { return m_numberOfMetropolisSteps; }
     double getEquilibrationFraction()   { return m_equilibrationFraction; }
     double getStepLength()              { return m_stepLength; }
+
 
 private:
     int                             m_numberOfParticles = 0;
