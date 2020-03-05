@@ -28,16 +28,20 @@ bool System::metropolisStep() {
     int random_i;
     double s;
     random_i = Random::nextInt(m_numberOfParticles);
-    random_d = Random::nextInt(m_numberOfDimensions);
     s = Random::nextDouble();
+    double dx;
 
+    arma::vec dx_vec(m_numberOfDimensions); dx_vec.zeros();
     std::vector<double> alphas =  m_waveFunction->getParameters();
 
-    double dx = m_stepLength*(random_d - 0.5);
+//    double dx = m_stepLength*(random_d - 0.5);
 
     double oldWaveFunction = m_waveFunction->evaluate(m_particles);
 
     for(int dim=0; dim<m_numberOfDimensions; dim++){
+        random_d = Random::nextDouble();
+        dx = m_stepLength*(random_d - 0.5);
+        dx_vec[dim] = dx;
         m_particles[random_i]->adjustPosition(dx, dim);
     }
 
@@ -47,7 +51,7 @@ bool System::metropolisStep() {
     if(s<=ratio){
         return true;
     }else{    for(int dim=0; dim<m_numberOfDimensions; dim++){
-            m_particles[random_i]->adjustPosition(dx, dim);
+            m_particles[random_i]->adjustPosition(-dx_vec[dim], dim);
         }
         return false;
     }
@@ -58,22 +62,31 @@ bool System::importanceSampling(){
     int random_i;
     double s;
     random_i = Random::nextInt(m_numberOfParticles);
-    random_d = Random::nextDouble();
     s = Random::nextDouble();
+    double dx;
 
+    arma::vec dx_vec(m_numberOfDimensions); dx_vec.zeros();
     std::vector<double> alphas =  m_waveFunction->getParameters();
 
-    double dx = m_stepLength*(random_d - 0.5);
+//    double dx = m_stepLength*(random_d - 0.5);
 
     double oldWaveFunction = m_waveFunction->evaluate(m_particles);
 
-    m_particles[random_i]->adjustPosition(dx,0);
+    for(int dim=0; dim<m_numberOfDimensions; dim++){
+        random_d = Random::nextDouble();
+        dx = m_stepLength*(random_d - 0.5);
+        dx_vec[dim] = dx;
+        m_particles[random_i]->adjustPosition(dx, dim);
+    }
+
     double newWaveFunction = m_waveFunction->evaluate(m_particles);
 
     double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
     if(s<=ratio){
         return true;
-    }else{m_particles[random_i]->adjustPosition(-dx,0);
+    }else{    for(int dim=0; dim<m_numberOfDimensions; dim++){
+            m_particles[random_i]->adjustPosition(-dx_vec[dim], dim);
+        }
         return false;
     }
 }
@@ -90,6 +103,7 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
 
             /*Update positions of particles*/
             bool acceptedStep = metropolisStep();
+//            bool acceptedStep = importanceSampling();
             if(acceptedStep == true){
 
                 m_sampler->sample(acceptedStep);
