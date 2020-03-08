@@ -4,7 +4,8 @@
 
 class System {
 public:
-    bool metropolisStep             (int numberOfParticles, int numberOfDimensions, double delta);
+    bool metropolisStep             ();//Remove later: Doesn't need any arguments. Can access all the relevant variables through the class.
+    bool importanceSampling         ();
     void runMetropolisSteps         (int numberOfMetropolisSteps);
     void setNumberOfParticles       (int numberOfParticles);
     void setNumberOfDimensions      (int numberOfDimensions);
