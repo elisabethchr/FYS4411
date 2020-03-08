@@ -8,11 +8,19 @@ public:
     void printOutputToTerminal();
     void computeAverages();
     double getEnergy()          { return m_energy; }
+    void writeStepToFile(int step, int steps);
+    void writeTotalToFile();
 
 private:
     int     m_numberOfMetropolisSteps = 0;
     int     m_stepNumber = 0;
     double  m_energy = 0;
+    double  m_energyAnalytic = 0;
     double  m_cumulativeEnergy = 0;
+    double  m_cumulativeEnergyAnalytic = 0;
+
+    clock_t t_num = 0;
+    clock_t t_anal = 0;
+
     class System* m_system = nullptr;
 };
