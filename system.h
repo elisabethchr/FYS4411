@@ -31,6 +31,8 @@ private:
     int                             m_numberOfMetropolisSteps = 0;
     double                          m_equilibrationFraction = 0.0;
     double                          m_stepLength = 0.1;
+    double                          m_stepMetropolis = 0.0;
+    double                          m_stepImportance = 0.0;
     class WaveFunction*             m_waveFunction = nullptr;
     class Hamiltonian*              m_hamiltonian = nullptr;
     class InitialState*             m_initialState = nullptr;

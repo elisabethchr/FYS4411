@@ -42,7 +42,7 @@ bool System::metropolisStep() {
         for(int dim=0; dim<m_numberOfDimensions; dim++){
             random_d = Random::nextDouble();
             dx = m_stepLength*(random_d - 0.5);
-            dx_mat[i, dim] = dx;
+            dx_mat(i, dim) = dx;
             m_particles[i]->adjustPosition(dx, dim);
         }
     }
@@ -52,11 +52,12 @@ bool System::metropolisStep() {
 
     double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
     if(s<=ratio){
+        m_stepMetropolis++;
         return true;
     }else{
         for (int i=0; i<m_numberOfParticles; i++){
             for(int dim=0; dim<m_numberOfDimensions; dim++){
-                m_particles[i]->adjustPosition(-dx_mat[i, dim], dim);
+                m_particles[i]->adjustPosition(-dx_mat(i, dim), dim);
             }
         }
         return false;
@@ -82,8 +83,8 @@ bool System::importanceSampling(){
 
     // Old position
     std::vector<Particle *> posOld = m_particles;
-//    cout << "posOld = " << posOld[0]->getPosition()[0] << endl;
     oldWaveFunction = m_waveFunction->evaluate(m_particles);
+    cout << "QuantumForceOld = " << m_hamiltonian->computeQuantumForce(m_particles) << endl;
     QForceOld = m_hamiltonian->computeQuantumForce(m_particles)*h/oldWaveFunction;
 
     // Move a random distance dx in all dimensions
@@ -91,37 +92,38 @@ bool System::importanceSampling(){
         for (int dim=0; dim<m_numberOfDimensions; dim++){
             random_d = Random::nextDouble();
             dx = m_stepLength*(random_d - 0.5);
-            dx_mat[i, dim] = dx;
+            dx_mat(i, dim) = dx;
             m_particles[i]->adjustPosition(dx, dim);
         }
     }
 
     // New position
     std::vector<Particle *> posNew = m_particles;
-//    cout << "posNew = " << posNew[0]->getPosition()[0] << endl;
     newWaveFunction = m_waveFunction->evaluate(m_particles);
+    cout << "QuantumForceNew = " << m_hamiltonian->computeQuantumForce(m_particles) << endl;
     QForceNew = m_hamiltonian->computeQuantumForce(m_particles)*h/newWaveFunction;
 
     // Compute Green's function by looping over all particles and dimensions, where m_stepLength ~= timestep
     for (int i=0; i<m_numberOfParticles; i++){
         for (int j=0; j<m_numberOfDimensions; j++){
-            GreensFunction += 0.5*(QForceOld[i, j] - QForceNew[i, j])*(D*m_stepLength*0.5*(QForceOld[i, j] - QForceNew[i, j]) - posNew[i]->getPosition()[j] + posOld[i]->getPosition()[j]);
+            GreensFunction += 0.5*(QForceOld(i, j) - QForceNew(i, j))*(D*m_stepLength*0.5*(QForceOld(i, j) - QForceNew(i, j)) - posNew[i]->getPosition()[j] + posOld[i]->getPosition()[j]);
         }
         cout << "Green's function for-loop: " << GreensFunction << endl;
     }
 
     GreensFunction = exp(GreensFunction);
 
-    cout <<"Green's function: " << GreensFunction << endl;
+//    cout <<"Green's function: " << GreensFunction << endl;
 
     double ratio = GreensFunction*newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
     if(s<=ratio){
+        m_stepImportance++;
         return true;
     }
     else{
         for (int i=0; i<m_numberOfParticles; i++){
             for(int dim=0; dim<m_numberOfDimensions; dim++){
-                m_particles[i]->adjustPosition(-dx_mat[i, dim], dim);
+                m_particles[i]->adjustPosition(-dx_mat(i, dim), dim);
             }
         }
         return false;
@@ -133,15 +135,14 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
     m_sampler                   = new Sampler(this); //Remove later: (this) points to the system object from which  "runMetropolisSteps" is called.
     m_numberOfMetropolisSteps   = numberOfMetropolisSteps;
     m_sampler->setNumberOfMetropolisSteps(numberOfMetropolisSteps);
-    double steps = 0;
     //    cout << "stepLength = " << m_stepLength << endl;
 
     for (int i=0; i < numberOfMetropolisSteps; i++) {
         //        for (int j=0; j < getNumberOfParticles(); j++){
 
         /*Update positions of particles*/
-//        bool acceptedStep = metropolisStep();
-        bool acceptedStep = importanceSampling();
+        bool acceptedStep = metropolisStep();
+        bool test = importanceSampling();
         //            bool acceptedStep = importanceSampling();
         if(acceptedStep == true){
 
@@ -171,6 +172,9 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
     }
     m_sampler->computeAverages();
     m_sampler->printOutputToTerminal();
+
+    cout << "Acceptance rate Metropolis: " << m_stepMetropolis << endl;
+    cout << "Acceptance rate importance sampling: " << m_stepImportance << endl;
 }
 
 void System::setNumberOfParticles(int numberOfParticles) {
