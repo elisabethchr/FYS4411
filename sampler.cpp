@@ -33,8 +33,8 @@ void Sampler::sample(bool acceptedStep) {
     }
 
     /* Here you should sample all the interesting things you want to measure.
-     * Note that there are (way) more than the single one here currently.
-     */
+         * Note that there are (way) more than the single one here currently.
+         */
 
     clock_t c_start1 = clock();
 
@@ -55,12 +55,13 @@ void Sampler::sample(bool acceptedStep) {
     t_anal += (c_end2-c_start2);
     m_cumulativeEnergyAnalytic += localEnergyAnalytic;
 
-//   cout << t_anal<< "   " << t_num<< endl;
+    //   cout << t_anal<< "   " << t_num<< endl;
 
 
 
     m_stepNumber++;
 }
+
 
 void Sampler::printOutputToTerminal() {
     int     np = m_system->getNumberOfParticles();
@@ -89,8 +90,6 @@ void Sampler::printOutputToTerminal() {
     cout << "  -- Reults -- " << endl;
     cout << " Energy : " << m_energy << endl;
     cout << " Analytic energy: " << m_energyAnalytic << endl;
-    cout << "Numerical CPU time[ms]  "<< t_num/1000. << endl;
-    cout << "Analytical CPU time[ms]  " << t_anal/1000. << endl;
 }
 
 void Sampler::computeAverages() {
@@ -99,16 +98,18 @@ void Sampler::computeAverages() {
      */
     //    m_energy = m_cumulativeEnergy / (m_system->getNumberOfMetropolisSteps());
     //    m_energy = m_cumulativeEnergy / (m_system->getNumberOfMetropolisSteps()*m_system->getNumberOfParticles());
-
-    m_energy = m_cumulativeEnergy / m_stepNumber;
+    m_energy = m_cumulativeEnergy / (m_stepNumber);
+    m_energy2 = m_cumulativeEnergy2 / (m_stepNumber);
     m_energyAnalytic = m_cumulativeEnergyAnalytic / (m_stepNumber);
+    m_variance = m_energy2 - m_energy*m_energy;
+    m_error = pow(m_variance / (m_stepNumber), 0.5);
 }
 
 
 void Sampler::writeTotalToFile(){
     int nParticles = m_system->getNumberOfParticles();
-//    int nDim = m_system->getNumberOfDimensions();
-//    int nSteps = m_system->getNumberOfMetropolisSteps();
+    //    int nDim = m_system->getNumberOfDimensions();
+    //    int nSteps = m_system->getNumberOfMetropolisSteps();
 
 
     ofstream ofile;
@@ -119,8 +120,8 @@ void Sampler::writeTotalToFile(){
         ofile << setw(10) << "N_{particles}" <<setw(15) << "t_{num}" << setw(15)<<"t_{anal}"<< endl;
     }else{ofile.open(filename, ios::app | ios::out);}
 
-//    cout << "m_energy: " << m_energy << endl;
-//    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
+    //    cout << "m_energy: " << m_energy << endl;
+    //    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
     if (ofile.is_open()){
         ofile << setiosflags(ios::showpoint | ios::uppercase);
         ofile << setw(10) << setprecision(8) << nParticles;
@@ -130,40 +131,33 @@ void Sampler::writeTotalToFile(){
     }else{
         cout << "Error opening file "<<filename << endl;
     }
+}
 
+void Sampler::writeStepToFile(int step, int steps){
+    double nParticles = m_system->getNumberOfParticles();
+    double nDim = m_system->getNumberOfDimensions();
+    double nSteps = m_system->getNumberOfMetropolisSteps();
 
+    ofstream ofile;
+    string filename = "data/1b_nParticles_";
+    string arg1 = to_string(int(nParticles));
+    string arg2 = to_string(int(nDim));
+    string arg3 = to_string(int(nSteps));
+    filename.append(arg1);
+    filename.append("_nDim");
+    filename.append(arg2);
+    filename.append("_nSteps_");
+    filename.append(arg3);
+    filename.append(".txt");
+    if (steps == 0){ofile.open(filename, ios::trunc | ios::out);}
+    else{ofile.open(filename, ios::app | ios::out);}
 
+    //    cout << "m_energy: " << m_energy << endl;
+    //    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
 
-//void Sampler::writeStepToFile(int step, int steps){
-//    double nParticles = m_system->getNumberOfParticles();
-//    double nDim = m_system->getNumberOfDimensions();
-//    double nSteps = m_system->getNumberOfMetropolisSteps();
-
-
-//    ofstream ofile;
-//    string filename = "b_nParticles_";
-//    string arg1 = to_string(int(nParticles));
-//    string arg2 = to_string(int(nDim));
-//    string arg3 = to_string(int(nSteps));
-//    filename.append(arg1);
-//    filename.append("_nDim");
-//    filename.append(arg2);
-//    filename.append("_nSteps_");
-//    filename.append(arg3);
-//    filename.append(".txt");
-//    if (steps == 0){ofile.open(filename, ios::trunc | ios::out);}
-//    else{ofile.open(filename, ios::app | ios::out);}
-
-////    cout << "m_energy: " << m_energy << endl;
-////    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
-//    if (ofile.is_open()){
-//        ofile << setiosflags(ios::showpoint | ios::uppercase);
-//        ofile << setw(10) << setprecision(8) << step;
-//        ofile << setw(15) << setprecision(8) << m_cumulativeEnergy / m_stepNumber;
-//        ofile << setw(15) << setprecision(8) << m_cumulativeEnergyAnalytic / m_stepNumber << "\n";
-//        ofile.close();
-//    }else{
-//        cout << "Error opening file "<<filename << endl;
-//    }
-
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+    ofile << setw(10) << setprecision(8) << step;
+    ofile << setw(15) << setprecision(8) << m_cumulativeEnergy / m_stepNumber;
+    ofile << setw(15) << setprecision(8) << m_cumulativeEnergyAnalytic / m_stepNumber << "\n";
+    ofile.close();
 }
