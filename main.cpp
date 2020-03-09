@@ -33,7 +33,7 @@ for(int i = 0;i<n;i++){
 
         int numberOfDimensions  = 1;
         int numberOfParticles   = nParticles[i];
-        int numberOfSteps       = (int) 10;
+        int numberOfSteps       = (int) 1000;
         double omega            = 1.0;          // Oscillator frequency.
         double alpha            = 0.5;          // Variational parameter.
         double stepLength       = 0.1;          // Metropolis step length.

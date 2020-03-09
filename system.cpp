@@ -99,7 +99,7 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
     double steps = 0;
 
     for (int i=0; i < numberOfMetropolisSteps; i++) {
-        for (int j=0; j < getNumberOfParticles(); j++){
+//        for (int j=0; j < getNumberOfParticles(); j++){
 
             /*Update positions of particles*/
             bool acceptedStep = metropolisStep();
@@ -127,7 +127,7 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
 //            steps++;
 //        }
 //        m_sampler->writeToFile(i);
-    }
+//    }
     m_sampler->computeAverages();
     m_sampler->printOutputToTerminal();
     m_sampler->writeTotalToFile();

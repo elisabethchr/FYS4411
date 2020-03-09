@@ -27,7 +27,9 @@ void Sampler::sample(bool acceptedStep) {
     // Make sure the sampling variable(s) are initialized at the first step.
     if (m_stepNumber == 0) {
         m_cumulativeEnergy = 0;
+        m_cumulativeEnergy2 = 0;
         m_cumulativeEnergyAnalytic = 0;
+
         t_num = 0;
         t_anal = 0;
     }
@@ -43,6 +45,8 @@ void Sampler::sample(bool acceptedStep) {
     clock_t c_end1 = clock();
     t_num += (c_end1-c_start1);
     m_cumulativeEnergy  += localEnergy;
+    m_cumulativeEnergy2 += m_cumulativeEnergy*m_cumulativeEnergy;
+
 
     //cout << "c_start1  " << c_start1 << "c_end1  " << c_end1 << endl;
 
@@ -100,8 +104,11 @@ void Sampler::computeAverages() {
     //    m_energy = m_cumulativeEnergy / (m_system->getNumberOfMetropolisSteps());
     //    m_energy = m_cumulativeEnergy / (m_system->getNumberOfMetropolisSteps()*m_system->getNumberOfParticles());
 
-    m_energy = m_cumulativeEnergy / m_stepNumber;
+    m_energy = m_cumulativeEnergy / (m_stepNumber);
+    m_energy2 = m_cumulativeEnergy2 / (m_stepNumber);
     m_energyAnalytic = m_cumulativeEnergyAnalytic / (m_stepNumber);
+    m_variance = m_energy2 - m_energy*m_energy;
+    m_error = pow(m_variance / (m_stepNumber), 0.5);
 }
 
 
@@ -116,7 +123,8 @@ void Sampler::writeTotalToFile(){
 
     if (nParticles == 1){
         ofile.open(filename, ios::trunc | ios::out);
-        ofile << setw(10) << "N_{particles}" <<setw(15) << "t_{num}" << setw(15)<<"t_{anal}"<< endl;
+        ofile << setw(10) << "N_{particles}" <<setw(15) << "t_{num}" << setw(15)<<"t_{anal}";
+        ofile <<setw(15)<< "<E>_{num}" <<setw(15) << "<E>_{anal}"<<setw(15) << "var_{num}" <<setw(15)<< "error"<<endl;
     }else{ofile.open(filename, ios::app | ios::out);}
 
 //    cout << "m_energy: " << m_energy << endl;
@@ -125,7 +133,11 @@ void Sampler::writeTotalToFile(){
         ofile << setiosflags(ios::showpoint | ios::uppercase);
         ofile << setw(10) << setprecision(8) << nParticles;
         ofile << setw(15) << setprecision(8) <<t_num/1000.;
-        ofile << setw(15) << setprecision(8) << t_anal << "\n";
+        ofile << setw(15) << setprecision(8) << t_anal/1000.;
+        ofile << setw(15) << setprecision(8) << m_cumulativeEnergy;
+        ofile << setw(15) << setprecision(8) << m_cumulativeEnergyAnalytic;
+        ofile << setw(15) << setprecision(8) << m_variance;
+        ofile << setw(15) << setprecision(8) << m_error << endl;
         ofile.close();
     }else{
         cout << "Error opening file "<<filename << endl;
