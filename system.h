@@ -4,8 +4,8 @@
 
 class System {
 public:
-    bool metropolisStep             ();//Remove later: Doesn't need any arguments. Can access all the relevant variables through the class.
-    bool importanceSampling         ();
+    bool metropolisStep             ();
+    bool importanceSampling         ();     // Metropolis-Hastings
     void runMetropolisSteps         (int numberOfMetropolisSteps);
     void setNumberOfParticles       (int numberOfParticles);
     void setNumberOfDimensions      (int numberOfDimensions);
@@ -22,6 +22,8 @@ public:
     int getNumberOfDimensions()         { return m_numberOfDimensions; }
     int getNumberOfMetropolisSteps()    { return m_numberOfMetropolisSteps; }
     double getEquilibrationFraction()   { return m_equilibrationFraction; }
+    double getStepLength()              { return m_stepLength; }
+
 
 private:
     int                             m_numberOfParticles = 0;

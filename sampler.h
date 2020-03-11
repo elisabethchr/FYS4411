@@ -1,4 +1,5 @@
 #pragma once
+#include <ctime>
 
 class Sampler {
 public:
@@ -8,8 +9,8 @@ public:
     void printOutputToTerminal();
     void computeAverages();
     double getEnergy()          { return m_energy; }
-    void writeStepToFile(int step, int steps);
     void writeTotalToFile();
+    void writeStepToFile(int step, int steps);
 
 private:
     int     m_numberOfMetropolisSteps = 0;
@@ -23,6 +24,7 @@ private:
     double  m_cumulativeEnergyAnalytic = 0;
     double  m_variance = 0;
     double  m_error = 0;
+
     clock_t t_num = 0;
     clock_t t_anal = 0;
 
