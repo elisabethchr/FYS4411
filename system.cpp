@@ -65,6 +65,7 @@ bool System::metropolisStep() {
 
 
 bool System::importanceSampling(){
+
     int random_i;
     double s, random_d, dx;
     double D = 0.5;
@@ -114,17 +115,14 @@ bool System::importanceSampling(){
         for (int j=0; j<m_numberOfDimensions; j++){
             GreensFunction += 0.5*(QForceOld[i, j] + QForceNew[i, j])*(D*dt*0.5*(QForceOld[i, j] - QForceNew[i, j]) - posNew[i]->getPosition()[j] + posOld[i]->getPosition()[j]);
         }
-      //  cout << "Green's function for-loop: " << GreensFunction << endl;
-
 
     GreensFunction = exp(GreensFunction);
 
-//    cout <<"Green's function: " << GreensFunction << endl;
-
     double ratio = GreensFunction*newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
     if(s<=ratio){
-        m_acceptedImp++;
-        return true;
+        QForceOld = QForceNew;
+        oldWaveFunction = newWaveFunction;
+        m_sampler->sample(true);
     }
     else{
         for (int i=0; i<m_numberOfParticles; i++){
@@ -132,9 +130,10 @@ bool System::importanceSampling(){
                 m_particles[i]->adjustPosition(-xi_mat[i, dim], dim);
             }
         }
-        return false;
+
     }
   }
+  return true;
 }
 
 void System::runMetropolisSteps(int numberOfMetropolisSteps) {
@@ -147,13 +146,17 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
 
     for (int i=0; i < numberOfMetropolisSteps; i++) {
 
-        /*Update positions of particles*/
-//        bool acceptedStep = metropolisStep();
-        bool acceptedStep = importanceSampling();
-        //            bool acceptedStep = importanceSampling();
-        if(acceptedStep == true){
+        for (int j = 0; j<m_numberOfParticles; j++){
+           bool acceptedStep = importanceSampling();
 
-            m_sampler->sample(acceptedStep);
+
+//            bool acceptedStep = importanceSampling(j);
+//            //            bool acceptedStep = importanceSampling();
+//            if(acceptedStep == true){
+
+//                m_sampler->sample(acceptedStep);
+//        }
+
             //                if ((i%100==0) && (i != 0)){steps ++;}
             /* Here you should sample the energy (and maybe other things using
          * the m_sampler instance of the Sampler class. Make sure, though,
