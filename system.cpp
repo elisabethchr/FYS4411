@@ -70,14 +70,14 @@ bool System::importanceSampling(){
     double D = 0.5;
     double GreensFunction = 0.0;
 //    double h = 1e-4;
-    double dt = 1e-3;
+    double dt = 1e-4;
     double oldWaveFunction, newWaveFunction, quantumForceOld, quantumForceNew;
     random_i = Random::nextInt(m_numberOfParticles);
     s = Random::nextDouble();
 
     std::vector<double> alphas =  m_waveFunction->getParameters();
 
-    arma::mat dx_mat(m_numberOfParticles, m_numberOfDimensions); dx_mat.zeros();
+    arma::mat xi_mat(m_numberOfParticles, m_numberOfDimensions); xi_mat.zeros();
     arma::mat QForceOld(m_numberOfParticles, m_numberOfDimensions); QForceOld.zeros();
     arma::mat QForceNew(m_numberOfParticles, m_numberOfDimensions); QForceNew.zeros();
 
@@ -91,11 +91,17 @@ bool System::importanceSampling(){
     for (int i =0; i<m_numberOfParticles; i++){
         for (int dim=0; dim<m_numberOfDimensions; dim++){
             random_d = Random::nextDouble();
-            dx = m_stepLength*(random_d - 0.5);
-            dx_mat[i, dim] = dx;
-            m_particles[i]->adjustPosition(dx, dim);
+            xi_mat[i, dim] = Random::nextGaussian(0,1);
+            m_particles[i]->adjustPosition((xi_mat[i,dim]*sqrt(dt)+D*QForceOld[i,dim]*dt), dim);
         }
-    }
+        for (int k=0; k<m_numberOfParticles;k++){
+                if(k!=i){
+                    for(int j = 0; j<m_numberOfDimensions; j++){
+                        m_particles[i]->adjustPosition(-xi_mat[i,j]*sqrt(dt)-D*QForceOld[i,j]*dt,j);
+                    }
+                }
+         }
+
 
     // New position
     std::vector<Particle *> posNew = m_particles;
@@ -104,12 +110,12 @@ bool System::importanceSampling(){
     QForceNew = m_hamiltonian->computeQuantumForce(m_particles)/(newWaveFunction);
 
     // Compute Green's function by looping over all particles and dimensions, where m_stepLength ~= timestep
-    for (int i=0; i<m_numberOfParticles; i++){
+
         for (int j=0; j<m_numberOfDimensions; j++){
             GreensFunction += 0.5*(QForceOld[i, j] + QForceNew[i, j])*(D*dt*0.5*(QForceOld[i, j] - QForceNew[i, j]) - posNew[i]->getPosition()[j] + posOld[i]->getPosition()[j]);
         }
       //  cout << "Green's function for-loop: " << GreensFunction << endl;
-    }
+
 
     GreensFunction = exp(GreensFunction);
 
@@ -123,11 +129,12 @@ bool System::importanceSampling(){
     else{
         for (int i=0; i<m_numberOfParticles; i++){
             for(int dim=0; dim<m_numberOfDimensions; dim++){
-                m_particles[i]->adjustPosition(-dx_mat[i, dim], dim);
+                m_particles[i]->adjustPosition(-xi_mat[i, dim], dim);
             }
         }
         return false;
     }
+  }
 }
 
 void System::runMetropolisSteps(int numberOfMetropolisSteps) {

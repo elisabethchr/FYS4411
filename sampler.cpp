@@ -94,7 +94,7 @@ void Sampler::printOutputToTerminal() {
     cout << "  -- Reults -- " << endl;
     cout << " Energy : " << m_energy << endl;
     cout << " Analytic energy: " << m_energyAnalytic << endl;
-    cout << " Number of Metropolis steps: "<<m_system->getNumberOfMetropolisSteps()<<endl;
+    cout << " Number of Metropolis steps: "<<m_system->getNumberOfMetropolisSteps()*m_system->getNumberOfParticles()<<endl;
     cout << " Number of accepted metropolis steps: " <<m_stepNumber <<endl;
 }
 
