@@ -15,7 +15,7 @@ using namespace std;
 
 
 int n = 4;                  //Number of elements in nParticles
-int nParticles[4] = {1,10,100,110};
+int nParticles[4] = {1,10,11,11};
 
 int main() {
 
@@ -33,7 +33,7 @@ for(int i = 0;i<n;i++){
 
         int numberOfDimensions  = 1;
         int numberOfParticles   = nParticles[i];
-        int numberOfSteps       = (int) 1000;
+        int numberOfSteps       = (int) 100000;
         double omega            = 1.0;          // Oscillator frequency.
         double alpha            = 0.5;          // Variational parameter.
         double stepLength       = 0.1;          // Metropolis step length.

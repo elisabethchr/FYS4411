@@ -93,12 +93,12 @@ mat HarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles){
             particles[i]->adjustPosition(h, j);
             wfplus = m_system->getWaveFunction()->evaluate(particles);
             // position in negative direction
-            particles[i]->adjustPosition(-2*h, j);
+            particles[i]->adjustPosition(-h, j);
             wfminus = m_system->getWaveFunction()->evaluate(particles);
             // calculate derivative
-            deriv[i, j] = wfplus - wfminus;
+            deriv[i, j] = (wfplus - wfminus)/h;
             // adjust particles back to original position
-            particles[i]->adjustPosition(h, j);
+//            particles[i]->adjustPosition(h, j);
         }
     }
     return deriv;

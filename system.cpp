@@ -69,7 +69,7 @@ bool System::importanceSampling(){
     double s, random_d, dx;
     double D = 0.5;
     double GreensFunction = 0.0;
-    double h = 1e-4;
+//    double h = 1e-4;
     double dt = 1e-3;
     double oldWaveFunction, newWaveFunction, quantumForceOld, quantumForceNew;
     random_i = Random::nextInt(m_numberOfParticles);
@@ -85,7 +85,7 @@ bool System::importanceSampling(){
     std::vector<Particle *> posOld = m_particles;
 //    cout << "posOld = " << posOld[0]->getPosition()[0] << endl;
     oldWaveFunction = m_waveFunction->evaluate(m_particles);
-    QForceOld = m_hamiltonian->computeQuantumForce(m_particles)/(h*oldWaveFunction);
+    QForceOld = m_hamiltonian->computeQuantumForce(m_particles)/(oldWaveFunction);
 
     // Move a random distance dx in all dimensions
     for (int i =0; i<m_numberOfParticles; i++){
@@ -101,7 +101,7 @@ bool System::importanceSampling(){
     std::vector<Particle *> posNew = m_particles;
 //    cout << "posNew = " << posNew[0]->getPosition()[0] << endl;
     newWaveFunction = m_waveFunction->evaluate(m_particles);
-    QForceNew = m_hamiltonian->computeQuantumForce(m_particles)/(h*newWaveFunction);
+    QForceNew = m_hamiltonian->computeQuantumForce(m_particles)/(newWaveFunction);
 
     // Compute Green's function by looping over all particles and dimensions, where m_stepLength ~= timestep
     for (int i=0; i<m_numberOfParticles; i++){
@@ -119,7 +119,6 @@ bool System::importanceSampling(){
     if(s<=ratio){
         m_acceptedImp++;
         return true;
-
     }
     else{
         for (int i=0; i<m_numberOfParticles; i++){

@@ -29,6 +29,8 @@ private:
     int                             m_numberOfParticles = 0;
     int                             m_numberOfDimensions = 0;
     int                             m_numberOfMetropolisSteps = 0;
+    int                             m_acceptedImp = 0;
+    int                             m_acceptedMet = 0;
     double                          m_equilibrationFraction = 0.0;
     double                          m_stepLength = 0.1;
     class WaveFunction*             m_waveFunction = nullptr;
