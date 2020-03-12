@@ -177,3 +177,26 @@ void Sampler::writeStepToFile(int step, int steps){
     ofile << setw(15) << setprecision(8) << m_cumulativeEnergyAnalytic / m_stepNumber << "\n";
     ofile.close();
 }
+
+void Sampler::writeAlphas(){
+    double alpha = m_system->getWaveFunction()->getParameters()[0];
+    ofstream ofile;
+    string filename = "alphasImp.txt";
+
+    if (alpha== 0.2){
+        ofile.open(filename, ios::trunc | ios::out);
+        ofile << setw(10) << "Alpha" <<setw(15) << "<E>_{num}" << "<E>_{analytic}" << endl;
+    }else{ofile.open(filename, ios::app | ios::out);}
+
+    //    cout << "m_energy: " << m_energy << endl;
+    //    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
+    if (ofile.is_open()){
+        ofile << setiosflags(ios::showpoint | ios::uppercase);
+        ofile << setw(10) << setprecision(8) << alpha;
+        ofile << setw(15) << setprecision(8) << m_cumulativeEnergy/m_stepNumber;
+         ofile << setw(15) << setprecision(8) << m_cumulativeEnergyAnalytic/m_stepNumber << endl;
+        ofile.close();
+    }else{
+        cout << "Error opening file "<<filename << endl;
+    }
+}

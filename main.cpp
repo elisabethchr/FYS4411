@@ -14,8 +14,8 @@
 using namespace std;
 
 
-int n = 4;                  //Number of elements in nParticles
-int nParticles[4] = {1,10,20,100};
+//int n = 4;                  //Number of elements in nParticles
+//int nParticles[4] = {1,10,20,100};
 
 int main() {
 
@@ -30,14 +30,22 @@ int main() {
 
 bool importance = true; //Set to true for Importance, false for brute force Metropolis
 
-for(int i = 0;i<n;i++){
+int alphalength = 100;
+double alpha_max = 1;
+double alpha_min = 0.2;
+double dalpha = (alpha_max-0.2)/alphalength;
+//vec<double> alphas =
+
+//for(int i = 0;i<n;i++){
 //       clock_t c_start = clock();
+   for(int j = 0; j<alphalength; j++){
 
         int numberOfDimensions  = 1;
-        int numberOfParticles   = nParticles[i];
-        int numberOfSteps       = (int) 100;
+//        int numberOfParticles   = nParticles[i];
+        int numberOfParticles   = 1;
+        int numberOfSteps       = (int) 1000;
         double omega            = 1.0;          // Oscillator frequency.
-        double alpha            = 0.5;          // Variational parameter.
+        double alpha            = alpha_min+j*dalpha;          // Variational parameter.
         double stepLength       = 0.1;          // Metropolis step length.
         double equilibration    = 0.1;          // Amount of the total steps used
         // for equilibration.
@@ -54,8 +62,8 @@ for(int i = 0;i<n;i++){
 
 //        cout << "CPU-time used: " << (c_end - c_start)/1000. << "ms" << endl;
 //        data <<nParticles[i]<<"         " << (c_end-c_start)/1000. <<endl;
-
-}
+    }
+//}
 //data.close();
 
     return 0;

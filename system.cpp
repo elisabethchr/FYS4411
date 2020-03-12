@@ -196,6 +196,8 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps,bool importance) {
 
     m_sampler->computeAverages();
     m_sampler->printOutputToTerminal(importance);
+    m_sampler->writeAlphas();
+
 //    cout << "total steps: " << m_numberOfMetropolisSteps<<endl;
 //    cout << "Importance, accepted steps: " <<m_acceptedImp <<endl;
 }

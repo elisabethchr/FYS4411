@@ -11,6 +11,7 @@ public:
     double getEnergy()          { return m_energy; }
     void writeTotalToFile();
     void writeStepToFile(int step, int steps);
+    void writeAlphas();
 
 private:
     int     m_numberOfMetropolisSteps = 0;
