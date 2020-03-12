@@ -38,26 +38,29 @@ void Sampler::sample(bool acceptedStep) {
 
     clock_t c_start1 = clock();
 
+    // true = numeric
+    bool calc = m_system->getCalculation();
     double localEnergy = m_system->getHamiltonian()->
-            computeLocalEnergy(m_system->getParticles());
+            computeLocalEnergy(m_system->getParticles(), calc);
     clock_t c_end1 = clock();
     t_num += (c_end1-c_start1);
     m_cumulativeEnergy  += localEnergy;
+    m_cumulativeEnergy2 = m_cumulativeEnergy*m_cumulativeEnergy;
 
     //cout << "c_start1  " << c_start1 << "c_end1  " << c_end1 << endl;
 
 
-
     clock_t c_start2 = clock();
-
-    double localEnergyAnalytic = m_system->getHamiltonian()->computeLocalEnergy_analytic(m_system->getParticles());
-    clock_t c_end2 = clock();
-    t_anal += (c_end2-c_start2);
+/*
+    // false = analytic/ not numeric
+    double localEnergyAnalytic = m_system->getHamiltonian()->computeLocalEnergy(m_system->getParticles(), false);
     m_cumulativeEnergyAnalytic += localEnergyAnalytic;
 
     //   cout << t_anal<< "   " << t_num<< endl;
+*/
 
-
+    clock_t c_end2 = clock();
+    t_anal += (c_end2-c_start2);
 
     m_stepNumber++;
 }
@@ -71,8 +74,8 @@ void Sampler::printOutputToTerminal() {
     double  ef = m_system->getEquilibrationFraction();
     std::vector<double> pa = m_system->getWaveFunction()->getParameters();
 
-    cout << "m_cumulativeenergy = " << m_cumulativeEnergy << endl;
-    cout << "Analytic energy: " << m_cumulativeEnergyAnalytic << endl;
+//    cout << "m_cumulativeenergy = " << m_cumulativeEnergy << endl;
+//    cout << "Analytic energy: " << m_cumulativeEnergyAnalytic << endl;
 
     cout << endl;
     cout << "  -- System info -- " << endl;
@@ -87,9 +90,8 @@ void Sampler::printOutputToTerminal() {
         cout << " Parameter " << i+1 << " : " << pa.at(i) << endl;
     }
     cout << endl;
-    cout << "  -- Reults -- " << endl;
+    cout << "  -- Results -- " << endl;
     cout << " Energy : " << m_energy << endl;
-    cout << " Analytic energy: " << m_energyAnalytic << endl;
 }
 
 void Sampler::computeAverages() {
@@ -139,7 +141,8 @@ void Sampler::writeStepToFile(int step, int steps){
     double nSteps = m_system->getNumberOfMetropolisSteps();
 
     ofstream ofile;
-    string filename = "data/1b_nParticles_";
+//    string filename = "data/1c_nParticles_";
+    string filename = "data/test";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));
@@ -149,7 +152,10 @@ void Sampler::writeStepToFile(int step, int steps){
     filename.append("_nSteps_");
     filename.append(arg3);
     filename.append(".txt");
-    if (steps == 0){ofile.open(filename, ios::trunc | ios::out);}
+    if (steps == 0){
+        ofile.open(filename, ios::trunc | ios::out);
+        ofile << setw(10) << "steps" <<setw(15) << "Energy_{num}" << setw(15)<< "Energy_{anal}" << setw(15) << "Variance" << setw(15) << "Error" << endl;
+    }
     else{ofile.open(filename, ios::app | ios::out);}
 
     //    cout << "m_energy: " << m_energy << endl;
@@ -158,6 +164,52 @@ void Sampler::writeStepToFile(int step, int steps){
     ofile << setiosflags(ios::showpoint | ios::uppercase);
     ofile << setw(10) << setprecision(8) << step;
     ofile << setw(15) << setprecision(8) << m_cumulativeEnergy / m_stepNumber;
-    ofile << setw(15) << setprecision(8) << m_cumulativeEnergyAnalytic / m_stepNumber << "\n";
+    ofile << setw(15) << setprecision(8) << m_cumulativeEnergyAnalytic / m_stepNumber;
+    ofile << setw(15) << setprecision(8) << m_variance / m_stepNumber;
+    ofile << setw(15) << setprecision(8) << m_error << "\n";
+    ofile.close();
+}
+
+
+void Sampler::writeAlphaToFile(){
+    int i = m_system->getAlphaIndex();
+    int step = m_system->getMetropolisStep();
+    double nParticles = m_system->getNumberOfParticles();
+    double nDim = m_system->getNumberOfDimensions();
+    double nSteps = m_system->getNumberOfMetropolisSteps();
+    double alpha = m_system->getWaveFunction()->getParameters()[i];
+    bool calc = m_system->getCalculation();
+    string type;
+    if(calc==true){ type = "numeric"; }
+    else if(calc==false){ type = "analytic"; }
+
+    ofstream ofile;
+//    string filename = "data/1c_nParticles_";
+    string filename = "data/1b_";
+    filename.append(type);
+    filename.append("_alpha_nPart");
+    string arg1 = to_string(int(nParticles));
+    string arg2 = to_string(int(nDim));
+    string arg3 = to_string(int(nSteps));
+    filename.append(arg1);
+    filename.append("_nDim");
+    filename.append(arg2);
+    filename.append("_nSteps_");
+    filename.append(arg3);
+    filename.append(".txt");
+    if (i == 0){
+        ofile.open(filename, ios::trunc | ios::out);
+        ofile << setw(10) << "alpha" <<setw(15) << "Energy_{num}" << setw(15)<< "Energy_{anal}" << setw(15) << "Variance" << setw(15) << "Error" << "\n";
+    }
+    else{ofile.open(filename, ios::app | ios::out);}
+
+    //    cout << "m_energy: " << m_energy << endl;
+    //    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
+
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+    ofile << setw(10) << setprecision(8) << alpha;
+    ofile << setw(15) << setprecision(8) << m_cumulativeEnergy / m_stepNumber;
+    ofile << setw(15) << setprecision(8) << m_variance / m_stepNumber;
+    ofile << setw(15) << setprecision(8) << m_error << "\n";
     ofile.close();
 }

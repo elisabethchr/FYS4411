@@ -1,7 +1,7 @@
 #pragma once
 #include <ctime>
 
-class Sampler {
+class Sampler{
 public:
     Sampler(class System* system);
     void setNumberOfMetropolisSteps(int steps);
@@ -9,8 +9,12 @@ public:
     void printOutputToTerminal();
     void computeAverages();
     double getEnergy()          { return m_energy; }
+    double getEnergyAnalytic()  { return m_energyAnalytic;}
+    double getVariance()        { return m_variance;}
+    double getError()           { return m_error;}
     void writeTotalToFile();
     void writeStepToFile(int step, int steps);
+    void writeAlphaToFile();
 
 private:
     int     m_numberOfMetropolisSteps = 0;
