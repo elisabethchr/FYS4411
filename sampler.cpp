@@ -181,7 +181,7 @@ void Sampler::writeStepToFile(int step, int steps){
 void Sampler::writeAlphas(){
     double alpha = m_system->getWaveFunction()->getParameters()[0];
     ofstream ofile;
-    string filename = "alphasImp.txt";
+    string filename = "alphas1P1D1e7_40.txt";
 
     if (alpha== 0.2){
         ofile.open(filename, ios::trunc | ios::out);

@@ -28,9 +28,9 @@ int main() {
 ////data << "Number of particles    CPU time"<<endl;
 
 
-bool importance = true; //Set to true for Importance, false for brute force Metropolis
+bool importance = false; //Set to true for Importance, false for brute force Metropolis
 
-int alphalength = 100;
+int alphalength = 40;
 double alpha_max = 1;
 double alpha_min = 0.2;
 double dalpha = (alpha_max-0.2)/alphalength;
@@ -43,7 +43,7 @@ double dalpha = (alpha_max-0.2)/alphalength;
         int numberOfDimensions  = 1;
 //        int numberOfParticles   = nParticles[i];
         int numberOfParticles   = 1;
-        int numberOfSteps       = (int) 1000;
+        int numberOfSteps       = (int) 1e7;
         double omega            = 1.0;          // Oscillator frequency.
         double alpha            = alpha_min+j*dalpha;          // Variational parameter.
         double stepLength       = 0.1;          // Metropolis step length.

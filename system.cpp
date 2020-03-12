@@ -38,27 +38,27 @@ bool System::metropolisStep() {
     // evaluate wavefunction before adjusting positions
     double oldWaveFunction = m_waveFunction->evaluate(m_particles);
 
-    for (int i=0; i<m_numberOfParticles; i++){
+//    for (int i=0; i<m_numberOfParticles; i++){
         for(int dim=0; dim<m_numberOfDimensions; dim++){
             random_d = Random::nextDouble();
             dx = m_stepLength*(random_d - 0.5);
-            dx_mat[i, dim] = dx;
-            m_particles[i]->adjustPosition(dx, dim);
+            dx_mat[random_i, dim] = dx;
+            m_particles[random_i]->adjustPosition(dx, dim);
         }
-    }
+//    }
 
     // evaluate wavefunction after adjusting positions
     double newWaveFunction = m_waveFunction->evaluate(m_particles);
 
-    double ratio = newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
+    double ratio = (newWaveFunction*newWaveFunction)/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
     if(s<=ratio){
         return true;
     }else{
-        for (int i=0; i<m_numberOfParticles; i++){
+//        for (int i=0; i<m_numberOfParticles; i++){
             for(int dim=0; dim<m_numberOfDimensions; dim++){
-                m_particles[i]->adjustPosition(-dx_mat[i, dim], dim);
+                m_particles[random_i]->adjustPosition(-dx_mat[random_i, dim], dim);
             }
-        }
+//        }
         return false;
     }
 }
@@ -195,7 +195,7 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps,bool importance) {
     }
 
     m_sampler->computeAverages();
-    m_sampler->printOutputToTerminal(importance);
+//    m_sampler->printOutputToTerminal(importance);
     m_sampler->writeAlphas();
 
 //    cout << "total steps: " << m_numberOfMetropolisSteps<<endl;
