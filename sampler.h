@@ -6,7 +6,7 @@ public:
     Sampler(class System* system);
     void setNumberOfMetropolisSteps(int steps);
     void sample(bool acceptedStep);
-    void printOutputToTerminal();
+    void printOutputToTerminal(bool importance);
     void computeAverages();
     double getEnergy()          { return m_energy; }
     void writeTotalToFile();

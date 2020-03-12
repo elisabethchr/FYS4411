@@ -15,7 +15,7 @@ using namespace std;
 
 
 int n = 4;                  //Number of elements in nParticles
-int nParticles[4] = {1,10,50,60};
+int nParticles[4] = {1,10,20,100};
 
 int main() {
 
@@ -27,6 +27,8 @@ int main() {
 //data << "n t[ms]" <<endl;
 ////data << "Number of particles    CPU time"<<endl;
 
+
+bool importance = true; //Set to true for Importance, false for brute force Metropolis
 
 for(int i = 0;i<n;i++){
 //       clock_t c_start = clock();
@@ -46,7 +48,7 @@ for(int i = 0;i<n;i++){
         system->setInitialState             (new RandomUniform(system, numberOfDimensions, numberOfParticles));
         system->setEquilibrationFraction    (equilibration);
         system->setStepLength               (stepLength);
-        system->runMetropolisSteps          (numberOfSteps);
+        system->runMetropolisSteps          (numberOfSteps,importance);
 //        cout << "Analytical Energy : "<< numberOfDimensions/2*numberOfParticles*omega <<endl;
 //        clock_t c_end = clock();
 

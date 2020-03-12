@@ -5,8 +5,8 @@
 class System {
 public:
     bool metropolisStep             ();
-    bool importanceSampling         ();     // Metropolis-Hastings
-    void runMetropolisSteps         (int numberOfMetropolisSteps);
+    void importanceSampling         ();     // Metropolis-Hastings
+    void runMetropolisSteps         (int numberOfMetropolisSteps, bool importance);
     void setNumberOfParticles       (int numberOfParticles);
     void setNumberOfDimensions      (int numberOfDimensions);
     void setStepLength              (double stepLength);

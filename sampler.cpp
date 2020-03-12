@@ -67,7 +67,7 @@ void Sampler::sample(bool acceptedStep) {
 }
 
 
-void Sampler::printOutputToTerminal() {
+void Sampler::printOutputToTerminal(bool importance) {
     int     np = m_system->getNumberOfParticles();
     int     nd = m_system->getNumberOfDimensions();
     int     ms = m_system->getNumberOfMetropolisSteps();
@@ -82,7 +82,7 @@ void Sampler::printOutputToTerminal() {
     cout << "  -- System info -- " << endl;
     cout << " Number of particles  : " << np << endl;
     cout << " Number of dimensions : " << nd << endl;
-    cout << " Number of Metropolis steps run : 10^" << std::log10(ms) << endl;
+ //   cout << " Number of Metropolis steps run : 10^" << std::log10(ms) << endl;
     cout << " Number of equilibration steps  : 10^" << std::log10(std::round(ms*ef)) << endl;
     cout << endl;
     cout << "  -- Wave function parameters -- " << endl;
@@ -94,8 +94,12 @@ void Sampler::printOutputToTerminal() {
     cout << "  -- Reults -- " << endl;
     cout << " Energy : " << m_energy << endl;
     cout << " Analytic energy: " << m_energyAnalytic << endl;
-    cout << " Number of Metropolis steps: "<<m_system->getNumberOfMetropolisSteps()*m_system->getNumberOfParticles()<<endl;
-    cout << " Number of accepted metropolis steps: " <<m_stepNumber <<endl;
+    if(importance){
+            cout << " Number of Metropolis Hastings steps: "<< ms*np<<endl;
+    }else{
+            cout << " Number of Metropolis steps: "<< ms<<endl;
+    }
+    cout << " Number of accepted steps: " <<m_stepNumber <<endl;
 }
 
 void Sampler::computeAverages() {

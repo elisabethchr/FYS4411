@@ -101,7 +101,7 @@ mat HarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles){
 //            particles[i]->adjustPosition(h, j);
         }
     }
-    return deriv;
+    return 2*deriv;
 }
 
 

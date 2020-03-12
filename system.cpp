@@ -64,14 +64,14 @@ bool System::metropolisStep() {
 }
 
 
-bool System::importanceSampling(){
+void System::importanceSampling(){
 
     int random_i;
     double s, random_d, dx;
     double D = 0.5;
     double GreensFunction = 0.0;
 //    double h = 1e-4;
-    double dt = 1e-4;
+    double dt = 1e-3;
     double oldWaveFunction, newWaveFunction, quantumForceOld, quantumForceNew;
     random_i = Random::nextInt(m_numberOfParticles);
     s = Random::nextDouble();
@@ -93,6 +93,7 @@ bool System::importanceSampling(){
         for (int dim=0; dim<m_numberOfDimensions; dim++){
             random_d = Random::nextDouble();
             xi_mat[i, dim] = Random::nextGaussian(0,1);
+//            cout<<xi_mat[i,dim]<<endl;
             m_particles[i]->adjustPosition((xi_mat[i,dim]*sqrt(dt)+D*QForceOld[i,dim]*dt), dim);
         }
         for (int k=0; k<m_numberOfParticles;k++){
@@ -128,15 +129,17 @@ bool System::importanceSampling(){
         for (int i=0; i<m_numberOfParticles; i++){
             for(int dim=0; dim<m_numberOfDimensions; dim++){
                 m_particles[i]->adjustPosition(-xi_mat[i, dim], dim);
+                 newWaveFunction=oldWaveFunction;
+                 QForceNew = QForceOld;
             }
         }
 
     }
   }
-  return true;
+
 }
 
-void System::runMetropolisSteps(int numberOfMetropolisSteps) {
+void System::runMetropolisSteps(int numberOfMetropolisSteps,bool importance) {
     m_particles                 = m_initialState->getParticles();
     m_sampler                   = new Sampler(this); //Remove later: (this) points to the system object from which  "runMetropolisSteps" is called.
     m_numberOfMetropolisSteps   = numberOfMetropolisSteps;
@@ -146,16 +149,15 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
 
     for (int i=0; i < numberOfMetropolisSteps; i++) {
 
-        for (int j = 0; j<m_numberOfParticles; j++){
-           bool acceptedStep = importanceSampling();
+        if(importance){
+           importanceSampling();
+        }else{
+            bool acceptedStep = metropolisStep();
+            if(acceptedStep){m_sampler->sample(acceptedStep);};
+
+        }
 
 
-//            bool acceptedStep = importanceSampling(j);
-//            //            bool acceptedStep = importanceSampling();
-//            if(acceptedStep == true){
-
-//                m_sampler->sample(acceptedStep);
-//        }
 
             //                if ((i%100==0) && (i != 0)){steps ++;}
             /* Here you should sample the energy (and maybe other things using
@@ -164,8 +166,6 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
          * for a while. You may handle this using the fraction of steps which
          * are equilibration steps; m_equilibrationFraction.
          */
-
-        }
 
 //         write only every 10 value
 //        if ((m_numberOfMetropolisSteps >= 1e4) && (i%10==0) && (i != 0)){
@@ -195,9 +195,9 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
     }
 
     m_sampler->computeAverages();
-    m_sampler->printOutputToTerminal();
-    cout << "total steps: " << m_numberOfMetropolisSteps<<endl;
-    cout << "Importance, accepted steps: " <<m_acceptedImp <<endl;
+    m_sampler->printOutputToTerminal(importance);
+//    cout << "total steps: " << m_numberOfMetropolisSteps<<endl;
+//    cout << "Importance, accepted steps: " <<m_acceptedImp <<endl;
 }
 
 void System::setNumberOfParticles(int numberOfParticles) {
