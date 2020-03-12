@@ -185,17 +185,17 @@ void Sampler::writeAlphaToFile(){
 
     ofstream ofile;
 //    string filename = "data/1c_nParticles_";
-    string filename = "data/1b_";
-    filename.append(type);
-    filename.append("_alpha_nPart");
+    string filename = "data/1b_alpha_nPart_";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));
     filename.append(arg1);
-    filename.append("_nDim");
+    filename.append("_nDim_");
     filename.append(arg2);
     filename.append("_nSteps_");
     filename.append(arg3);
+    filename.append("_");
+    filename.append(type);
     filename.append(".txt");
     if (i == 0){
         ofile.open(filename, ios::trunc | ios::out);
