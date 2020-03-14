@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iomanip>
 #include <armadillo>
+#include <algorithm>    // std::max
 #include "sampler.h"
 #include "particle.h"
 #include "WaveFunctions/wavefunction.h"
@@ -24,6 +25,12 @@ bool System::metropolisStep() {
      * Look at/draw one particle at a time. Allocate matrices which contain the position of the particle.
     */
 
+    if(m_MCstep == 0){
+    cout << "evaluating wfValue first MC_step" << endl;
+    m_wfValue = m_waveFunction->evaluate(m_particles);
+    cout << "First step: " << m_wfValue << endl;
+    }
+
     double random_d; //Random dimension
     int random_i;
     double s;
@@ -31,34 +38,56 @@ bool System::metropolisStep() {
     s = Random::nextDouble();
     double dx;
 
-    arma::mat dx_mat(m_numberOfParticles, m_numberOfDimensions);
-    dx_mat.zeros();
+    arma::vec dx_vec(m_numberOfDimensions);
+    arma::vec rand(m_numberOfDimensions);
+
+    dx_vec.zeros();
     std::vector<double> alphas =  m_waveFunction->getParameters();
 
     // evaluate wavefunction before adjusting positions
     double oldWaveFunction = m_waveFunction->evaluate(m_particles);
+//    double oldWaveFunction = m_wfValue;
 
-//    for (int i=0; i<m_numberOfParticles; i++){
-        for(int dim=0; dim<m_numberOfDimensions; dim++){
-            random_d = Random::nextDouble();
-            dx = m_stepLength*(random_d - 0.5);
-            dx_mat[random_i, dim] = dx;
-            m_particles[random_i]->adjustPosition(dx, dim);
-        }
+//    if(oldWaveFunction != oldWaveFunction_test){
+//    cout << "oldWavefunction = " << setprecision(8) << oldWaveFunction << ", m_wfValue = " << setprecision(8) << oldWaveFunction_test << endl;
 //    }
 
+    // testing
+    for(int dim=0; dim<m_numberOfDimensions; dim++){
+        random_d = getUniform(-1.0, 1.0);
+        rand[dim] = random_d;
+        dx = m_stepLength*random_d;       // between -0.5 and 0.5?
+//        cout << "dx = " << dx << endl;
+        dx_vec[dim] = dx;
+        m_particles[random_i]->adjustPosition(dx, dim);
+    }
+/*
+    // original
+    for(int dim=0; dim<m_numberOfDimensions; dim++){
+        random_d = Random::nextDouble();
+//        cout << "random::nextDouble = " << random_d << endl;
+        dx = m_stepLength*(random_d-0.5);       // between -0.5 and 0.5
+        dx_vec[dim] = dx;
+        m_particles[random_i]->adjustPosition(dx, dim);
+    }
+*/
     // evaluate wavefunction after adjusting positions
     double newWaveFunction = m_waveFunction->evaluate(m_particles);
 
     double ratio = (newWaveFunction*newWaveFunction)/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
+    // if true, allow the new state with adjusted positions
     if(s<=ratio){
+        //        cout << "True: " << newWaveFunction << endl;
+        m_wfValue = newWaveFunction;
         return true;
-    }else{
-//        for (int i=0; i<m_numberOfParticles; i++){
-            for(int dim=0; dim<m_numberOfDimensions; dim++){
-                m_particles[random_i]->adjustPosition(-dx_mat[random_i, dim], dim);
-            }
-//        }
+    }
+    // if false, reject the new state and reset positions
+    else{
+//        cout << "False: " << oldWaveFunction << endl;
+        m_wfValue = oldWaveFunction;
+        for(int dim=0; dim<m_numberOfDimensions; dim++){
+            m_particles[random_i]->adjustPosition(-dx_vec[dim], dim);
+        }
         return false;
     }
 }
@@ -128,69 +157,65 @@ bool System::importanceSampling(){
 }
 
 
-
 void System::runMetropolisSteps(int numberOfMetropolisSteps) {
-    double random_d = Random::nextDouble();
-    double dx;
-
-    arma::mat dx_mat(m_numberOfParticles, m_numberOfDimensions);
-    dx_mat.zeros();
-
-    for (int i=0; i<m_numberOfParticles; i++){
-        for(int dim=0; dim<m_numberOfDimensions; dim++){
-            random_d = Random::nextDouble();
-            dx = m_stepLength*(random_d - 0.5);
-            dx_mat(i, dim) = dx;
-        }
-    }
 
     for (int alpha=0; alpha<m_waveFunction->getParameters().size(); alpha++){
         m_stepMetropolis = 0.0;
         m_stepImportance = 0.0;
+        m_MCstep = 0;
         cout << "\n m_alpha = " << m_alpha << ", " << "alpha = " << m_waveFunction->getParameters()[m_alpha] << endl;
         m_particles                 = m_initialState->getParticles();
         m_sampler                   = new Sampler(this); //Remove later: (this) points to the system object from which  "runMetropolisSteps" is called.
         m_numberOfMetropolisSteps   = numberOfMetropolisSteps;
         m_sampler->setNumberOfMetropolisSteps(numberOfMetropolisSteps);
+        bool type                   = getCalculation();
+
+        unsigned __int64 i;
+        i = __rdtsc();
+        mt19937_64 gen(i);
+        m_seed = gen;
 
         for (int i=0; i < numberOfMetropolisSteps; i++) {
 
             bool acceptedStep = metropolisStep();
-            bool acceptedStep1 = importanceSampling();
+            //            bool acceptedStep1 = importanceSampling();
 
-            if(acceptedStep == true && i > m_equilibrationFraction*numberOfMetropolisSteps){
-
-                m_sampler->sample(acceptedStep);
+            if(acceptedStep == true){
+                m_stepMetropolis++;
+                if(i > m_equilibrationFraction*numberOfMetropolisSteps){
+                    m_sampler->sample(acceptedStep);
+                }
                 //                if ((i%100==0) && (i != 0)){steps ++;}
-//          Here you should sample the energy (and maybe other things using
-//          the m_sampler instance of the Sampler class. Make sure, though,
-//          to only begin sampling after you have let the system equilibrate
-//          for a while. You may handle this using the fraction of steps which
-//          are equilibration steps; m_equilibrationFraction.
+                //          Here you should sample the energy (and maybe other things using
+                //          the m_sampler instance of the Sampler class. Make sure, though,
+                //          to only begin sampling after you have let the system equilibrate
+                //          for a while. You may handle this using the fraction of steps which
+                //          are equilibration steps; m_equilibrationFraction.
 
 
             }
             //      }
             // write only every 10 value
 
-//        if ((m_numberOfMetropolisSteps >= 1e4) && (i%10==0) && (i != 0)){
-//            m_sampler->writeStepToFile(i, steps);
-//            steps++;
-//        }
-//        if ((m_numberOfMetropolisSteps < 1e4) && (i%1==0) && (i != 0)){
-//            m_sampler->writeStepToFile(i, steps);
-//            steps++;
-//        }
+            //        if ((m_numberOfMetropolisSteps >= 1e4) && (i%10==0) && (i != 0)){
+            //            m_sampler->writeStepToFile(i, steps);
+            //            steps++;
+            //        }
+            //        if ((m_numberOfMetropolisSteps < 1e4) && (i%1==0) && (i != 0)){
+            //            m_sampler->writeStepToFile(i, steps);
+            //            steps++;
+            //        }
 
             //m_sampler->writeStepToFile(i);
+        m_MCstep++;
         }
         m_sampler->computeAverages();
         m_sampler->printOutputToTerminal();
 
         m_sampler->writeAlphaToFile();
 
-        cout << "Acceptance rate Metropolis: " << m_stepMetropolis << endl;
-        cout << "Acceptance rate importance sampling: " << m_stepImportance << endl;
+        cout << "Acceptance rate Metropolis: " << m_stepMetropolis/((double) m_numberOfMetropolisSteps) << endl;
+        cout << "Acceptance rate importance sampling: " << m_stepImportance/((double) m_numberOfMetropolisSteps) << endl;
 
         m_alpha++;
     }

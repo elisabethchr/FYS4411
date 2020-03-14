@@ -42,7 +42,10 @@ double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, 
         }
     }
 
-    double psi = m_system->getWaveFunction()->evaluate(particles);
+    // possible to setWavefunction in MetropolisStep and avoid extra evaluate? (setWaveFunction(psi), m_psi = getWavefunction->getValue();)
+//    double psi = m_system->getWaveFunction()->evaluate(particles);
+
+     double psi = m_system->getWaveFunctionValue();
 
     if(type == true){ kineticEnergy -= (1/psi)*0.5*m_system->getWaveFunction()->computeDoubleDerivative_numeric(particles); }
     else if(type == false){ kineticEnergy = (1/psi)*0.5*m_system->getWaveFunction()->computeDoubleDerivative_analytic(particles); }
