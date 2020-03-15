@@ -13,7 +13,7 @@ class HarmonicOscillator : public Hamiltonian {
 public:
     HarmonicOscillator(System* system, double omega);
     double computeLocalEnergy(std::vector<Particle*> particles, bool type);
-    mat computeQuantumForce(std::vector<Particle*> particles);
+    vec computeQuantumForce(std::vector<Particle*> particles, int i);
 
 private:
     double m_omega = 0;

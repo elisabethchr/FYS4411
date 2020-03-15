@@ -33,7 +33,7 @@ double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, 
     double kineticEnergy   = 0;
     int dim = m_system->getNumberOfDimensions();
     int nPart= m_system->getNumberOfParticles();
-//    std::vector<double> alpha = m_system->getWaveFunction()->getParameters();
+    //    std::vector<double> alpha = m_system->getWaveFunction()->getParameters();
 
     for (int i = 0; i<nPart;i++){
         for(int j = 0; j<dim; j++){
@@ -43,9 +43,9 @@ double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, 
     }
 
     // possible to setWavefunction in MetropolisStep and avoid extra evaluate? (setWaveFunction(psi), m_psi = getWavefunction->getValue();)
-//    double psi = m_system->getWaveFunction()->evaluate(particles);
+    //    double psi = m_system->getWaveFunction()->evaluate(particles);
 
-     double psi = m_system->getWaveFunctionValue();
+    double psi = m_system->getWaveFunctionValue();
 
     if(type == true){ kineticEnergy -= (1/psi)*0.5*m_system->getWaveFunction()->computeDoubleDerivative_numeric(particles); }
     else if(type == false){ kineticEnergy = (1/psi)*0.5*m_system->getWaveFunction()->computeDoubleDerivative_analytic(particles); }
@@ -55,29 +55,35 @@ double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, 
     return El;
 }
 
-mat HarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles){
-    double h, wfplus, wfminus;
-    int dim = m_system->getNumberOfDimensions();
-    int nPart = m_system->getNumberOfParticles();
-    mat deriv = zeros<mat>(nPart, dim);
-    h = 1e-7;
+vec HarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles, int i){
+//    double h = 1e-7;
+    int nDim = m_system->getNumberOfDimensions();
+//    int nPart = m_system->getNumberOfParticles();
+    vec force(nDim); force.zeros();
+    vec gradient = m_system->getWaveFunction()->computeGradient(particles, i);
 
-    for (int i=0; i<nPart; i++){
+    force = 2*gradient;
+
+//    cout << "computeQuantumForce okay" << endl;
+
+    return force;
+}
+/*
+//    for (int i=0; i<nPart; i++){
         for (int j=0; j<dim; j++){
             // position in positive direction
             particles[i]->adjustPosition(h, j);
-            wfplus = m_system->getWaveFunction()->evaluate(particles);
+            wfNew = m_system->getWaveFunction()->evaluate(particles);
             // position in negative direction
             particles[i]->adjustPosition(-h, j);
-            wfminus = m_system->getWaveFunction()->evaluate(particles);
+//            wfminus = m_system->getWaveFunction()->evaluate(particles);
             // calculate derivative
-            deriv(i, j) = (wfplus - wfminus)/h;
-            // adjust particles back to original position
-//            particles[i]->adjustPosition(h, j);
-        }
+            deriv(i, j) = (wfNew - wfOld)/h;
+//        }
     }
-    return deriv;
-}
+*/
+//    return deriv;
+//}
 
 
 
