@@ -13,9 +13,9 @@ SimpleGaussian::SimpleGaussian(System* system, std::vector<double> alpha) :
     WaveFunction(system) {
     assert(alpha.size() >= 0);
 
-//    m_numberOfParameters = 1;
-//    m_parameters.reserve(1);
-//    m_parameters.push_back(alpha);
+    //    m_numberOfParameters = 1;
+    //    m_parameters.reserve(1);
+    //    m_parameters.push_back(alpha);
     m_parameters = alpha;
     m_numberOfParameters = alpha.size();
 }
@@ -48,7 +48,7 @@ double SimpleGaussian::evaluate(std::vector<class Particle*> particles) {
 
     int i = m_system->getAlphaIndex();
     double alpha = m_parameters[i];
-//    if(m_system->getMetropolisStep() == 0){ cout << "alpha used: " << alpha << endl; }
+    //    if(m_system->getMetropolisStep() == 0){ cout << "alpha used: " << alpha << endl; }
 
     for(int i=0; i<particles.size(); i++){
         for(int j=0; j<dim; j++){
@@ -60,31 +60,30 @@ double SimpleGaussian::evaluate(std::vector<class Particle*> particles) {
     return psi;
 }
 
-double SimpleGaussian::computeDerivative(std::vector<class Particle *> particles){
-    double h, wfnew, wfold, wfcurrent;
-    double deriv;
-    //h = 1e-7;
+arma::vec SimpleGaussian::computeGradient(std::vector<class Particle *> particles, int i){
+    double h, wfnew, wfold;
     h = 1e-4;
     int dim = m_system->getNumberOfDimensions();
-    int nPart = m_system->getNumberOfParticles();
+//    int nPart = m_system->getNumberOfParticles();
 
-    double alpha = m_system->getWaveFunction()->getParameters()[0]; //function getParameters is in class Wavefunction. Wavefunction can be accessed through m_system, as it is defined in m_system
+    //    double alpha = m_system->getWaveFunction()->getParameters()[0]; //function getParameters is in class Wavefunction. Wavefunction can be accessed through m_system, as it is defined in m_system
 
-    for (int i = 0; i<nPart; i++){
-        for (int j = 0; j<dim; j++){
-            // New position
-            particles[i]->adjustPosition(h, j);
-            wfnew = evaluate(particles);
+    arma::vec gradient(dim); gradient.zeros();
 
-            // Current position
-            particles[i]->adjustPosition(-h, j);
-            wfcurrent = evaluate(particles);
+    wfold = m_system->getWaveFunction()->evaluate(particles);
 
-            deriv += (wfnew - wfcurrent)/(h);
+    for (int j = 0; j<dim; j++){
+        // New position
+        particles[i]->adjustPosition(h, j);
+        wfnew = evaluate(particles);
 
-        }
+        // Current position
+        particles[i]->adjustPosition(-h, j);
+
+        gradient[j] = (wfnew - wfold)/(h);
     }
-    return deriv;
+
+    return gradient;
 }
 
 double SimpleGaussian::computeDoubleDerivative_numeric(std::vector<class Particle*> particles) {
@@ -109,7 +108,7 @@ double SimpleGaussian::computeDoubleDerivative_numeric(std::vector<class Particl
     wfcurrent = m_system->getWaveFunctionValue();
 
 
-//    double alpha = m_system->getWaveFunction()->getParameters()[0]; //function getParameters is in class Wavefunction. Wavefunction can be accessed through m_system, as it is defined in m_system
+    //    double alpha = m_system->getWaveFunction()->getParameters()[0]; //function getParameters is in class Wavefunction. Wavefunction can be accessed through m_system, as it is defined in m_system
 
     //       cout << "Before loop: " << "\n";
     //       cout << particles[0]->getPosition()[0] << endl;
@@ -129,8 +128,8 @@ double SimpleGaussian::computeDoubleDerivative_numeric(std::vector<class Particl
             // Current position
             particles[i]->adjustPosition(h, j);
             //wfcurrent = evaluate(particles);
-//            cout << "wfcurrent_getWFValue = " << wfcurrent_test << endl;
-//            cout << "wfcurrent = " << wfcurrent << endl;
+            //            cout << "wfcurrent_getWFValue = " << wfcurrent_test << endl;
+            //            cout << "wfcurrent = " << wfcurrent << endl;
             //               cout << "Current: " << particles[i]->getPosition()[j] << endl;
 
             deriv += (wfnew -2*wfcurrent + wfold)/(h*h);
@@ -157,7 +156,7 @@ double SimpleGaussian::computeDoubleDerivative_analytic(std::vector<class Partic
 
     double wf = m_system->getWaveFunctionValue();//evaluate(particles);
 
-//    double alpha = m_system->getWaveFunction()->getParameters()[0]; //function getParameters is in class Wavefunction. Wavefunction can be accessed through m_system, as it is defined in m_system
+    //    double alpha = m_system->getWaveFunction()->getParameters()[0]; //function getParameters is in class Wavefunction. Wavefunction can be accessed through m_system, as it is defined in m_system
 
     //       cout << "Before loop: " << "\n";
     //       cout << particles[0]->getPosition()[0] << endl;
