@@ -23,7 +23,7 @@ int main() {
     //    clock_t c_start = clock();
 
     // setting variational parameter alpha
-    int n = 20;
+    int n = 10;
     double alpha_min = 0.2;
     double alpha_max = 0.7;
     std::vector<double> alpha;
@@ -31,12 +31,12 @@ int main() {
 
     bool numeric = true;
 
-    for(int i=0; i<n; i++){alpha.push_back(alpha_min + i*d_alpha); }
-//    alpha.push_back(0.5);
+//    for(int i=0; i<n; i++){alpha.push_back(alpha_min + i*d_alpha); }
+    alpha.push_back(0.5);
 
     int numberOfDimensions  = 1;
-    int numberOfParticles   = 1;
-    int numberOfSteps       = (int) 1e5;
+    int numberOfParticles   = 10;
+    int numberOfSteps       = (int) 1e1;
     double omega            = 1.0;          // Oscillator frequency.
     double stepLength       = 0.5;          // Metropolis step length.
     double equilibration    = 0.05;          // Amount of the total steps used for equilibration.

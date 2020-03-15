@@ -109,7 +109,7 @@ def filenames(particles, numDimensions, output):
             ax[i, j].minorticks_on()
             ax[i, j].grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
     plt.tight_layout()
-    plt.savefig(output)
+#    plt.savefig(output)
     plt.show()
 
     return filenames, nParticles

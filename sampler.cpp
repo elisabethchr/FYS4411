@@ -103,11 +103,12 @@ void Sampler::computeAverages() {
      */
     //    m_energy = m_cumulativeEnergy / (m_system->getNumberOfMetropolisSteps());
     //    m_energy = m_cumulativeEnergy / (m_system->getNumberOfMetropolisSteps()*m_system->getNumberOfParticles());
-    m_energy = m_cumulativeEnergy / (m_stepNumber);
-    m_energy2 = m_cumulativeEnergy2 / (m_stepNumber);
+    m_energy = m_cumulativeEnergy / ((double) m_stepNumber);
+    m_energy2 = m_cumulativeEnergy2 / ((double )m_stepNumber);
     m_energyAnalytic = m_cumulativeEnergyAnalytic / (m_stepNumber);
-    m_variance = m_energy2 - m_energy*m_energy;
-    m_error = pow(m_variance / (m_stepNumber), 0.5);
+//    m_variance = m_energy2 - m_energy*m_energy;
+    m_variance = (m_cumulativeEnergy2 - m_cumulativeEnergy*m_cumulativeEnergy)/((double) m_stepNumber);
+    m_error = pow(abs(m_variance), 0.5);
 }
 
 
@@ -190,7 +191,7 @@ void Sampler::writeAlphaToFile(){
 
     ofstream ofile;
 //    string filename = "data/1c_nParticles_";
-    string filename = "data/1b_alpha_nPart_";
+    string filename = "data/1c_alpha_nPart_";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));

@@ -32,6 +32,7 @@ public:
     double getEnergy()                  { return m_energy; }
     double getWaveFunctionValue()       { return m_wfValue; }
     double getUniform(double min, double max)   { std::uniform_real_distribution<float> gen(min, max); return gen(m_seed); }
+    double getGaussian(double mean, double std)  { std::normal_distribution<float> gen(mean, std); return gen(m_seed); }
 
 
 private:
@@ -39,6 +40,7 @@ private:
     int                             m_numberOfDimensions = 0;
     int                             m_numberOfMetropolisSteps = 0;
     int                             m_alpha = 0;
+    int                             m_acceptedSteps = 0;
     int                             m_stepMetropolis = 0;
     int                             m_stepImportance = 0;
     int                             m_MCstep = 0;
