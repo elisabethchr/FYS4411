@@ -26,9 +26,9 @@ bool System::metropolisStep() {
     */
 
     if(m_MCstep == 0){
-    cout << "evaluating wfValue first MC_step" << endl;
+ //   cout << "evaluating wfValue first MC_step" << endl;
     m_wfValue = m_waveFunction->evaluate(m_particles);
-    cout << "First step: " << m_wfValue << endl;
+ //   cout << "First step: " << m_wfValue << endl;
     }
 
     double random_d; //Random dimension
@@ -103,7 +103,7 @@ bool System::importanceSampling(){
     double D = 0.5;
     double GreensFunction = 0.0;
     double h = 1e-4;
-    double timestep = 0.1;
+    double timestep = 0.001;
     double oldWaveFunction, newWaveFunction, quantumForceOld, quantumForceNew;
     random_i = Random::nextInt(m_numberOfParticles);
     s = Random::nextDouble();
@@ -115,19 +115,19 @@ bool System::importanceSampling(){
     // Old position
     std::vector<Particle *> posOld = m_particles;
     oldWaveFunction = m_waveFunction->evaluate(m_particles);
-    cout << "oldWavefunction = " << oldWaveFunction << endl;
+//    cout << "oldWavefunction = " << oldWaveFunction << endl;
     QForceOld = m_hamiltonian->computeQuantumForce(m_particles, random_i)/oldWaveFunction;
 
-    cout << "QForceOld" << QForceOld << endl;
+//    cout << "QForceOld" << QForceOld << endl;
 
     // Move a random distance in every dimensions
 //    for (int i =0; i<m_numberOfParticles; i++){
         for (int dim=0; dim<m_numberOfDimensions; dim++){
             gauss = getGaussian(0, 1);
-            change = gauss*pow(timestep, 0.5)*QForceOld[dim]*timestep*D;
-            cout << "Gauss" << gauss << endl;
+            change = gauss*pow(timestep, 0.5)+QForceOld[dim]*timestep*D;
+//            cout << "Gauss" << gauss << endl;
             m_particles[random_i]->adjustPosition(change, dim);
-            cout << "change = " << change << endl;
+//            cout << "change = " << change << endl;
         }
 //    }
 
@@ -136,9 +136,9 @@ bool System::importanceSampling(){
     newWaveFunction = m_waveFunction->evaluate(m_particles);
     QForceNew = m_hamiltonian->computeQuantumForce(m_particles, random_i)/newWaveFunction;
 
-    cout << "newWavefunction = " << newWaveFunction << endl;
+//    cout << "newWavefunction = " << newWaveFunction << endl;
 
-    cout << "QForceNew" << QForceNew << endl;
+//    cout << "QForceNew" << QForceNew << endl;
 
     // Compute Green's function by looping over all dimensions, where m_stepLength ~= timestep
 //    for (int i=0; i<m_numberOfParticles; i++){
@@ -148,10 +148,10 @@ bool System::importanceSampling(){
 //    }
 
     GreensFunction = exp(GreensFunction);
-    cout << GreensFunction << endl;
+//    cout << GreensFunction << endl;
 
     double ratio = GreensFunction*newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
-
+//cout << "ratio:     " <<ratio<<endl;
     if(s<=ratio){
         m_stepImportance++;
         m_wfValue = newWaveFunction;
@@ -183,10 +183,15 @@ void System::runMetropolisSteps(int numberOfMetropolisSteps) {
         m_sampler->setNumberOfMetropolisSteps(numberOfMetropolisSteps);
         bool type                   = getCalculation();
 
-        unsigned __int64 i;
-        i = __rdtsc();
-        mt19937_64 gen(i);
+        std::random_device i;
+//        i = __rdtsc();
+        mt19937_64 gen(i());
         m_seed = gen;
+
+//        unsigned __int64 i;
+//        i = __rdtsc();
+//        mt19937_64 gen(i);
+//        m_seed = gen;
 
         for (int i=0; i < numberOfMetropolisSteps; i++) {
 

@@ -29,14 +29,14 @@ int main() {
     std::vector<double> alpha;
     double d_alpha = (alpha_max - alpha_min)/n;
 
-    bool numeric = true;
+    bool numeric = false;
 
-//    for(int i=0; i<n; i++){alpha.push_back(alpha_min + i*d_alpha); }
-    alpha.push_back(0.5);
+    for(int i=0; i<n; i++){alpha.push_back(alpha_min + i*d_alpha); }
+ //   alpha.push_back(0.5);
 
     int numberOfDimensions  = 1;
     int numberOfParticles   = 10;
-    int numberOfSteps       = (int) 1e1;
+    int numberOfSteps       = (int) 1e5;
     double omega            = 1.0;          // Oscillator frequency.
     double stepLength       = 0.5;          // Metropolis step length.
     double equilibration    = 0.05;          // Amount of the total steps used for equilibration.
