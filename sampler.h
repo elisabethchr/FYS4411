@@ -1,10 +1,11 @@
 #pragma once
 #include <ctime>
+#include <vector>
 
 class Sampler{
 public:
     Sampler(class System* system);
-    void setNumberOfMetropolisSteps(int steps);
+    void setNumberOfMetropolisSteps(std::vector<int> numberOfMetropolisSteps);
     void sample(bool acceptedStep);
     void printOutputToTerminal();
     void computeAverages();
@@ -15,9 +16,11 @@ public:
     void writeTotalToFile();
     void writeStepToFile(int step, int steps);
     void writeAlphaToFile();
+    void writeTimeStepToFile();
+    void writeVarToFile();
 
 private:
-    int     m_numberOfMetropolisSteps = 0;
+    std::vector<int>     m_numberOfMetropolisSteps;
     int     m_stepNumber = 0;
     double  m_energy = 0;
     double  m_energy2 = 0;

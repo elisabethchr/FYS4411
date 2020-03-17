@@ -103,7 +103,7 @@ bool System::importanceSampling(){
     double D = 0.5;
     double GreensFunction = 0.0;
     double h = 1e-4;
-    double timestep = 0.001;
+    double timestep = 0.01;
     double oldWaveFunction, newWaveFunction, quantumForceOld, quantumForceNew;
     random_i = Random::nextInt(m_numberOfParticles);
     s = Random::nextDouble();
@@ -169,75 +169,93 @@ bool System::importanceSampling(){
 }
 
 
-void System::runMetropolisSteps(int numberOfMetropolisSteps) {
+void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps, bool bruteForce) {
+
 
     for (int alpha=0; alpha<m_waveFunction->getParameters().size(); alpha++){
-        m_stepMetropolis = 0.0;
-        m_stepImportance = 0.0;
-        m_acceptedSteps = 0.0;
-        m_MCstep = 0;
-        cout << "\n m_alpha = " << m_alpha << ", " << "alpha = " << m_waveFunction->getParameters()[m_alpha] << endl;
-        m_particles                 = m_initialState->getParticles();
-        m_sampler                   = new Sampler(this); //Remove later: (this) points to the system object from which  "runMetropolisSteps" is called.
-        m_numberOfMetropolisSteps   = numberOfMetropolisSteps;
-        m_sampler->setNumberOfMetropolisSteps(numberOfMetropolisSteps);
-        bool type                   = getCalculation();
+           cout << "\n m_alpha = " << m_alpha << ", " << "alpha = " << m_waveFunction->getParameters()[m_alpha] << endl;
+           for (int dt=0; dt<m_timesteps.size(); dt++){
+               cout << "\n m_timestep = " << m_timestep << ", " << "timestep = " << m_timesteps[m_timestep] << endl;
 
-        std::random_device i;
-//        i = __rdtsc();
-        mt19937_64 gen(i());
-        m_seed = gen;
+               m_nStepIndex = 0;
+               for (int n=0; n < numberOfMetropolisSteps.size(); n++){
+                   cout << n << endl;
+               m_stepMetropolis = 0.0;
+               m_stepImportance = 0.0;
+               m_acceptedSteps = 0.0;
+               m_MCstep = 0;
+               m_particles                 = m_initialState->getParticles();
+               m_sampler                   = new Sampler(this); //Remove later: (this) points to the system object from which  "runMetropolisSteps" is called.
+//               m_numberOfMetropolisSteps   = numberOfMetropolisSteps;
+               m_sampler->setNumberOfMetropolisSteps(numberOfMetropolisSteps);
+               int steps = 0;
 
-//        unsigned __int64 i;
-//        i = __rdtsc();
-//        mt19937_64 gen(i);
-//        m_seed = gen;
-
-        for (int i=0; i < numberOfMetropolisSteps; i++) {
-
-//            bool acceptedStep = metropolisStep();
-            bool acceptedStep = importanceSampling();
-
-            if(acceptedStep == true){
-                m_acceptedSteps++;
-                if(i > m_equilibrationFraction*numberOfMetropolisSteps){
-                    m_sampler->sample(acceptedStep);
-                }
-                //                if ((i%100==0) && (i != 0)){steps ++;}
-                //          Here you should sample the energy (and maybe other things using
-                //          the m_sampler instance of the Sampler class. Make sure, though,
-                //          to only begin sampling after you have let the system equilibrate
-                //          for a while. You may handle this using the fraction of steps which
-                //          are equilibration steps; m_equilibrationFraction.
+               std::random_device i;
+               mt19937_64 gen(i());
+               m_seed = gen;
+               cout << "numberOfSteps size "<<numberOfMetropolisSteps.size()<<endl;
 
 
+               for (int i=0; i < numberOfMetropolisSteps[n]; i++) {
+                   bool acceptedStep;
+
+                   if(bruteForce){
+                      acceptedStep = metropolisStep();
+                   }else{
+                      acceptedStep = importanceSampling();
+                   }
+
+                   if(acceptedStep == true){
+                       m_acceptedSteps++;
+                       if(i >= 0*m_equilibrationFraction*numberOfMetropolisSteps[n]){
+                           m_sampler->sample(acceptedStep);
+
+                           //                if ((i%100==0) && (i != 0)){steps ++;}
+                           //          Here you should sample the energy (and maybe other things using
+                           //          the m_sampler instance of the Sampler class. Make sure, though,
+                           //          to only begin sampling after you have let the system equilibrate
+                           //          for a while. You may handle this using the fraction of steps which
+                           //          are equilibration steps; m_equilibrationFraction.
+
+
+
+                           //      }
+                           // write only every 10 value
+
+//                           if ((m_numberOfMetropolisSteps > 1e4) && (i%10==0) && (i != 0)){
+//                               m_sampler->writeStepToFile(i, steps);
+//                               steps++;
+//                           }
+//                           if ((m_numberOfMetropolisSteps <= 1e4) && (i%1==0) && (i != 0)){
+//                               m_sampler->writeStepToFile(i, steps);
+//                               steps++;
+//                           }
+                       }
+                   }
+                   m_MCstep++;
+
+               }
+               m_sampler->computeAverages();
+               m_sampler->printOutputToTerminal();
+               m_sampler->writeVarToFile();
+               cout << "My step index  "<<m_nStepIndex << endl;
+
+
+               // m_sampler->writeTimeStepToFile();
+//               m_sampler->writeAlphaToFile();
+//               m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps[n]);
+               m_acceptedSteps_ratio = m_acceptedSteps/((double)(numberOfMetropolisSteps[n]));
+               cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
+               //        cout << "Acceptance rate importance sampling: " << m_stepImportance/((double) m_numberOfMetropolisSteps) << endl;
+               //m_sampler->writeTimeStepToFile();
+
+               m_nStepIndex++;
             }
-            //      }
-            // write only every 10 value
-
-            //        if ((m_numberOfMetropolisSteps >= 1e4) && (i%10==0) && (i != 0)){
-            //            m_sampler->writeStepToFile(i, steps);
-            //            steps++;
-            //        }
-            //        if ((m_numberOfMetropolisSteps < 1e4) && (i%1==0) && (i != 0)){
-            //            m_sampler->writeStepToFile(i, steps);
-            //            steps++;
-            //        }
-
-            //m_sampler->writeStepToFile(i);
-        m_MCstep++;
-        }
-        m_sampler->computeAverages();
-        m_sampler->printOutputToTerminal();
-
-        m_sampler->writeAlphaToFile();
-
-        cout << "Acceptance rate: " << m_acceptedSteps/((double) m_numberOfMetropolisSteps) << endl;
-//        cout << "Acceptance rate importance sampling: " << m_stepImportance/((double) m_numberOfMetropolisSteps) << endl;
-
-        m_alpha++;
-    }
-}
+               m_timestep++;
+           }
+           m_alpha++;
+       }
+   }
 
 
 
