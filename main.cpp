@@ -36,7 +36,7 @@ int main() {
     std::vector<double> timestep;
 
     int l = 10;
-    int nSteps_max = 1e6;
+    int nSteps_max = 1e5;
     int nSteps_min = 1e2;
     int dn = (nSteps_max - nSteps_min)/l;
     std::vector<int> numberOfSteps;
@@ -52,12 +52,12 @@ int main() {
     if (alphaVec){
         for(int i=0; i<n+1; i++){ alpha.push_back(alpha_min + i*d_alpha);}
     }else{
-       alpha.push_back(0.50);          //Set scalar alpha value here
+       alpha.push_back(0.3);          //Set scalar alpha value here
     }
     if (dtVec){
         for(int i=0; i<m+1; i++){ timestep.push_back(timestep_min + i*dt);}
     }else{
-      timestep.push_back(0.01);       //Set scalar dt value here
+      timestep.push_back(0.1);       //Set scalar dt value here
     }
     if (nSteps){
         for(int i=0; i<l+1; i++){ numberOfSteps.push_back(nSteps_min + i*dn); cout << numberOfSteps[i]<<endl;}
@@ -67,7 +67,7 @@ int main() {
 
 
     int numberOfDimensions  = 1;
-    int numberOfParticles   = 10;
+    int numberOfParticles   = 1;
  //   int numberOfSteps       = (int) 1e4;
     double omega            = 1.0;          // Oscillator frequency.
     double stepLength       = 0.5;          // Metropolis step length.

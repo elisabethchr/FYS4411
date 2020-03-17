@@ -92,6 +92,7 @@ bool System::metropolisStep() {
 }
 
 
+
 bool System::importanceSampling(){
     /* Draw a particle at random, change its position according to a normal distribution and calculate the new wavefunction.
      * Calculate the corresponding quantum forces before and after the move, and compute the Green's function G as a function of the positions and
@@ -99,70 +100,57 @@ bool System::importanceSampling(){
     */
 
     int random_i;
-    double s, random_d, change, gauss;
+    double s, change;
     double D = 0.5;
     double GreensFunction = 0.0;
-    double h = 1e-4;
-    double timestep = 0.01;
-    double oldWaveFunction, newWaveFunction, quantumForceOld, quantumForceNew;
-    random_i = Random::nextInt(m_numberOfParticles);
-    s = Random::nextDouble();
-
+    double timestep = m_timesteps[m_timestep];
+    double oldWaveFunction, newWaveFunction;
     arma::vec change_vec(m_numberOfDimensions); change_vec.zeros();
     arma::vec QForceOld(m_numberOfDimensions); QForceOld.zeros();
     arma::vec QForceNew(m_numberOfDimensions); QForceNew.zeros();
 
+    // draw random particle i
+    random_i = Random::nextInt(m_numberOfParticles);
+    // compute weight
+    s = Random::nextDouble();
+
+
     // Old position
     std::vector<Particle *> posOld = m_particles;
     oldWaveFunction = m_waveFunction->evaluate(m_particles);
-//    cout << "oldWavefunction = " << oldWaveFunction << endl;
     QForceOld = m_hamiltonian->computeQuantumForce(m_particles, random_i)/oldWaveFunction;
 
-//    cout << "QForceOld" << QForceOld << endl;
+    // Move a random distance in every dimension according to a Gaussian distribution
+    for (int dim=0; dim<m_numberOfDimensions; dim++){
+        change = getGaussian(0, 1)*pow(timestep, 0.5) + QForceOld[dim]*timestep*D;
 
-    // Move a random distance in every dimensions
-//    for (int i =0; i<m_numberOfParticles; i++){
-        for (int dim=0; dim<m_numberOfDimensions; dim++){
-            gauss = getGaussian(0, 1);
-            change = gauss*pow(timestep, 0.5)+QForceOld[dim]*timestep*D;
-//            cout << "Gauss" << gauss << endl;
-            m_particles[random_i]->adjustPosition(change, dim);
-//            cout << "change = " << change << endl;
-        }
-//    }
+        m_particles[random_i]->adjustPosition(change, dim);
+        change_vec[dim] = change;
+    }
 
     // New position
     std::vector<Particle *> posNew = m_particles;
     newWaveFunction = m_waveFunction->evaluate(m_particles);
     QForceNew = m_hamiltonian->computeQuantumForce(m_particles, random_i)/newWaveFunction;
 
-//    cout << "newWavefunction = " << newWaveFunction << endl;
-
-//    cout << "QForceNew" << QForceNew << endl;
-
     // Compute Green's function by looping over all dimensions, where m_stepLength ~= timestep
-//    for (int i=0; i<m_numberOfParticles; i++){
-        for (int j=0; j<m_numberOfDimensions; j++){
-            GreensFunction += 0.5*(QForceOld[j] + QForceNew[j])*(D*timestep*0.5*(QForceOld[j] - QForceNew[j]) - posNew[random_i]->getPosition()[j] + posOld[random_i]->getPosition()[j]);
-        }
-//    }
+    for (int j=0; j<m_numberOfDimensions; j++){
+        GreensFunction += 0.5 * (QForceOld[j] + QForceNew[j]) *(D*timestep*0.5 * (QForceOld[j] - QForceNew[j]) - posNew[random_i]->getPosition()[j] + posOld[random_i]->getPosition()[j]);
+    }
 
     GreensFunction = exp(GreensFunction);
-//    cout << GreensFunction << endl;
 
     double ratio = GreensFunction*newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
-//cout << "ratio:     " <<ratio<<endl;
+
     if(s<=ratio){
         m_stepImportance++;
         m_wfValue = newWaveFunction;
         return true;
     }
     else{
-//        for (int i=0; i<m_numberOfParticles; i++){
-            for(int dim=0; dim<m_numberOfDimensions; dim++){
-                m_particles[random_i]->adjustPosition(-change_vec(dim), dim);
-            }
-//        }
+        for(int dim=0; dim<m_numberOfDimensions; dim++){
+            m_particles[random_i]->adjustPosition(-change_vec(dim), dim);
+        }
         m_wfValue = oldWaveFunction;
         return false;
     }
@@ -237,7 +225,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps, bool b
                }
                m_sampler->computeAverages();
                m_sampler->printOutputToTerminal();
-               m_sampler->writeVarToFile();
+               m_sampler->writeVarToFile(bruteForce);
                cout << "My step index  "<<m_nStepIndex << endl;
 
 

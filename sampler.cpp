@@ -114,7 +114,7 @@ void Sampler::computeAverages() {
     m_energy2 = m_cumulativeEnergy2 / ((double )m_stepNumber);
     m_energyAnalytic = m_cumulativeEnergyAnalytic / (m_stepNumber);
 //    m_variance = m_energy2 - m_energy*m_energy;
-    m_variance = (m_cumulativeEnergy2 - m_cumulativeEnergy*m_cumulativeEnergy/(float)m_stepNumber)/((float) m_stepNumber*m_stepNumber);
+    m_variance = (m_cumulativeEnergy2 - m_cumulativeEnergy*m_cumulativeEnergy/(double)m_stepNumber)/((double) m_stepNumber*m_stepNumber);
 //    m_variance = (m_cumulativeEnergy2 - m_cumulativeEnergy*m_cumulativeEnergy);
     m_error = pow(abs(m_variance), 0.5);
 }
@@ -301,7 +301,7 @@ void Sampler::writeTimeStepToFile(){
 
 }
 
-void Sampler::writeVarToFile(){
+void Sampler::writeVarToFile(bool bruteForce){
     double acceptanceRatio = m_system->getAcceptanceRatio();
     std::vector<double> alpha = m_system->getWaveFunction()->getParameters();
     int dtIndex = m_system->getTimeStepIndex();
@@ -312,17 +312,22 @@ void Sampler::writeVarToFile(){
     std::vector<int> nSteps = m_numberOfMetropolisSteps;
 //    double numberOfMetropolisSteps = m_system->getMetropolisStep()[nStepsIndex];
     bool calc = m_system->getCalculation();
+    bool brute_force = bruteForce;
 
     string type;
     if(calc==true){ type = "numeric"; }
     else if(calc==false){ type = "analytic"; }
+
+    string stepMethod;
+    if(brute_force==true){ stepMethod = "bruteforce"; }
+    else if(brute_force==false){ stepMethod = "importance"; }
 
 //    cout << "m_cumulativeEnergy = " << m_cumulativeEnergy << endl;
 //    cout << "m_stepNumber = " << m_stepNumber << endl;
 //    cout << "m_energy = " << m_cumulativeEnergy / ((double) m_stepNumber) << endl << " " << endl;
 
     ofstream ofile;
-    string filename = "data/c/variance_comp/variance_nParticles_";
+    string filename = "data/c/variance_comp/variance_1e5max_nParticles_";
 //    string filename = "data/test";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
@@ -337,6 +342,8 @@ void Sampler::writeVarToFile(){
     filename.append(arg4);
     filename.append("_");
     filename.append(type);
+    filename.append("_");
+    filename.append(stepMethod);
     filename.append(".txt");
     if (nStepsIndex == 0){
         ofile.open(filename, ios::trunc | ios::out);
