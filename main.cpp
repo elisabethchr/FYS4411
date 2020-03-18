@@ -23,44 +23,44 @@ int main() {
     //    clock_t c_start = clock();
 
     // setting variational parameter alpha
-    int n = 30;
+    int n = 50;
     double alpha_min = 0.2;
-    double alpha_max = 0.7;
-    double d_alpha = (alpha_max - alpha_min)/n;
+    double alpha_max = 1;
+    double d_alpha = (alpha_max - alpha_min)/(double)n;
     std::vector<double> alpha;
 
-    int m = 100;
-    double timestep_max = 0.1;
-    double timestep_min = 0.0001;
-    double dt = (timestep_max - timestep_min)/m;
+    int m = 1;
+    double timestep_max = 0.01;
+    double timestep_min = 0.001;
+    double dt = (timestep_max - timestep_min)/(double)m;
     std::vector<double> timestep;
 
-    int l = 10;
+    int l = 50;
     int nSteps_max = 1e5;
     int nSteps_min = 1e2;
-    int dn = (nSteps_max - nSteps_min)/l;
+    int dn = (nSteps_max - nSteps_min)/(double)l;
     std::vector<int> numberOfSteps;
 
 
     bool numeric = true;
     bool bruteForce = false;
 
-    bool alphaVec = false;       //Sets alpha to a vector
+    bool alphaVec = true;       //Sets alpha to a vector
     bool dtVec = false;         //Sets dt to a vector
     bool nSteps = true;         //sets numberOfSteps to a vector
 
     if (alphaVec){
         for(int i=0; i<n+1; i++){ alpha.push_back(alpha_min + i*d_alpha);}
     }else{
-       alpha.push_back(0.3);          //Set scalar alpha value here
+       alpha.push_back(0.6);          //Set scalar alpha value here
     }
     if (dtVec){
         for(int i=0; i<m+1; i++){ timestep.push_back(timestep_min + i*dt);}
     }else{
-      timestep.push_back(0.1);       //Set scalar dt value here
+      timestep.push_back(0.01);       //Set scalar dt value here
     }
     if (nSteps){
-        for(int i=0; i<l+1; i++){ numberOfSteps.push_back(nSteps_min + i*dn); cout << numberOfSteps[i]<<endl;}
+        for(int i=0; i<l+1; i++){ numberOfSteps.push_back(nSteps_min + i*dn); }
     }else{
       numberOfSteps.push_back(1e4);  //Set scalar numberOfSteps value here
     }

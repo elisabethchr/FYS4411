@@ -18,6 +18,7 @@ public:
     void writeAlphaToFile();
     void writeTimeStepToFile();
     void writeVarToFile(bool bruteForce);
+    void write3DToFile(bool bruteForce);
 
 private:
     std::vector<int>     m_numberOfMetropolisSteps;

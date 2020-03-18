@@ -161,13 +161,14 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps, bool b
 
 
     for (int alpha=0; alpha<m_waveFunction->getParameters().size(); alpha++){
-           cout << "\n m_alpha = " << m_alpha << ", " << "alpha = " << m_waveFunction->getParameters()[m_alpha] << endl;
+//           cout << "\n m_alpha = " << m_alpha << ", " << "alpha = " << m_waveFunction->getParameters()[m_alpha] << endl;
+             m_timestep = 0;
            for (int dt=0; dt<m_timesteps.size(); dt++){
-               cout << "\n m_timestep = " << m_timestep << ", " << "timestep = " << m_timesteps[m_timestep] << endl;
+//               cout << "\n m_timestep = " << m_timestep << ", " << "timestep = " << m_timesteps[m_timestep] << endl;
 
                m_nStepIndex = 0;
                for (int n=0; n < numberOfMetropolisSteps.size(); n++){
-                   cout << n << endl;
+ //                  cout << n << endl;
                m_stepMetropolis = 0.0;
                m_stepImportance = 0.0;
                m_acceptedSteps = 0.0;
@@ -181,7 +182,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps, bool b
                std::random_device i;
                mt19937_64 gen(i());
                m_seed = gen;
-               cout << "numberOfSteps size "<<numberOfMetropolisSteps.size()<<endl;
+//               cout << "numberOfSteps size "<<numberOfMetropolisSteps.size()<<endl;
 
 
                for (int i=0; i < numberOfMetropolisSteps[n]; i++) {
@@ -224,16 +225,17 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps, bool b
 
                }
                m_sampler->computeAverages();
-               m_sampler->printOutputToTerminal();
-               m_sampler->writeVarToFile(bruteForce);
-               cout << "My step index  "<<m_nStepIndex << endl;
+//               m_sampler->printOutputToTerminal();
+//               m_sampler->writeVarToFile(bruteForce);
+               m_sampler->write3DToFile(bruteForce);
+//               cout << "My step index  "<<m_nStepIndex << endl;
 
 
                // m_sampler->writeTimeStepToFile();
 //               m_sampler->writeAlphaToFile();
 //               m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps[n]);
                m_acceptedSteps_ratio = m_acceptedSteps/((double)(numberOfMetropolisSteps[n]));
-               cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
+//               cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
                //        cout << "Acceptance rate importance sampling: " << m_stepImportance/((double) m_numberOfMetropolisSteps) << endl;
                //m_sampler->writeTimeStepToFile();
 

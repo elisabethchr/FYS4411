@@ -302,10 +302,18 @@ void Sampler::writeTimeStepToFile(){
 }
 
 void Sampler::writeVarToFile(bool bruteForce){
+
+    int alphaIndex = m_system->getAlphaIndex();
+    double alpha = m_system->getWaveFunction()->getParameters()[alphaIndex];
+
+    int timeStepIndex = m_system->getTimeStepIndex();
+    std::vector<double> timeSteps = m_system->getTimeSteps();
+    double currentTimeStep = timeSteps[timeStepIndex];
+
+
     double acceptanceRatio = m_system->getAcceptanceRatio();
-    std::vector<double> alpha = m_system->getWaveFunction()->getParameters();
-    int dtIndex = m_system->getTimeStepIndex();
-    double dt = m_system->getTimeSteps()[dtIndex];
+//    int dtIndex = m_system->getTimeStepIndex();
+//    double dt = m_system->getTimeSteps()[dtIndex];
     double nParticles = m_system->getNumberOfParticles();
     double nDim = m_system->getNumberOfDimensions();
     int nStepsIndex = m_system->getnStepsIndex();
@@ -327,12 +335,12 @@ void Sampler::writeVarToFile(bool bruteForce){
 //    cout << "m_energy = " << m_cumulativeEnergy / ((double) m_stepNumber) << endl << " " << endl;
 
     ofstream ofile;
-    string filename = "data/c/variance_comp/variance_1e5max_nParticles_";
+    string filename = "data/c/variance_comp/3dplot/variance_1e5max_nParticles_";
 //    string filename = "data/test";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
-    string arg3 = to_string(double(alpha[0]));
-    string arg4 = to_string(double(dt));
+    string arg3 = to_string(double(alpha));
+    string arg4 = to_string(double(currentTimeStep));
     filename.append(arg1);
     filename.append("_nDim_");
     filename.append(arg2);
@@ -345,10 +353,11 @@ void Sampler::writeVarToFile(bool bruteForce){
     filename.append("_");
     filename.append(stepMethod);
     filename.append(".txt");
-    if (nStepsIndex == 0){
+//    if (nStepsIndex == 0){
+      if (alphaIndex == 0 && timeStepIndex ==0 && nStepsIndex ==0){
         ofile.open(filename, ios::trunc | ios::out);
         ofile << setw(10) << "MCsteps" <<setw(15) << "Energy" << setw(15) << "Variance" << setw(15) << "Error"
-              <<setw(20) <<"Acceptance rate"<<  endl;
+              <<setw(15)<<"Time step"<<setw(15)<<"Alpha"<<setw(17)<<"Acceptance rate"<<  endl;
     }
     else{ofile.open(filename, ios::app | ios::out);}
 
@@ -357,6 +366,80 @@ void Sampler::writeVarToFile(bool bruteForce){
     ofile << setw(15) << setprecision(8) << m_cumulativeEnergy / ((double) m_stepNumber);
     ofile << setw(15) << setprecision(8) << m_variance;
     ofile << setw(15) << setprecision(8) << m_error;
+    ofile << setw(15) << setprecision(8) << currentTimeStep;
+    ofile << setw(15) << setprecision(8) << alpha;
+    ofile << setw(15) << setprecision(8) << acceptanceRatio<< "\n";
+    ofile.close();
+}
+
+void Sampler::write3DToFile(bool bruteForce){
+
+    int alphaIndex = m_system->getAlphaIndex();
+    double alpha = m_system->getWaveFunction()->getParameters()[alphaIndex];
+
+    int timeStepIndex = m_system->getTimeStepIndex();
+    std::vector<double> timeSteps = m_system->getTimeSteps();
+    double currentTimeStep = timeSteps[timeStepIndex];
+
+
+    double acceptanceRatio = m_system->getAcceptanceRatio();
+//    int dtIndex = m_system->getTimeStepIndex();
+//    double dt = m_system->getTimeSteps()[dtIndex];
+    double nParticles = m_system->getNumberOfParticles();
+    double nDim = m_system->getNumberOfDimensions();
+    int nStepsIndex = m_system->getnStepsIndex();
+    std::vector<int> nSteps = m_numberOfMetropolisSteps;
+//    double numberOfMetropolisSteps = m_system->getMetropolisStep()[nStepsIndex];
+    bool calc = m_system->getCalculation();
+    bool brute_force = bruteForce;
+
+    string type;
+    if(calc==true){ type = "numeric"; }
+    else if(calc==false){ type = "analytic"; }
+
+    string stepMethod;
+    if(brute_force==true){ stepMethod = "bruteforce"; }
+    else if(brute_force==false){ stepMethod = "importance"; }
+
+//    cout << "m_cumulativeEnergy = " << m_cumulativeEnergy << endl;
+//    cout << "m_stepNumber = " << m_stepNumber << endl;
+//    cout << "m_energy = " << m_cumulativeEnergy / ((double) m_stepNumber) << endl << " " << endl;
+
+    ofstream ofile;
+//    string filename = "data/c/variance_comp/3dplot/variance_1e5max_nParticles_";
+      string filename = "data/c/variance_comp/3dplot/variance_dt0.01_nParticles_";
+//    string filename = "data/test";
+    string arg1 = to_string(int(nParticles));
+    string arg2 = to_string(int(nDim));
+//    string arg3 = to_string(double(alpha));
+//    string arg4 = to_string(double(currentTimeStep));
+    filename.append(arg1);
+    filename.append("_nDim_");
+    filename.append(arg2);
+//    filename.append("_alpha_");
+//    filename.append(arg3);
+//    filename.append("_dt_");
+//    filename.append(arg4);
+    filename.append("_");
+    filename.append(type);
+    filename.append("_");
+    filename.append(stepMethod);
+    filename.append(".txt");
+//    if (nStepsIndex == 0){
+      if (alphaIndex == 0 && timeStepIndex ==0 && nStepsIndex ==0){
+        ofile.open(filename, ios::trunc | ios::out);
+        ofile << setw(10) << "MCsteps" <<setw(15) << "Energy" << setw(15) << "Variance" << setw(15) << "Error"
+              <<setw(15)<<"Time step"<<setw(15)<<"Alpha"<<setw(17)<<"Acceptance rate"<<  endl;
+    }
+    else{ofile.open(filename, ios::app | ios::out);}
+
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+    ofile << setw(10) << setprecision(8) << nSteps[nStepsIndex];
+    ofile << setw(15) << setprecision(8) << m_cumulativeEnergy / ((double) m_stepNumber);
+    ofile << setw(15) << setprecision(8) << m_variance;
+    ofile << setw(15) << setprecision(8) << m_error;
+    ofile << setw(15) << setprecision(8) << currentTimeStep;
+    ofile << setw(15) << setprecision(8) << alpha;
     ofile << setw(15) << setprecision(8) << acceptanceRatio<< "\n";
     ofile.close();
 }
