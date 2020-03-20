@@ -19,8 +19,3 @@ void Particle::adjustPosition(double change, int dimension) {
 void Particle::setNumberOfDimensions(int numberOfDimensions) {
     m_numberOfDimensions = numberOfDimensions;
 }
-/*
-getPosition{position};
-    m_getPosition = m_position
-    */
-

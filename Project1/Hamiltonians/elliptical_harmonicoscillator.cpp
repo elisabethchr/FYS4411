@@ -1,4 +1,4 @@
-#include "harmonicoscillator.h"
+#include "elliptical_harmonicoscillator.h"
 #include <cassert>
 #include <iostream>
 #include "../system.h"
@@ -11,16 +11,15 @@ using std::cout;
 using std::endl;
 using namespace arma;
 
-HarmonicOscillator::HarmonicOscillator(System* system, double omega) :
+EllipticalHarmonicOscillator::EllipticalHarmonicOscillator(System* system, double omega) :
     Hamiltonian(system) {
     assert(omega > 0);
     m_omega  = omega;
 }
 
-double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, bool type) {
+double EllipticalHarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, bool type) {
 
-//    cout << "You are now looking at HarmonicOscillator computeLocalEnergy in the working in Hamiltonians!" << endl;
-
+    cout << "You are now looking at EllipticalHarmonicOscillator computeLocalEnergy in the working in Hamiltonians!" << endl;
 
     double potentialEnergy = 0;
     double kineticEnergy   = 0;
@@ -48,7 +47,7 @@ double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, 
     return El;
 }
 
-vec HarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles, int i){
+vec EllipticalHarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles, int i){
 //    double h = 1e-7;
     int nDim = m_system->getNumberOfDimensions();
 //    int nPart = m_system->getNumberOfParticles();
