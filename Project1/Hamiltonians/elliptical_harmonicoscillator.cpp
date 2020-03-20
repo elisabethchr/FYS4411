@@ -19,61 +19,56 @@ EllipticalHarmonicOscillator::EllipticalHarmonicOscillator(System* system, doubl
 
 double EllipticalHarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, bool type) {
 
-    cout << "You are now looking at EllipticalHarmonicOscillator computeLocalEnergy in the working in Hamiltonians!" << endl;
+    double coordinate;
+    double potentialEnergy = 0.0;
+    double kineticEnergy   = 0.0;
+    double beta = m_system->getWaveFunction()->getParametersBeta()[0];
+    double gamma = m_system->getWaveFunction()->getGamma();
+    double hbar = 1.0;
 
-    double potentialEnergy = 0;
-    double kineticEnergy   = 0;
-    int dim = m_system->getNumberOfDimensions();
+    int nDim = m_system->getNumberOfDimensions();
     int nPart= m_system->getNumberOfParticles();
-    //    std::vector<double> alpha = m_system->getWaveFunction()->getParameters();
 
+    std::vector<double> pos;
+
+    // compute potential energy
     for (int i = 0; i<nPart;i++){
-        for(int j = 0; j<dim; j++){
-            double coordinate = particles.at(i)->getPosition().at(j);
-            potentialEnergy+= 0.5*m_omega*m_omega*coordinate*coordinate;
+        pos = particles[i]->getPosition();
+        for(int j = 0; j<nDim; j++){
+
+            // add perturbation to z-direction
+            if (j==2){ coordinate = gamma*pos[j]; }
+
+            else { coordinate = pos[j]; }
+
+            potentialEnergy+= 0.5*hbar*m_omega*m_omega*coordinate*coordinate;
         }
     }
 
-    // possible to setWavefunction in MetropolisStep and avoid extra evaluate? (setWaveFunction(psi), m_psi = getWavefunction->getValue();)
-    //    double psi = m_system->getWaveFunction()->evaluate(particles);
+    // compute kinetic energy
+//    kineticEnergy -= 0.5*m_system->getWaveFunction()->computeLaplacian(particles);
 
     double psi = m_system->getWaveFunctionValue();
 
     if(type == true){ kineticEnergy -= (1/psi)*0.5*m_system->getWaveFunction()->computeDoubleDerivative_numeric(particles); }
-    else if(type == false){ kineticEnergy = (1/psi)*0.5*m_system->getWaveFunction()->computeDoubleDerivative_analytic(particles); }
+    else if(type == false){ kineticEnergy -= 0.5*m_system->getWaveFunction()->computeDoubleDerivative_analytic(particles); }
 
-    double El = potentialEnergy + kineticEnergy;
-    //    cout <<"Local energy:  " << El << endl;
-    return El;
+
+    return potentialEnergy + kineticEnergy;
 }
 
 vec EllipticalHarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles, int i){
-//    double h = 1e-7;
+    /*
+     * Compute the drift force expreienced by particles
+    */
+
     int nDim = m_system->getNumberOfDimensions();
-//    int nPart = m_system->getNumberOfParticles();
+    double psi = m_system->getWaveFunctionValue();
+
     vec force(nDim); force.zeros();
     vec gradient = m_system->getWaveFunction()->computeGradient(particles, i);
 
-    force = 2*gradient;
-
-//    cout << "computeQuantumForce okay" << endl;
+    force = 2*gradient / psi;
 
     return force;
 }
-/*
-//    for (int i=0; i<nPart; i++){
-        for (int j=0; j<dim; j++){
-            // position in positive direction
-            particles[i]->adjustPosition(h, j);
-            wfNew = m_system->getWaveFunction()->evaluate(particles);
-            // position in negative direction
-            particles[i]->adjustPosition(-h, j);
-//            wfminus = m_system->getWaveFunction()->evaluate(particles);
-            // calculate derivative
-            deriv(i, j) = (wfNew - wfOld)/h;
-//        }
-    }
-*/
-//    return deriv;
-//}
-
