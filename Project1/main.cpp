@@ -34,8 +34,8 @@ int main() {
     double timestep_max = 1.0;
     double timestep_min = 0.1;
     double dt = (timestep_max - timestep_min)/m;
-//    double a = 0.0043;
-    double a = 0.0;
+    double a = 0.0043;
+//    double a = 0.0;
 
     std::vector<double> alpha;
     std::vector<double> beta;
