@@ -41,15 +41,19 @@ void Sampler::sample(bool acceptedStep) {
             computeLocalEnergy(m_system->getParticles(), calc);
 
     clock_t c_end1 = clock();
-//    cout << "clocking cpu time (clicks): " << (c_end1 - c_start1) << endl;
-//    cout << "CLOCKS_PER_SEC = " << CLOCKS_PER_SEC << endl;
     double t = (c_end1 - c_start1);
-//    cout << "t_num (s) = " << t << endl;
-    //    t_num += (c_end1-c_start1);
     t_num += t;
+
+    vec gradientPsi = m_system->getHamiltonian()->
+            computeGradientPsi(m_system->getParticles());
 
     m_cumulativeEnergy  += localEnergy;
     m_cumulativeEnergy2 += localEnergy*localEnergy;
+
+    m_derivativePsi_alpha = m_system->getWaveFunction()->computeDerivativePsi_alpha(m_system->getParticles());
+    m_deltaEnergy = localEnergy;
+    m_cumulativeDeltaPsi += m_derivativePsi_alpha;
+    m_cumulativeDerivativePsiE += m_derivativePsi_alpha*m_deltaEnergy;
 
 //    cout << "m_cumulativeEnergy_sample = " << m_cumulativeEnergy << endl;
 //    cout << "m_stepNumber_sample = " << m_stepNumber << endl;
@@ -100,7 +104,11 @@ void Sampler::computeAverages() {
     else {m_energy = m_cumulativeEnergy / ((double) m_stepNumber);}
 
     m_energy2 = m_cumulativeEnergy2 / ((double )m_stepNumber);
-    m_energyAnalytic = m_cumulativeEnergyAnalytic / (m_stepNumber);
+//    m_energyAnalytic = m_cumulativeEnergyAnalytic / (m_stepNumber);
+    m_derivativePsiE = m_cumulativeDerivativePsiE / ((double) m_stepNumber);
+    m_deltaPsi = m_cumulativeDeltaPsi / ((double) m_stepNumber);
+    m_derivativeE = 2*(m_derivativePsiE - m_deltaPsi*m_energy);
+
     m_variance = (m_energy2 - m_energy*m_energy) / ((double) m_stepNumber);
     m_error = pow(abs(m_variance), 0.5);
 //    cout << "computeAverages: m_variance = " << m_variance << endl;

@@ -1,5 +1,6 @@
 #pragma once
 #include <ctime>
+#include <armadillo>
 
 class Sampler{
 public:
@@ -8,10 +9,11 @@ public:
     void sample(bool acceptedStep);
     void printOutputToTerminal();
     void computeAverages();
-    double getEnergy()          { return m_energy; }
-    double getEnergyAnalytic()  { return m_energyAnalytic;}
-    double getVariance()        { return m_variance;}
-    double getError()           { return m_error;}
+    double getEnergy()              { return m_energy; }
+    double getEnergyDerivative()    { return m_derivativeE; }
+    double getEnergyAnalytic()      { return m_energyAnalytic;}
+    double getVariance()            { return m_variance;}
+    double getError()               { return m_error;}
     void writeTotalToFile();
     void writeStepToFile(int step, int steps);
     void writeAlphaToFile();
@@ -28,6 +30,13 @@ private:
     double  m_cumulativeEnergyAnalytic = 0;
     double  m_variance = 0;
     double  m_error = 0;
+    double  m_deltaPsi = 0;
+    double  m_deltaEnergy = 0;
+    double  m_derivativeE = 0;
+    double  m_derivativePsiE = 0;
+    double  m_derivativePsi_alpha = 0;
+    double  m_cumulativeDeltaPsi = 0;
+    double  m_cumulativeDerivativePsiE = 0;
 
     clock_t t_num = 0;
     clock_t t_anal = 0;

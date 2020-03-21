@@ -34,6 +34,7 @@ public:
     double getEquilibrationFraction()   { return m_equilibrationFraction; }
     double getStepLength()              { return m_stepLength; }
     double getEnergy()                  { return m_energy; }
+    double getEnergyDerivative()    { return m_derivativeE; }
     double getWaveFunctionValue()       { return m_wfValue; }
     double getUniform(double min, double max)    { std::uniform_real_distribution<float> gen(min, max); return gen(m_seed); }
     double getGaussian(double mean, double std)  { std::normal_distribution<float> gen(mean, std); return gen(m_seed); }
@@ -55,6 +56,7 @@ private:
     //    double                          m_stepLength = 0.1;
     double                          m_stepLength = 0.1;
     double                          m_energy = 0.0;
+    double                          m_derivativeE = 0.0;
     double                          m_wfValue = 0.0;
     bool                            m_numeric;
     bool                            m_solver;
