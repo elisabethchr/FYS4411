@@ -11,6 +11,7 @@ public:
     double computeDoubleDerivative_analytic(std::vector<class Particle *> particles);
     double getDistance(std::vector<class Particle *> particles, int particle_i, int particle_j);
     double computeLaplacian(std::vector<class Particle*> particles);
+    double computeDerivativePsi_alpha(std::vector<class Particle*> particles);
 
 protected:
     double SingleParticleFunction(std::vector<class Particle *> particles, int particle);

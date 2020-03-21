@@ -17,7 +17,8 @@ public:
     virtual double computeLaplacian(std::vector<class Particle*> particles) = 0;
     virtual double computeDoubleDerivative_numeric(std::vector<class Particle*> particles) = 0;
     virtual double computeDoubleDerivative_analytic(std::vector<class Particle*> particles) = 0;
-    virtual double getDistance(std::vector<class Particle *> particle, int particle_i, int particle_j) = 0;
+    virtual double getDistance(std::vector<class Particle *> particles, int particle_i, int particle_j) = 0;
+    virtual double computeDerivativePsi_alpha(std::vector<class Particle*> particles) = 0;
 
 protected:
     int     m_numberOfParameters = 0;
