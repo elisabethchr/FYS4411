@@ -17,10 +17,22 @@ using namespace std;
 Sampler::Sampler(System* system) {
     m_system = system;
     m_stepNumber = 0;
+
 }
 
 void Sampler::setNumberOfMetropolisSteps(int steps) {
     m_numberOfMetropolisSteps = steps;
+}
+
+void Sampler::setOneBodyDensity(int nBins, double r_max){
+    m_nBins = nBins;
+    m_Rmax = r_max;
+    double bin_size = (r_max)/(double)nBins;
+        for(int j = 0; j<nBins; j++){
+            m_radii.push_back(j*bin_size);
+            m_OneBodyBin.push_back(0);
+        }
+
 }
 
 void Sampler::sample(bool acceptedStep) {
@@ -44,8 +56,8 @@ void Sampler::sample(bool acceptedStep) {
     double t = (c_end1 - c_start1);
     t_num += t;
 
-    vec gradientPsi = m_system->getHamiltonian()->
-            computeGradientPsi(m_system->getParticles());
+//    vec gradientPsi = m_system->getHamiltonian()->
+//            computeGradientPsi(m_system->getParticles());
 
     m_cumulativeEnergy  += localEnergy;
     m_cumulativeEnergy2 += localEnergy*localEnergy;
@@ -58,6 +70,43 @@ void Sampler::sample(bool acceptedStep) {
 //    cout << "m_cumulativeEnergy_sample = " << m_cumulativeEnergy << endl;
 //    cout << "m_stepNumber_sample = " << m_stepNumber << endl;
 //    cout << "m_energy_sample = " << m_cumulativeEnergy/((double)m_stepNumber) << endl;
+
+
+    //////////////////////////////////////////////////////////////////////
+    /// Sample particle positions for one-body density
+    ///
+     int n_p =m_system->getNumberOfParticles();
+     int dim =m_system->getNumberOfDimensions();
+
+     double r_part;
+     double dvolume;
+     double bin_size = m_Rmax/m_nBins;
+
+//     m_oneBodyBin(n_p,n_bins);
+
+     for(int i = 0; i<n_p; i++){
+         std::vector<class Particle*> particles = m_system->getParticles();
+             r_part = 0;
+             for(int j=0; j<dim; j++){
+                 std::vector<double> position = particles[i]->getPosition();
+                 r_part +=position[j]*position[j];
+             }
+             r_part = sqrt(r_part);
+             if(r_part<4){
+                 int bin_i = (int)floor(r_part/bin_size);
+
+                   if(bin_i==0){
+                       dvolume = 4/3*3.14159*(pow(m_radii[bin_i],3));
+                   }else{
+                       dvolume = 4/3*3.14159*(pow(m_radii[bin_i],3)-pow(m_radii[bin_i-1],3));
+                   }
+//                  m_OneBodyBin[bin_i]+= (1)/(double)(dvolume*n_p);
+                  m_OneBodyBin[bin_i]+= (1);
+                 bin_counter++;
+             }
+     }
+
+
 
     m_stepNumber++;
 }
@@ -311,5 +360,74 @@ void Sampler::writeTimeStepToFile(){
     ofile << setw(15) << setprecision(8) << m_error;
     ofile << setw(15) << setprecision(8) << m_stepNumber / ((double) m_system->getNumberOfMetropolisSteps()) << "\n";
     ofile.close();
+
+}
+
+void Sampler::writeOneBodyDensityToFile(){
+
+    int i = m_system->getTimeStepIndex();
+
+    int nBins = m_nBins;
+//    std::vector<double> bins = m_system->getBins();
+    double r_max = m_Rmax;
+    bool interacting = m_system->getWaveFunction()->getJastrow();
+    int step = m_system->getMetropolisStep();
+    double nParticles = m_system->getNumberOfParticles();
+    double nDim = m_system->getNumberOfDimensions();
+    double nSteps = m_system->getNumberOfMetropolisSteps();
+    double timestep = m_system->getTimeSteps()[i];
+    bool calc = m_system->getCalculation();
+    double stepLength = m_system->getStepLength();
+
+    string type;
+    if(calc==true){ type = "numeric"; }
+    else if(calc==false){ type = "analytic"; }
+
+    string Jastrow;
+    if(interacting==true){ Jastrow = "interacting"; }
+    else if(interacting==false){ Jastrow = "non-interacting"; }
+
+
+    ofstream ofile;
+//    string filename = "data/1c_nParticles_";
+    string filename = "data/g/onebody_nPart_";
+    string arg1 = to_string(int(nParticles));
+    string arg2 = to_string(int(nDim));
+    string arg3 = to_string(int(nSteps));
+    string arg4 = to_string(stepLength);
+    string arg5 = to_string(m_nBins);
+//    string arg6 = to_string(Jastrow);
+    filename.append(arg1);
+    filename.append("_nDim_");
+    filename.append(arg2);
+    filename.append("_nSteps_");
+    filename.append(arg3);
+    filename.append("_stepLength_");
+    filename.append(arg4);
+    filename.append("_nBins_");
+    filename.append(arg5);
+    filename.append("_");
+    filename.append(Jastrow);
+    filename.append("_");
+    filename.append(type);
+    filename.append(".txt");
+//    if (i == 0){
+        ofile.open(filename, ios::trunc | ios::out);
+        ofile << setw(7) << "bin number" << setw(15) << "bin count" <<  "\n";
+//    }
+//    else{ofile.open(filename, ios::app | ios::out);}
+
+    //    cout << "m_energy: " << m_energy << endl;
+    //    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
+
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+
+    for(int i = 0; i<nBins; i++){
+       ofile << setw(10) << setprecision(8) << i*(r_max/(double)nBins);
+       ofile << setw(15) << setprecision(8) << (double)(m_OneBodyBin[i]/nSteps) <<"\n";
+    }
+
+    ofile.close();
+
 
 }

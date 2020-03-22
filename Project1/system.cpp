@@ -46,7 +46,8 @@ bool System::metropolisStep() {
 
     // change positions
     for(int dim=0; dim<m_numberOfDimensions; dim++){
-        random_d = getUniform(-1.0, 1.0);
+//        random_d = getUniform(-1.0, 1.0);
+        random_d = getUniform(-0.5, 0.5);
         rand[dim] = random_d;
         change = m_stepLength*random_d;       // between -0.5 and 0.5?
 
@@ -147,7 +148,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
         cout << "\n m_alpha = " << m_alpha << ", " << "alpha = " << m_waveFunction->getParameters()[m_alpha] << endl;
         cout << "m_beta = " << m_waveFunction->getParametersBeta()[0] << endl;
         cout << "m_gamma = " << m_waveFunction->getGamma() << endl;
-        cout << "m_omega = " << m_hamiltonian->getOmega() << endl;
+//        cout << "m_omega = " << m_hamiltonian->getOmega() << endl;
 
         //        for(int MC=0; MC<numberOfMetropolisSteps.size(); MC++){
         m_timestep = 0;
@@ -163,6 +164,8 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
             m_sampler                   = new Sampler(this); //Remove later: (this) points to the system object from which  "runMetropolisSteps" is called.
             //m_numberOfMetropolisSteps   = numberOfMetropolisSteps[MC];
             m_sampler->setNumberOfMetropolisSteps(m_numberOfMetropolisSteps);
+
+            m_sampler->setOneBodyDensity(m_nBins,m_Rmax);
             int steps = 0;
 
             std::random_device i;
@@ -192,6 +195,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
             m_sampler->computeAverages();
             m_sampler->printOutputToTerminal();
             //m_sampler->writeAlphaToFile();
+//            m_sampler->writeOneBodyDensityToFile();
             m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
             cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 
@@ -205,6 +209,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
         //}
         m_alpha++;
     }
+
 }
 
 
@@ -237,4 +242,9 @@ void System::setWaveFunction(WaveFunction* waveFunction) {
 
 void System::setInitialState(InitialState* initialState) {
     m_initialState = initialState;
+}
+
+void System::setOneBodyDensity(int nBins, double r_max){
+    m_nBins = nBins;
+    m_Rmax = r_max;
 }

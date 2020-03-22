@@ -62,6 +62,8 @@ void RandomUniform::setupInitialState() {
              * obviously NOT a good idea).
              */
             rand = delta*(RandomNumberGenerator(gen) - 0.5);
+
+
             position.push_back(rand);
         }
 

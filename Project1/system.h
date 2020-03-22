@@ -8,6 +8,7 @@ public:
     bool metropolisStep             ();
     bool importanceSampling         ();     // Metropolis-Hastings
     void runMetropolisSteps         (std::vector<int> numberOfMetropolisSteps);
+    void setOneBodyDensity          (int nBins, double r_max);
     void setNumberOfParticles       (int numberOfParticles);
     void setNumberOfDimensions      (int numberOfDimensions);
     void setStepLength              (double stepLength);
@@ -41,6 +42,11 @@ public:
     std::vector<double> getTimeSteps()           { return m_timesteps; }
 
 
+
+    double getMaxR()                             {return m_Rmax;}
+    double getNBins()                            {return m_nBins;}
+
+
 private:
     int                             m_numberOfParticles = 0;
     int                             m_numberOfDimensions = 0;
@@ -66,6 +72,12 @@ private:
     class Sampler*                  m_sampler = nullptr;
     std::vector<class Particle*>    m_particles = std::vector<class Particle*>();
     std::vector<double>             m_timesteps;
+
+    int                             m_nBins;
+    double                          m_Rmax;
+
+
+
 
     std::mt19937_64 m_seed;
 

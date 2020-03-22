@@ -41,14 +41,16 @@ int main() {
     std::vector<double> beta;
     std::vector<double> timestep;
     std::vector<int> MC_cycles;
+    bool Jastrow = true;
 
 
 
     // set parameters
-//    for(int i=0; i<n+1; i++){ alpha.push_back(alpha_min + i*d_alpha); cout << alpha[i] << endl; }
-//    alpha.push_back(0.2);
+    for(int i=0; i<n+1; i++){ alpha.push_back(alpha_min + i*d_alpha); cout << alpha[i] << endl; }
+//    alpha.push_back(0.5);
 
     beta.push_back(2.83843);
+//    beta.push_back(1);
 
 
     // set timesteps
@@ -59,28 +61,37 @@ int main() {
     // set number of Monte Carlo cyclesm_omega
 //    for(int i=0; i<k+1; i++){ MC_cycles.push_back(pow(2, 10+i)); cout << "2^" << 10+i << " = " << MC_cycles[i] << endl;}
     MC_cycles.push_back(pow(2, 15));
+//     MC_cycles.push_back(1e4);
 
 
     // set type of calculation
     bool numeric = false;
 
     // set type of solver (bruteForce = true -> solver = bruteForce; bruteForce = false -> solver = importance)
-    bool bruteForce = false;
+    bool bruteForce = true;
+
+    //Set number of bins and maximum radius for one-body density
+    int nBins = 100;
+    double r_max = 3;
 
 
     int numberOfDimensions  = 3;
-    int numberOfParticles   = 2;
-    int numberOfSteps       = (int) 1e4;
+    int numberOfParticles   = 10;
+    int numberOfSteps       = (int) 1e6;
     double omega            = 1.0;          // Oscillator frequency.
     double stepLength       = 0.1;          // Metropolis step length.
     double equilibration    = pow(2, 12);          // Amount of the total steps used for equilibration.
-/*
+
+
+
+//        }
     System* system = new System();
+    system->setOneBodyDensity           (nBins,r_max);
     system->setCalculation              (numeric);
     system->setTimeSteps                (timestep);
     system->setSolver                   (bruteForce);
     system->setHamiltonian              (new EllipticalHarmonicOscillator(system, omega));
-    system->setWaveFunction             (new EllipticalGaussian(system, alpha, beta, a));
+    system->setWaveFunction             (new EllipticalGaussian(system, alpha, beta, a, Jastrow));
 //    system->setHamiltonian              (new HarmonicOscillator(system, omega));
 //    system->setWaveFunction             (new SimpleGaussian(system, alpha));
     system->setInitialState             (new RandomUniform(system, numberOfDimensions, numberOfParticles));
@@ -91,50 +102,50 @@ int main() {
     clock_t c_end = clock();
 
     cout << "\n Total CPU-time used: " << (c_end - c_start)/CLOCKS_PER_SEC << " s" << endl;
-*/
+
 
 
 
 // test code, steepest descent
-int nIterations = 50;
-double Energy, EnergyDerivative, alpha_guess, alphagradient, eta;
+//int nIterations = 50;
+//double Energy, EnergyDerivative, alpha_guess, alphagradient, eta;
 
 
-eta = 0.1;
-alpha_guess = 0.2;
-alpha.push_back(alpha_guess);
-System* system = new System();
-system->setCalculation              (numeric);
-system->setTimeSteps                (timestep);
-system->setSolver                   (bruteForce);
+//eta = 0.1;
+//alpha_guess = 0.2;
+//alpha.push_back(alpha_guess);
+//System* system = new System();
+//system->setCalculation              (numeric);
+//system->setTimeSteps                (timestep);
+//system->setSolver                   (bruteForce);
 
-    for (int iter=0; iter<nIterations; iter++){
-        cout << "*************************************************************" << endl;
-        cout << "|" << endl;
-        cout << "|" << endl;
-        cout << "|" << endl;
-        cout << "| Iteration no. " << iter << ", alpha = " << alpha[0] << endl;
-        cout << "|" << endl;
-        cout << "|" << endl;
-        cout << "|" << endl;
-        cout << "*************************************************************" << endl;
+//    for (int iter=0; iter<nIterations; iter++){
+//        cout << "*************************************************************" << endl;
+//        cout << "|" << endl;
+//        cout << "|" << endl;
+//        cout << "|" << endl;
+//        cout << "| Iteration no. " << iter << ", alpha = " << alpha[0] << endl;
+//        cout << "|" << endl;
+//        cout << "|" << endl;
+//        cout << "|" << endl;
+//        cout << "*************************************************************" << endl;
 
-        system->setHamiltonian              (new EllipticalHarmonicOscillator(system, omega));
-        system->setWaveFunction             (new EllipticalGaussian(system, alpha, beta, a));
-    //    system->setHamiltonian              (new HarmonicOscillator(system, omega));
-    //    system->setWaveFunction             (new SimpleGaussian(system, alpha));
-        system->setInitialState             (new RandomUniform(system, numberOfDimensions, numberOfParticles));
-        system->setEquilibrationFraction    (equilibration);
-        system->setStepLength               (stepLength);
-        system->runMetropolisSteps          (MC_cycles);
+//        system->setHamiltonian              (new EllipticalHarmonicOscillator(system, omega));
+//        system->setWaveFunction             (new EllipticalGaussian(system, alpha, beta, a));
+//    //    system->setHamiltonian              (new HarmonicOscillator(system, omega));
+//    //    system->setWaveFunction             (new SimpleGaussian(system, alpha));
+//        system->setInitialState             (new RandomUniform(system, numberOfDimensions, numberOfParticles));
+//        system->setEquilibrationFraction    (equilibration);
+//        system->setStepLength               (stepLength);
+//        system->runMetropolisSteps          (MC_cycles);
 
-        Energy = system->getEnergy();
-        EnergyDerivative = system->getEnergyDerivative();
-        alphagradient = EnergyDerivative;
-        alpha[0] -= eta*alphagradient;
+//        Energy = system->getEnergy();
+//        EnergyDerivative = system->getEnergyDerivative();
+//        alphagradient = EnergyDerivative;
+//        alpha[0] -= eta*alphagradient;
 
 
-    }
+//    }
 
 
 

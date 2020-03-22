@@ -10,7 +10,7 @@ using namespace std;
 using namespace arma;
 
 // Obtain parameters required for the evalutaion of the elliptical wavefunction
-EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha, std::vector<double> beta, double hard_core_diameter) :
+EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha, std::vector<double> beta, double hard_core_diameter, bool Jastrow) :
     WaveFunction(system) {
     assert(alpha.size() >= 0);
 
@@ -21,6 +21,7 @@ EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha
     m_numberOfParametersBeta = beta.size();
 
     m_hard_core_diameter = hard_core_diameter;
+    m_Jastrow = Jastrow;
 }
 
 /*
@@ -148,7 +149,9 @@ double EllipticalGaussian::correlationWaveFunction(std::vector<class Particle *>
 
     else {f = 1 - a / ((double) distance); }
 
-    return f;
+    if(m_Jastrow){return f;}
+    else{return 1;}
+//    return f;
 }
 
 
