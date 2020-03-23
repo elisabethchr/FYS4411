@@ -4,6 +4,8 @@ CONFIG  -= app_bundle
 CONFIG  -= qt
 
 SOURCES += main.cpp \
+    Hamiltonians/elliptical_harmonicoscillator.cpp \
+    WaveFunctions/ellipticalgaussian.cpp \
     system.cpp \
     Hamiltonians/hamiltonian.cpp \
     Hamiltonians/harmonicoscillator.cpp \
@@ -16,6 +18,8 @@ SOURCES += main.cpp \
     WaveFunctions/simplegaussian.cpp
 
 HEADERS += \
+    Hamiltonians/elliptical_harmonicoscillator.h \
+    WaveFunctions/ellipticalgaussian.h \
     system.h \
     Hamiltonians/hamiltonian.h \
     Hamiltonians/harmonicoscillator.h \
