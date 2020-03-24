@@ -149,9 +149,9 @@ double EllipticalGaussian::correlationWaveFunction(std::vector<class Particle *>
 
     else {f = 1 - a / ((double) distance); }
 
-    if(m_Jastrow){return f;}
-    else{return 1;}
-//    return f;
+    if(!m_Jastrow){f=1;}
+
+    return f;
 }
 
 

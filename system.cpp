@@ -46,8 +46,8 @@ bool System::metropolisStep() {
 
     // change positions
     for(int dim=0; dim<m_numberOfDimensions; dim++){
-//        random_d = getUniform(-1.0, 1.0);
-        random_d = getUniform(-0.5, 0.5);
+        random_d = getUniform(-1.0, 1.0);
+//        random_d = getUniform(-0.5, 0.5);
         rand[dim] = random_d;
         change = m_stepLength*random_d;       // between -0.5 and 0.5?
 
@@ -165,7 +165,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
             //m_numberOfMetropolisSteps   = numberOfMetropolisSteps[MC];
             m_sampler->setNumberOfMetropolisSteps(m_numberOfMetropolisSteps);
 
-            m_sampler->setOneBodyDensity(m_nBins,m_Rmax);
+            m_sampler->setOneBodyDensity(m_nBins,m_Rmax,m_Rmin);
             int steps = 0;
 
             std::random_device i;
@@ -195,7 +195,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
             m_sampler->computeAverages();
             m_sampler->printOutputToTerminal();
             //m_sampler->writeAlphaToFile();
-//            m_sampler->writeOneBodyDensityToFile();
+            m_sampler->writeOneBodyDensityToFile();
             m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
             cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 
@@ -244,7 +244,10 @@ void System::setInitialState(InitialState* initialState) {
     m_initialState = initialState;
 }
 
-void System::setOneBodyDensity(int nBins, double r_max){
+void System::setOneBodyDensity(int nBins, double r_max, double r_min, std::vector<double> beta){
     m_nBins = nBins;
     m_Rmax = r_max;
+    m_Rmin = r_min;
+    m_beta = beta;
+
 }

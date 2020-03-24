@@ -24,12 +24,13 @@ void Sampler::setNumberOfMetropolisSteps(int steps) {
     m_numberOfMetropolisSteps = steps;
 }
 
-void Sampler::setOneBodyDensity(int nBins, double r_max){
+void Sampler::setOneBodyDensity(int nBins, double r_max, double r_min){
     m_nBins = nBins;
     m_Rmax = r_max;
-    double bin_size = (r_max)/(double)nBins;
+    m_Rmin = r_min;
+    double bin_size = (r_max-r_min)/(double)nBins;
         for(int j = 0; j<nBins; j++){
-            m_radii.push_back(j*bin_size);
+            m_radii.push_back(r_min+j*bin_size);
             m_OneBodyBin.push_back(0);
         }
 
@@ -81,6 +82,8 @@ void Sampler::sample(bool acceptedStep) {
      double r_part;
      double dvolume;
      double bin_size = m_Rmax/m_nBins;
+     double beta = m_system->getBeta()[0];
+     double pi = 3.14159;
 
 //     m_oneBodyBin(n_p,n_bins);
 
@@ -89,19 +92,19 @@ void Sampler::sample(bool acceptedStep) {
              r_part = 0;
              for(int j=0; j<dim; j++){
                  std::vector<double> position = particles[i]->getPosition();
-                 r_part +=position[j]*position[j];
+                 if(j<2){
+                  r_part +=position[j]*position[j];
+                 }else{
+                  r_part += beta*position[j]*position[j];
+                 }
+
              }
              r_part = sqrt(r_part);
-             if(r_part<4){
+             if(r_part>m_Rmin && r_part<m_Rmax){
                  int bin_i = (int)floor(r_part/bin_size);
+                 dvolume = (4*pi*(pow(m_radii[bin_i],2))*bin_size)/sqrt(beta);
 
-                   if(bin_i==0){
-                       dvolume = 4/3*3.14159*(pow(m_radii[bin_i],3));
-                   }else{
-                       dvolume = 4/3*3.14159*(pow(m_radii[bin_i],3)-pow(m_radii[bin_i-1],3));
-                   }
-//                  m_OneBodyBin[bin_i]+= (1)/(double)(dvolume*n_p);
-                  m_OneBodyBin[bin_i]+= (1);
+                 m_OneBodyBin[bin_i]+= 1/dvolume;
                  bin_counter++;
              }
      }
@@ -390,7 +393,7 @@ void Sampler::writeOneBodyDensityToFile(){
 
     ofstream ofile;
 //    string filename = "data/1c_nParticles_";
-    string filename = "data/g/onebody_nPart_";
+    string filename = "data/g/1/onebody_ideal_nPart_";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));
@@ -424,7 +427,7 @@ void Sampler::writeOneBodyDensityToFile(){
 
     for(int i = 0; i<nBins; i++){
        ofile << setw(10) << setprecision(8) << i*(r_max/(double)nBins);
-       ofile << setw(15) << setprecision(8) << (double)(m_OneBodyBin[i]/nSteps) <<"\n";
+       ofile << setw(15) << setprecision(8) << (double)(m_OneBodyBin[i]/(nSteps*nParticles)) <<"\n";
     }
 
     ofile.close();

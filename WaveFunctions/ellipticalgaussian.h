@@ -12,7 +12,7 @@ public:
     double getDistance(std::vector<class Particle *> particles, int particle_i, int particle_j);
     double computeLaplacian(std::vector<class Particle*> particles);
     double computeDerivativePsi_alpha(std::vector<class Particle*> particles);
-//    bool getJastrow(){return m_Jastrow;}
+
 
 protected:
     double SingleParticleFunction(std::vector<class Particle *> particles, int particle);
@@ -23,6 +23,6 @@ protected:
     arma::vec computeGradient_correlation(std::vector<class Particle *> particles, int particle_i);
     double computeDerivative_correlation(int particle_i, int particle_j);
     double computeDoubleDerivative_correlation(int particle_i, int particle_j);
-//    bool m_Jastrow;
+
 };
 

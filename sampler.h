@@ -6,7 +6,7 @@ class Sampler{
 public:
     Sampler(class System* system);
     void setNumberOfMetropolisSteps(int steps);
-    void setOneBodyDensity          (int nBins, double r_max);
+    void setOneBodyDensity          (int nBins, double r_max, double r_min);
     void sample(bool acceptedStep);
     void printOutputToTerminal();
     void computeAverages();
@@ -44,6 +44,7 @@ private:
 
     int                             m_nBins;
     double                          m_Rmax;
+    double                          m_Rmin;
     std::vector<double>             m_radii;
     std::vector<double>             m_OneBodyBin;
     int bin_counter = 0;
