@@ -47,7 +47,7 @@ private:
     double                          m_Rmin;
     std::vector<double>             m_radii;
     std::vector<double>             m_OneBodyBin;
-    int bin_counter = 0;
+
 
     clock_t t_num = 0;
     clock_t t_anal = 0;

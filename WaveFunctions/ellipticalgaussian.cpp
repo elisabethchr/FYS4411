@@ -143,7 +143,7 @@ double EllipticalGaussian::correlationWaveFunction(std::vector<class Particle *>
      * Compute correlation wave function f(a, r), i.e. Jastrow factor
     */
     double a = m_hard_core_diameter;
-    double f = 0.0;
+    double f = 1;
 
     if (distance <= a){ f = 0; }
 

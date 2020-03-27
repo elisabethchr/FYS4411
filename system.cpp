@@ -146,7 +146,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
     m_alpha = 0;
     for (int alpha=0; alpha<m_waveFunction->getParameters().size(); alpha++){
         cout << "\n m_alpha = " << m_alpha << ", " << "alpha = " << m_waveFunction->getParameters()[m_alpha] << endl;
-        cout << "m_beta = " << m_waveFunction->getParametersBeta()[0] << endl;
+       // cout << "m_beta = " << m_waveFunction->getParametersBeta()[0] << endl;
         cout << "m_gamma = " << m_waveFunction->getGamma() << endl;
 //        cout << "m_omega = " << m_hamiltonian->getOmega() << endl;
 

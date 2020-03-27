@@ -100,12 +100,12 @@ void Sampler::sample(bool acceptedStep) {
 
              }
              r_part = sqrt(r_part);
-             if(r_part>m_Rmin && r_part<m_Rmax){
+             if(r_part<=m_Rmax){
                  int bin_i = (int)floor(r_part/bin_size);
-                 dvolume = (4*pi*(pow(m_radii[bin_i],2))*bin_size)/sqrt(beta);
+//                 dvolume = (4*pi*(pow(m_radii[bin_i],2))*bin_size)/sqrt(beta);
+                  dvolume = (4*pi*(pow(m_radii[bin_i],3)-pow(m_radii[bin_i]-bin_size,3)))/(3*sqrt(beta));
 
-                 m_OneBodyBin[bin_i]+= 1/dvolume;
-                 bin_counter++;
+                 m_OneBodyBin[bin_i]+= 1/(dvolume*n_p);
              }
      }
 
@@ -373,7 +373,7 @@ void Sampler::writeOneBodyDensityToFile(){
     int nBins = m_nBins;
 //    std::vector<double> bins = m_system->getBins();
     double r_max = m_Rmax;
-    bool interacting = m_system->getWaveFunction()->getJastrow();
+    bool interacting = m_system->getWaveFunction()->getJastrow(); //adjust for spherical
     int step = m_system->getMetropolisStep();
     double nParticles = m_system->getNumberOfParticles();
     double nDim = m_system->getNumberOfDimensions();
@@ -390,10 +390,19 @@ void Sampler::writeOneBodyDensityToFile(){
     if(interacting==true){ Jastrow = "interacting"; }
     else if(interacting==false){ Jastrow = "non-interacting"; }
 
+//    char *s = "0.4794255386042030002732879352156";
+//    double d;
+
+////    sscanf(s,"%lf",&d);
+////    printf("%.12e\n",d);
+//    sscanf(s,"%lf";
+//    printf("%.12e\n");
+
 
     ofstream ofile;
 //    string filename = "data/1c_nParticles_";
-    string filename = "data/g/1/onebody_ideal_nPart_";
+    string filename = "data/g/1/final/plusDR_spherical_onebody_dv2_nPart_";
+
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));
@@ -426,8 +435,8 @@ void Sampler::writeOneBodyDensityToFile(){
     ofile << setiosflags(ios::showpoint | ios::uppercase);
 
     for(int i = 0; i<nBins; i++){
-       ofile << setw(10) << setprecision(8) << i*(r_max/(double)nBins);
-       ofile << setw(15) << setprecision(8) << (double)(m_OneBodyBin[i]/(nSteps*nParticles)) <<"\n";
+       ofile << setw(10) << setprecision(8) << (i+1)*(r_max/(double)nBins);
+       ofile << setw(15) << setprecision(8) << (double)(m_OneBodyBin[i]/(nSteps)) <<"\n";
     }
 
     ofile.close();
