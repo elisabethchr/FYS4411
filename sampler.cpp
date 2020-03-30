@@ -87,11 +87,11 @@ void Sampler::sample(bool acceptedStep) {
 
 //     m_oneBodyBin(n_p,n_bins);
 
-     for(int i = 0; i<n_p; i++){
+//     for(int i = 0; i<n_p; i++){
          std::vector<class Particle*> particles = m_system->getParticles();
              r_part = 0;
              for(int j=0; j<dim; j++){
-                 std::vector<double> position = particles[i]->getPosition();
+                 std::vector<double> position = particles[0]->getPosition();
                  if(j<2){
                   r_part +=position[j]*position[j];
                  }else{
@@ -105,9 +105,9 @@ void Sampler::sample(bool acceptedStep) {
 //                 dvolume = (4*pi*(pow(m_radii[bin_i],2))*bin_size)/sqrt(beta);
                   dvolume = (4*pi*(pow(m_radii[bin_i],3)-pow(m_radii[bin_i]-bin_size,3)))/(3*sqrt(beta));
 
-                 m_OneBodyBin[bin_i]+= 1/(dvolume*n_p);
+                 m_OneBodyBin[bin_i]+= 1/(dvolume);
              }
-     }
+//     }
 
 
 
@@ -401,8 +401,8 @@ void Sampler::writeOneBodyDensityToFile(){
 
     ofstream ofile;
 //    string filename = "data/1c_nParticles_";
-    string filename = "data/g/1/final/plusDR_spherical_onebody_dv2_nPart_";
-
+//    string filename = "data/g/1/final/plusDR_spherical_onebody_dv2_nPart_";
+    string filename = "data/g/1/final/A0.5_elliptical_onebody_dv2_nPart_";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));

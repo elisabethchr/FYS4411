@@ -81,7 +81,7 @@ int main() {
         for(int i=0; i<k+1; i++){ MC_cycles.push_back(pow(2, 10+i)); cout << "2^" << 10+i << " = " << MC_cycles[i] << endl;}
     }else{
 //      MC_cycles.push_back(pow(2, 15));  //Set scalar numberOfSteps value here
-        MC_cycles.push_back(1e4);  //Set scalar numberOfSteps value here
+        MC_cycles.push_back(1e7);  //Set scalar numberOfSteps value here
     }
 
 
@@ -100,7 +100,7 @@ cout <<(int) 0.49<<endl;
     int numberOfParticles   = 20;
 //    int numberOfSteps       = (int) 1e6;
     double omega            = 1.0;          // Oscillator frequency.
-    double stepLength       = 0.1;          // Metropolis step length.
+    double stepLength       = 1;          // Metropolis step length.
     double equilibration    = pow(2, 12);          // Amount of the total steps used for equilibration.
 
 
