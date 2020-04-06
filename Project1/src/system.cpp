@@ -38,7 +38,7 @@ bool System::metropolisStep() {
     arma::vec rand(m_numberOfDimensions);
 
     change_vec.zeros();
-    //    std::vector<double> alphas =  m_waveFunction->getParameters();
+//    std::vector<double> alphas =  m_waveFunction->getParameters();
 
     // evaluate wavefunction at old position
     double oldWaveFunction = m_waveFunction->evaluate(m_particles);
@@ -47,6 +47,7 @@ bool System::metropolisStep() {
     // change positions
     for(int dim=0; dim<m_numberOfDimensions; dim++){
         random_d = getUniform(-1.0, 1.0);
+//        random_d = getUniform(-0.5, 0.5);
         rand[dim] = random_d;
         change = m_stepLength*random_d;       // between -0.5 and 0.5?
 
@@ -145,9 +146,9 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
     m_alpha = 0;
     for (int alpha=0; alpha<m_waveFunction->getParameters().size(); alpha++){
         cout << "\n m_alpha = " << m_alpha << ", " << "alpha = " << m_waveFunction->getParameters()[m_alpha] << endl;
-//        cout << "m_beta = " << m_waveFunction->getParametersBeta()[0] << endl;
+       // cout << "m_beta = " << m_waveFunction->getParametersBeta()[0] << endl;
         cout << "m_gamma = " << m_waveFunction->getGamma() << endl;
-        cout << "m_omega = " << m_hamiltonian->getOmega() << endl;
+//        cout << "m_omega = " << m_hamiltonian->getOmega() << endl;
 
         //        for(int MC=0; MC<numberOfMetropolisSteps.size(); MC++){
         m_timestep = 0;
@@ -163,6 +164,8 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
             m_sampler                   = new Sampler(this); //Remove later: (this) points to the system object from which  "runMetropolisSteps" is called.
             //m_numberOfMetropolisSteps   = numberOfMetropolisSteps[MC];
             m_sampler->setNumberOfMetropolisSteps(m_numberOfMetropolisSteps);
+
+            m_sampler->setOneBodyDensity(m_nBins,m_Rmax,m_Rmin);
             int steps = 0;
 
             std::random_device i;
@@ -170,6 +173,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
             m_seed = gen;
 
             for (int i=0; i < m_numberOfMetropolisSteps; i++) {
+
                 bool acceptedStep;
 
                 // set the solver
@@ -180,31 +184,35 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
                     m_acceptedSteps++;
                     if(i >= m_equilibrationFraction - 100){
                         m_sampler->sample(acceptedStep);
-
+//                        m_sampler->sampleOneBodyDensity();
                         steps++;
+                        m_stepMetropolis++;
+
                     }
                 }
-//                m_sampler->computeAverages();
 
-                //if (i>= m_equilibrationFraction){ m_sampler->writeStepToFile(i, i); }
+                if(i>= m_equilibrationFraction){ m_sampler->writeStepToFile(m_stepMetropolis, i); }
 
-                m_stepMetropolis++;
                 m_MCstep++;
             }
             m_sampler->computeAverages();
             m_sampler->printOutputToTerminal();
-           // m_sampler->writeAlphaToFile();
+            //m_sampler->writeAlphaToFile();
+            m_sampler->writeOneBodyDensityToFile();
             m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
             cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 
-            m_energy = m_sampler->getEnergy();
+//            m_energy = m_sampler->getEnergy();
             m_derivativeE = m_sampler->getEnergyDerivative();
+
+            //        cout << "Acceptance rate importance sampling: " << m_stepImportance/((double) m_numberOfMetropolisSteps) << endl;
 
             m_timestep++;
         }
         //}
         m_alpha++;
     }
+
 }
 
 
@@ -237,4 +245,12 @@ void System::setWaveFunction(WaveFunction* waveFunction) {
 
 void System::setInitialState(InitialState* initialState) {
     m_initialState = initialState;
+}
+
+void System::setOneBodyDensity(int nBins, double r_max, double r_min, std::vector<double> beta){
+    m_nBins = nBins;
+    m_Rmax = r_max;
+    m_Rmin = r_min;
+    m_beta = beta;
+
 }

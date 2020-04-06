@@ -10,7 +10,7 @@ using namespace std;
 using namespace arma;
 
 // Obtain parameters required for the evalutaion of the elliptical wavefunction
-EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha, std::vector<double> beta, double hard_core_diameter) :
+EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha, std::vector<double> beta, double hard_core_diameter, bool Jastrow) :
     WaveFunction(system) {
     assert(alpha.size() >= 0);
 
@@ -21,6 +21,7 @@ EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha
     m_numberOfParametersBeta = beta.size();
 
     m_hard_core_diameter = hard_core_diameter;
+    m_Jastrow = Jastrow;
 }
 
 /*
@@ -92,6 +93,7 @@ double EllipticalGaussian::evaluate(std::vector<class Particle*> particles) {
 double EllipticalGaussian::SingleParticleFunction(std::vector<class Particle *> particles, int particle) {
     // Compute single-particle function g(alpha, beta, r)
 
+
     int i = m_system->getAlphaIndex();
     int nDim = m_system->getNumberOfDimensions();
     double r = 0.0;
@@ -111,16 +113,43 @@ double EllipticalGaussian::SingleParticleFunction(std::vector<class Particle *> 
 }
 
 
+/*
+// original
+double EllipticalGaussian::SingleParticleFunction(std::vector<class Particle *> particles, int particle) {
+    // Compute single-particle function g(alpha, beta, r)
+
+
+    int i = m_system->getAlphaIndex();
+    int nDim = m_system->getNumberOfDimensions();
+    double r;
+    double alpha = m_parameters[i];
+    double beta = m_beta[0];
+
+    std::vector<double> pos = particles[particle]->getPosition();
+
+    for(int j=0; j<nDim; j++){
+
+        // perturb the z-direction by beta
+        if(j==2){ r += beta*pos[j]*pos[j]; }
+        else { r += pos[j]*pos[j]; }
+    }
+
+    return exp(-alpha*r);
+}
+*/
+
 double EllipticalGaussian::correlationWaveFunction(std::vector<class Particle *> particles, double distance) {
     /*
      * Compute correlation wave function f(a, r), i.e. Jastrow factor
     */
     double a = m_hard_core_diameter;
-    double f = 0.0;
+    double f = 1;
 
     if (distance <= a){ f = 0; }
 
     else {f = 1 - a / ((double) distance); }
+
+    if(!m_Jastrow){f=1;}
 
     return f;
 }
@@ -190,6 +219,7 @@ double EllipticalGaussian::computeLaplacian(std::vector<class Particle *> partic
 
 arma::vec EllipticalGaussian::computeGradient(std::vector<class Particle *> particles, int i) {
     int nDim, nPart;
+    double term1, term2, rij, sum1, sum2;
     nDim = m_system->getNumberOfDimensions();
     nPart = m_system->getNumberOfParticles();
 
@@ -197,7 +227,7 @@ arma::vec EllipticalGaussian::computeGradient(std::vector<class Particle *> part
     arma::vec gradient_SPF(nDim);
     arma::vec gradient_correlation(nDim);
 
-    gradient = 0.0;
+    term1 = 0.0; term2 = 0.0; sum1 = 0.0; sum2 = 0.0; gradient = 0.0;
 
     gradient_SPF = computeGradient_SPF(i);
     gradient_correlation = computeGradient_correlation(particles, i);
@@ -210,17 +240,16 @@ arma::vec EllipticalGaussian::computeGradient(std::vector<class Particle *> part
 
 
 double EllipticalGaussian::computeDerivativePsi_alpha(std::vector<class Particle *> particles){
-    int nPart, nDim, i;
+    int nPart, nDim;
     double m_alpha, m_beta, deriv, r, rij, psi;
     std::vector<double> pos;
 
-    i = m_system->getAlphaIndex();
-
     nDim = m_system->getNumberOfDimensions();
     nPart = m_system->getNumberOfParticles();
-    m_alpha = getParameters()[i];
+    m_alpha = getParameters()[0];
     m_beta = getParametersBeta()[0];
     psi = evaluate(particles);
+
 
     for (int i=0; i<nPart; i++){
         pos = particles[i]->getPosition();
@@ -233,6 +262,22 @@ double EllipticalGaussian::computeDerivativePsi_alpha(std::vector<class Particle
 
     deriv *= psi;
 
+
+    /*
+    for (int i=0; i<nPart; i++){
+        pos = particles[i]->getPosition();
+        for (int dim=0; dim<nDim; dim++){
+            r = pos[dim]*pos[dim];
+            if (dim==2){ deriv += m_beta*r; }
+            else { deriv += r; }
+        }
+        for (int j=0; j<nPart; j++){
+            rij = getDistance(particles, i, j);
+            deriv*=correlationWaveFunction(particles, rij);
+        }
+        deriv *= SingleParticleFunction(particles, i);
+    }
+*/
     return deriv;
 }
 

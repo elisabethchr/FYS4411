@@ -8,6 +8,7 @@ public:
     bool metropolisStep             ();
     bool importanceSampling         ();     // Metropolis-Hastings
     void runMetropolisSteps         (std::vector<int> numberOfMetropolisSteps);
+    void setOneBodyDensity          (int nBins, double r_max, double r_min, std::vector<double> beta);
     void setNumberOfParticles       (int numberOfParticles);
     void setNumberOfDimensions      (int numberOfDimensions);
     void setStepLength              (double stepLength);
@@ -19,10 +20,10 @@ public:
     void setHamiltonian             (class Hamiltonian* hamiltonian);
     void setWaveFunction            (class WaveFunction* waveFunction);
     void setInitialState            (class InitialState* initialState);
+    void setEnergy                  (double localEnergy){m_energy = localEnergy;}
     class WaveFunction*             getWaveFunction()   { return m_waveFunction; }
     class Hamiltonian*              getHamiltonian()    { return m_hamiltonian; }
     class Sampler*                  getSampler()        { return m_sampler; }
-    class ConjugateGradient*        getConjugateGradient() { return m_conjugategradient; }
     std::vector<class Particle*>    getParticles()      { return m_particles; }
     int getNumberOfParticles()          { return m_numberOfParticles; }
     int getNumberOfDimensions()         { return m_numberOfDimensions; }
@@ -40,6 +41,14 @@ public:
     double getUniform(double min, double max)    { std::uniform_real_distribution<float> gen(min, max); return gen(m_seed); }
     double getGaussian(double mean, double std)  { std::normal_distribution<float> gen(mean, std); return gen(m_seed); }
     std::vector<double> getTimeSteps()           { return m_timesteps; }
+
+
+
+    double getMaxR()                             {return m_Rmax;}
+    double getMinR()                             {return m_Rmin;}
+    double getNBins()                            {return m_nBins;}
+    std::vector<double>getBeta()                 {return m_beta;}
+
 
 private:
     int                             m_numberOfParticles = 0;
@@ -64,9 +73,16 @@ private:
     class Hamiltonian*              m_hamiltonian = nullptr;
     class InitialState*             m_initialState = nullptr;
     class Sampler*                  m_sampler = nullptr;
-    class ConjugateGradient*        m_conjugategradient = nullptr;
     std::vector<class Particle*>    m_particles = std::vector<class Particle*>();
     std::vector<double>             m_timesteps;
+
+    int                             m_nBins;
+    double                          m_Rmax;
+    double                          m_Rmin;
+    std::vector<double>             m_beta;
+
+
+
 
     std::mt19937_64 m_seed;
 

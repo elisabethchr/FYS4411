@@ -9,6 +9,7 @@ public:
     int     getNumberOfParametersBeta() { return m_numberOfParametersBeta; }
     double  getHardCoreDiameter()       { return m_hard_core_diameter; }
     double  getGamma()                  { return m_gamma; }
+    bool getJastrow()                   {return m_Jastrow;}
     std::vector<double> getParameters()     { return m_parameters; }
     std::vector<double> getParametersBeta() { return m_beta; }
 
@@ -24,8 +25,10 @@ protected:
     int     m_numberOfParameters = 0;
     int     m_numberOfParametersBeta = 0;
     double  m_hard_core_diameter = 0;
-    double  m_gamma = 2.83843;
-//    double  m_gamma = 1.0;
+//    double  m_gamma = 2.83843;
+    double  m_gamma = 1.0;
+    bool m_Jastrow;
+
     std::vector<double> m_parameters = std::vector<double>();
     std::vector<double> m_beta = std::vector<double>();
     class System* m_system = nullptr;

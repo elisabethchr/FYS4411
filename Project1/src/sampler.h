@@ -6,7 +6,9 @@ class Sampler{
 public:
     Sampler(class System* system);
     void setNumberOfMetropolisSteps(int steps);
+    void setOneBodyDensity          (int nBins, double r_max, double r_min);
     void sample(bool acceptedStep);
+    void sampleOneBodyDensity();
     void printOutputToTerminal();
     void computeAverages();
     double getEnergy()              { return m_energy; }
@@ -18,6 +20,9 @@ public:
     void writeStepToFile(int step, int steps);
     void writeAlphaToFile();
     void writeTimeStepToFile();
+    void writeOneBodyDensityToFile();
+
+
 
 private:
     int     m_numberOfMetropolisSteps = 0;
@@ -37,6 +42,14 @@ private:
     double  m_derivativePsi_alpha = 0;
     double  m_cumulativeDeltaPsi = 0;
     double  m_cumulativeDerivativePsiE = 0;
+
+
+    int                             m_nBins;
+    double                          m_Rmax;
+    double                          m_Rmin;
+    std::vector<double>             m_radii;
+    std::vector<double>             m_OneBodyBin;
+
 
     clock_t t_num = 0;
     clock_t t_anal = 0;
