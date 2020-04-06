@@ -184,12 +184,16 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
                     m_acceptedSteps++;
                     if(i >= m_equilibrationFraction){
                         m_sampler->sample(acceptedStep);
-
+                        m_sampler->sampleOneBodyDensity();
+//                        m_sampler->writeStepToFile(m_stepMetropolis, i);
                         steps++;
+                        m_stepMetropolis++;
+
                     }
                 }
-                //m_sampler->writeStepToFile(i, i);
-                m_stepMetropolis++;
+
+
+
                 m_MCstep++;
             }
             m_sampler->computeAverages();
@@ -199,7 +203,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
             m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
             cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 
-            m_energy = m_sampler->getEnergy();
+//            m_energy = m_sampler->getEnergy();
             m_derivativeE = m_sampler->getEnergyDerivative();
 
             //        cout << "Acceptance rate importance sampling: " << m_stepImportance/((double) m_numberOfMetropolisSteps) << endl;

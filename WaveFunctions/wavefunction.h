@@ -25,8 +25,8 @@ protected:
     int     m_numberOfParameters = 0;
     int     m_numberOfParametersBeta = 0;
     double  m_hard_core_diameter = 0;
-    double  m_gamma = 2.83843;
-//    double  m_gamma = 1.0;
+//    double  m_gamma = 2.83843;
+    double  m_gamma = 1.0;
     bool m_Jastrow;
 
     std::vector<double> m_parameters = std::vector<double>();

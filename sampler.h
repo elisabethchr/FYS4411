@@ -8,6 +8,7 @@ public:
     void setNumberOfMetropolisSteps(int steps);
     void setOneBodyDensity          (int nBins, double r_max, double r_min);
     void sample(bool acceptedStep);
+    void sampleOneBodyDensity();
     void printOutputToTerminal();
     void computeAverages();
     double getEnergy()              { return m_energy; }
@@ -20,6 +21,7 @@ public:
     void writeAlphaToFile();
     void writeTimeStepToFile();
     void writeOneBodyDensityToFile();
+
 
 
 private:

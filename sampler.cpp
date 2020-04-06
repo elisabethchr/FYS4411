@@ -52,6 +52,8 @@ void Sampler::sample(bool acceptedStep) {
 
     double localEnergy = m_system->getHamiltonian()->
             computeLocalEnergy(m_system->getParticles(), calc);
+    m_system->setEnergy(localEnergy);
+
 
     clock_t c_end1 = clock();
     double t = (c_end1 - c_start1);
@@ -73,6 +75,49 @@ void Sampler::sample(bool acceptedStep) {
 //    cout << "m_energy_sample = " << m_cumulativeEnergy/((double)m_stepNumber) << endl;
 
 
+//    //////////////////////////////////////////////////////////////////////
+//    /// Sample particle positions for one-body density
+//    ///
+//     int n_p =m_system->getNumberOfParticles();
+//     int dim =m_system->getNumberOfDimensions();
+
+//     double r_part;
+//     double dvolume;
+//     double bin_size = m_Rmax/m_nBins;
+//     double beta = m_system->getBeta()[0];
+//     double pi = 3.14159;
+
+////     m_oneBodyBin(n_p,n_bins);
+
+////     for(int i = 0; i<n_p; i++){
+//         std::vector<class Particle*> particles = m_system->getParticles();
+//             r_part = 0;
+//             for(int j=0; j<dim; j++){
+//                 std::vector<double> position = particles[0]->getPosition();
+//                 if(j<2){
+//                  r_part +=position[j]*position[j];
+//                 }else{
+//                  r_part += beta*position[j]*position[j];
+//                 }
+
+//             }
+//             r_part = sqrt(r_part);
+//             if(r_part<=m_Rmax){
+//                 int bin_i = (int)floor(r_part/bin_size);
+////                 dvolume = (4*pi*(pow(m_radii[bin_i],2))*bin_size)/sqrt(beta);
+//                  dvolume = (4*pi*(pow(m_radii[bin_i],3)-pow(m_radii[bin_i]-bin_size,3)))/(3*sqrt(beta));
+
+//                 m_OneBodyBin[bin_i]+= 1/(dvolume);
+//             }
+////     }
+
+
+
+    m_stepNumber++;
+}
+
+void Sampler::sampleOneBodyDensity(){
+
     //////////////////////////////////////////////////////////////////////
     /// Sample particle positions for one-body density
     ///
@@ -87,11 +132,11 @@ void Sampler::sample(bool acceptedStep) {
 
 //     m_oneBodyBin(n_p,n_bins);
 
-//     for(int i = 0; i<n_p; i++){
+     for(int i = 0; i<n_p; i++){
          std::vector<class Particle*> particles = m_system->getParticles();
              r_part = 0;
              for(int j=0; j<dim; j++){
-                 std::vector<double> position = particles[0]->getPosition();
+                 std::vector<double> position = particles[i]->getPosition();
                  if(j<2){
                   r_part +=position[j]*position[j];
                  }else{
@@ -105,15 +150,11 @@ void Sampler::sample(bool acceptedStep) {
 //                 dvolume = (4*pi*(pow(m_radii[bin_i],2))*bin_size)/sqrt(beta);
                   dvolume = (4*pi*(pow(m_radii[bin_i],3)-pow(m_radii[bin_i]-bin_size,3)))/(3*sqrt(beta));
 
-                 m_OneBodyBin[bin_i]+= 1/(dvolume);
+                 m_OneBodyBin[bin_i]+= 1/(n_p*dvolume);
              }
-//     }
+     }
 
-
-
-    m_stepNumber++;
 }
-
 
 void Sampler::printOutputToTerminal() {
     int     np = m_system->getNumberOfParticles();
@@ -206,6 +247,8 @@ void Sampler::writeStepToFile(int step, int steps){
     bool calc = m_system->getCalculation();
     bool solv = m_system->getSolver();
 
+    double energy = m_system->getEnergy();
+
     string type;
     if(calc==true){ type = "numeric"; }
     else if(calc==false){ type = "analytic"; }
@@ -219,7 +262,7 @@ void Sampler::writeStepToFile(int step, int steps){
 //    cout << "m_energy = " << m_cumulativeEnergy / ((double) m_stepNumber) << endl << " " << endl;
 
     ofstream ofile;
-    string filename = "data/d/1d_";
+    string filename = "data/blocking/proper_3d_";
 //    string filename = "data/test";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
@@ -248,7 +291,7 @@ void Sampler::writeStepToFile(int step, int steps){
 
     ofile << setiosflags(ios::showpoint | ios::uppercase);
     ofile << setw(10) << setprecision(8) << step;
-    ofile << setw(15) << setprecision(8) << m_cumulativeEnergy / ((double) m_stepNumber);
+    ofile << setw(15) << setprecision(8) << energy;
     ofile << setw(15) << setprecision(8) << m_variance;
     ofile << setw(15) << setprecision(8) << m_error << "\n";
     ofile.close();
@@ -331,8 +374,8 @@ void Sampler::writeTimeStepToFile(){
     else if(calc==false){ type = "analytic"; }
 
     ofstream ofile;
-//    string filename = "data/1c_nParticles_";
-    string filename = "data/d/1d_timestep_nPart_";
+    string filename = "data/1c_nParticles_";
+
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));
@@ -402,7 +445,8 @@ void Sampler::writeOneBodyDensityToFile(){
     ofstream ofile;
 //    string filename = "data/1c_nParticles_";
 //    string filename = "data/g/1/final/plusDR_spherical_onebody_dv2_nPart_";
-    string filename = "data/g/1/final/A0.5_elliptical_onebody_dv2_nPart_";
+//    string filename = "data/g/1/final/A0.5_elliptical_onebody_dv2_nPart_";
+        string filename = "data/g/1/final/SPHERICAL";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));

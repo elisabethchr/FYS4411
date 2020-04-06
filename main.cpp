@@ -50,9 +50,9 @@ int main() {
     bool numeric = false;            //Set type of calculation (numeric or analytic)
     bool bruteForce = true;         //Set type of solver (brute force or importance sampling)
 
-    bool elliptical = true;         //Use elliptical or spherically symmetric potential/wavefunction
-    bool Jastrow = true;            //Include or exclude Jastrow factor, i.e. interaction
-    bool ideal = false;              //true = non-interacting spherical, false = interacting elliptical with parameters specified in 1e)
+    bool elliptical = false;         //Use elliptical or spherically symmetric potential/wavefunction
+    bool Jastrow = false;            //Include or exclude Jastrow factor, i.e. interaction
+    bool ideal = true;              //true = non-interacting spherical, false = interacting elliptical with parameters specified in 1e)
 
 
     bool alphaVec = false;          //Sets alpha to a vector
@@ -70,7 +70,7 @@ int main() {
     if (alphaVec){
         for(int i=0; i<n+1; i++){ alpha.push_back(alpha_min + i*d_alpha);}
     }else{
-       alpha.push_back(0.5);          //Set scalar alpha value here
+       alpha.push_back(0.3);          //Set scalar alpha value here
     }
     if (dtVec){
         for(int i=0; i<m+1; i++){ timestep.push_back(timestep_min + i*dt);}
@@ -80,8 +80,8 @@ int main() {
     if (nSteps){
         for(int i=0; i<k+1; i++){ MC_cycles.push_back(pow(2, 10+i)); cout << "2^" << 10+i << " = " << MC_cycles[i] << endl;}
     }else{
-//      MC_cycles.push_back(pow(2, 15));  //Set scalar numberOfSteps value here
-        MC_cycles.push_back(1e7);  //Set scalar numberOfSteps value here
+      MC_cycles.push_back(pow(2,23));  //Set scalar numberOfSteps value here
+//        MC_cycles.push_back(1e7);  //Set scalar numberOfSteps value here
     }
 
 
@@ -97,10 +97,10 @@ cout << (int)(0.4+0.5)<<endl;
 cout <<(int) 0.5<<endl;
 cout <<(int) 0.49<<endl;
     int numberOfDimensions  = 3;
-    int numberOfParticles   = 20;
+    int numberOfParticles   = 1;
 //    int numberOfSteps       = (int) 1e6;
     double omega            = 1.0;          // Oscillator frequency.
-    double stepLength       = 1;          // Metropolis step length.
+    double stepLength       = 1.0;          // Metropolis step length.
     double equilibration    = pow(2, 12);          // Amount of the total steps used for equilibration.
 
 
