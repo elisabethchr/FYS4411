@@ -38,18 +38,16 @@ bool System::metropolisStep() {
     arma::vec rand(m_numberOfDimensions);
 
     change_vec.zeros();
-//    std::vector<double> alphas =  m_waveFunction->getParameters();
 
     // evaluate wavefunction at old position
     double oldWaveFunction = m_waveFunction->evaluate(m_particles);
-    //double oldWaveFunction = m_wfValue;
 
     // change positions
     for(int dim=0; dim<m_numberOfDimensions; dim++){
         random_d = getUniform(-1.0, 1.0);
-//        random_d = getUniform(-0.5, 0.5);
+
         rand[dim] = random_d;
-        change = m_stepLength*random_d;       // between -0.5 and 0.5?
+        change = m_stepLength*random_d;
 
         change_vec[dim] = change;
         m_particles[random_i]->adjustPosition(change, dim);
@@ -102,7 +100,7 @@ bool System::importanceSampling(){
     std::vector<Particle *> posOld = m_particles;
     oldWaveFunction = m_waveFunction->evaluate(m_particles);
     m_wfValue = oldWaveFunction;
-    QForceOld = m_hamiltonian->computeQuantumForce(m_particles, random_i); // /oldWaveFunction; // (dividing by m_wfValue in computeQuantumForce for harmonic oscillator)
+    QForceOld = m_hamiltonian->computeQuantumForce(m_particles, random_i); // (dividing by m_wfValue in computeQuantumForce for harmonic oscillator)
 
     // Move a random distance in every dimension according to a Gaussian distribution
     for (int dim=0; dim<m_numberOfDimensions; dim++){
@@ -116,7 +114,7 @@ bool System::importanceSampling(){
     std::vector<Particle *> posNew = m_particles;
     newWaveFunction = m_waveFunction->evaluate(m_particles);
     m_wfValue = newWaveFunction;
-    QForceNew = m_hamiltonian->computeQuantumForce(m_particles, random_i); // /newWaveFunction; // (dividing by m_wfValue in computeQuantumForce for harmonic oscillator)
+    QForceNew = m_hamiltonian->computeQuantumForce(m_particles, random_i); // (dividing by m_wfValue in computeQuantumForce for harmonic oscillator)
 
     // Compute Green's function by looping over all dimensions, where m_stepLength ~= timestep
     for (int j=0; j<m_numberOfDimensions; j++){
@@ -128,7 +126,6 @@ bool System::importanceSampling(){
     double ratio = GreensFunction*newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
 
     if(s<=ratio){
-        //m_wfValue = newWaveFunction;
         m_stepImportance++;
         return true;
     }
@@ -144,6 +141,8 @@ bool System::importanceSampling(){
 
 void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
     m_alpha = 0;
+
+    // loop over values of variational parameter alpha
     for (int alpha=0; alpha<m_waveFunction->getParameters().size(); alpha++){
         cout << "\n m_alpha = " << m_alpha << ", " << "alpha = " << m_waveFunction->getParameters()[m_alpha] << endl;
        // cout << "m_beta = " << m_waveFunction->getParametersBeta()[0] << endl;
@@ -152,7 +151,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
 
         //        for(int MC=0; MC<numberOfMetropolisSteps.size(); MC++){
         m_timestep = 0;
-        m_numberOfMetropolisSteps   = numberOfMetropolisSteps[0];
+        m_numberOfMetropolisSteps = numberOfMetropolisSteps[0];
         cout << "\n m_numberOfMetropolisStep: " << "2^" << log2(m_numberOfMetropolisSteps) << " = " << m_numberOfMetropolisSteps << endl;
         for (int dt=0; dt<m_timesteps.size(); dt++){
             cout << "\n m_timestep = " << m_timestep << ", " << "timestep = " << m_timesteps[0] << endl;
@@ -161,8 +160,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
             m_acceptedSteps = 0.0;
             m_MCstep = 0;
             m_particles                 = m_initialState->getParticles();
-            m_sampler                   = new Sampler(this); //Remove later: (this) points to the system object from which  "runMetropolisSteps" is called.
-            //m_numberOfMetropolisSteps   = numberOfMetropolisSteps[MC];
+            m_sampler                   = new Sampler(this);
             m_sampler->setNumberOfMetropolisSteps(m_numberOfMetropolisSteps);
 
             m_sampler->setOneBodyDensity(m_nBins,m_Rmax,m_Rmin);
@@ -172,6 +170,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
             mt19937_64 gen(i());
             m_seed = gen;
 
+            // run Metropolis algorithm
             for (int i=0; i < m_numberOfMetropolisSteps; i++) {
 
                 bool acceptedStep;
@@ -180,32 +179,31 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
                 if(m_solver==true){ acceptedStep = metropolisStep(); }
                 else if (m_solver==false){ acceptedStep = importanceSampling(); }
 
+                // sample accepted steps
                 if(acceptedStep == true){
                     m_acceptedSteps++;
+                    // allow for equilibration of energy (~5% of Metropolis steps)
                     if(i >= m_equilibrationFraction - 100){
                         m_sampler->sample(acceptedStep);
-//                        m_sampler->sampleOneBodyDensity();
+                        m_sampler->sampleOneBodyDensity();
                         steps++;
                         m_stepMetropolis++;
-
                     }
                 }
 
-                if(i>= m_equilibrationFraction){ m_sampler->writeStepToFile(m_stepMetropolis, i); }
+                //if(i>= m_equilibrationFraction){ m_sampler->writeStepToFile(m_stepMetropolis, i); }
 
                 m_MCstep++;
             }
             m_sampler->computeAverages();
             m_sampler->printOutputToTerminal();
             //m_sampler->writeAlphaToFile();
-            m_sampler->writeOneBodyDensityToFile();
+            //m_sampler->writeOneBodyDensityToFile();
             m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
             cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 
 //            m_energy = m_sampler->getEnergy();
             m_derivativeE = m_sampler->getEnergyDerivative();
-
-            //        cout << "Acceptance rate importance sampling: " << m_stepImportance/((double) m_numberOfMetropolisSteps) << endl;
 
             m_timestep++;
         }

@@ -62,7 +62,6 @@ private:
     int                             m_MCstep = 0;
     double                          m_acceptedSteps_ratio = 0.0;
     double                          m_equilibrationFraction = 0.0;
-    //    double                          m_stepLength = 0.1;
     double                          m_stepLength = 0.1;
     double                          m_energy = 0.0;
     double                          m_derivativeE = 0.0;

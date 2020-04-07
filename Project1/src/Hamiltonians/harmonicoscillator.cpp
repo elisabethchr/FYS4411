@@ -18,12 +18,14 @@ HarmonicOscillator::HarmonicOscillator(System* system, double omega) :
 }
 
 double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, bool type) {
+    // function for computing the local energy of a spherical system (no perturbation)
 
     double potentialEnergy = 0;
     double kineticEnergy   = 0;
     int dim = m_system->getNumberOfDimensions();
     int nPart= m_system->getNumberOfParticles();
 
+    // compute local energy
     for (int i = 0; i<nPart;i++){
         for(int j = 0; j<dim; j++){
             double coordinate = particles.at(i)->getPosition().at(j);
@@ -31,8 +33,10 @@ double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, 
         }
     }
 
+    // obtain current value for the wavefunction
     double psi = m_system->getWaveFunctionValue();
 
+    // compute kinetic energy
     if(type == true){ kineticEnergy -= (1/psi)*0.5*m_system->getWaveFunction()->computeDoubleDerivative_numeric(particles); }
     else if(type == false){ kineticEnergy = (1/psi)*0.5*m_system->getWaveFunction()->computeDoubleDerivative_analytic(particles); }
 
@@ -40,10 +44,13 @@ double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, 
 }
 
 vec HarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles, int i){
+    // Compute the drift force experienced by particles
 
     int nDim = m_system->getNumberOfDimensions();
     vec force(nDim); force.zeros();
     vec gradient = m_system->getWaveFunction()->computeGradient(particles, i);
+
+    // obtain current value for the wavefunction
     double psi = m_system->getWaveFunctionValue();
 
 

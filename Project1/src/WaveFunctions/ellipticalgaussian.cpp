@@ -10,7 +10,7 @@ using namespace std;
 using namespace arma;
 
 // Obtain parameters required for the evalutaion of the elliptical wavefunction
-EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha, std::vector<double> beta, double hard_core_diameter, bool Jastrow) :
+EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha, std::vector<double> beta, double hard_core_diameter, bool Jastrow, double gamma) :
     WaveFunction(system) {
     assert(alpha.size() >= 0);
 
@@ -22,6 +22,7 @@ EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha
 
     m_hard_core_diameter = hard_core_diameter;
     m_Jastrow = Jastrow;
+    m_gamma = gamma;
 }
 
 /*
@@ -30,43 +31,10 @@ EllipticalGaussian::EllipticalGaussian(System* system, std::vector<double> alpha
  * between the particles
 */
 
-
-/*
-// original
 double EllipticalGaussian::evaluate(std::vector<class Particle*> particles) {
 
-//      Evaluate the full expression for the elliptical wavefunction using the single-particle wavefunction,
-//      the correlation wavefunction, and the distance between particles.
-
-
-    double r;
-    double psi = 1.0;
-    int nDim = m_system->getNumberOfDimensions();
-    int nPart = m_system->getNumberOfParticles();
-
-    std::vector<double> alphas = m_parameters;
-
-    for (int i=0; i<nPart; i++){
-
-        psi *= SingleParticleFunction(particles, i);
-
-        for(int j=i+1; j<nPart; j++){
-
-            r = getDistance(particles, i, j);
-            psi *= correlationWaveFunction(particles, r);
-        }
-    }
-
-    return psi;
-}
-*/
-
-// test
-double EllipticalGaussian::evaluate(std::vector<class Particle*> particles) {
-
-    //      Evaluate the full expression for the elliptical wavefunction using the single-particle wavefunction,
-    //      the correlation wavefunction, and the distance between particles.
-
+    // Evaluate the full expression for the elliptical wavefunction using the single-particle wavefunction,
+    // the correlation wavefunction, and the distance between particles.
 
     double r;
     double psi = 1.0;
@@ -89,10 +57,8 @@ double EllipticalGaussian::evaluate(std::vector<class Particle*> particles) {
 }
 
 
-// test
 double EllipticalGaussian::SingleParticleFunction(std::vector<class Particle *> particles, int particle) {
     // Compute single-particle function g(alpha, beta, r)
-
 
     int i = m_system->getAlphaIndex();
     int nDim = m_system->getNumberOfDimensions();
@@ -113,35 +79,9 @@ double EllipticalGaussian::SingleParticleFunction(std::vector<class Particle *> 
 }
 
 
-/*
-// original
-double EllipticalGaussian::SingleParticleFunction(std::vector<class Particle *> particles, int particle) {
-    // Compute single-particle function g(alpha, beta, r)
-
-
-    int i = m_system->getAlphaIndex();
-    int nDim = m_system->getNumberOfDimensions();
-    double r;
-    double alpha = m_parameters[i];
-    double beta = m_beta[0];
-
-    std::vector<double> pos = particles[particle]->getPosition();
-
-    for(int j=0; j<nDim; j++){
-
-        // perturb the z-direction by beta
-        if(j==2){ r += beta*pos[j]*pos[j]; }
-        else { r += pos[j]*pos[j]; }
-    }
-
-    return exp(-alpha*r);
-}
-*/
-
 double EllipticalGaussian::correlationWaveFunction(std::vector<class Particle *> particles, double distance) {
-    /*
-     * Compute correlation wave function f(a, r), i.e. Jastrow factor
-    */
+    // Compute correlation wave function f(a, r), i.e. Jastrow factor
+
     double a = m_hard_core_diameter;
     double f = 1;
 
@@ -156,9 +96,7 @@ double EllipticalGaussian::correlationWaveFunction(std::vector<class Particle *>
 
 
 double EllipticalGaussian::getDistance(std::vector<class Particle *> particles, int particle_i, int particle_j) {
-    /*
-     * Obtain the distance between two particles
-    */
+    // Obtain the distance between two particles
 
     int nDim = m_system->getNumberOfDimensions();
     double distance = 0.0;
@@ -202,7 +140,7 @@ double EllipticalGaussian::computeLaplacian(std::vector<class Particle *> partic
         gradient_correlation = computeGradient_correlation(particles, k);
         for (int dim=0; dim<m_numberOfDimensions; dim++){
             term2 += 2*gradient_SPF[dim] * computeLaplacian_correlation(particles, k);
-            term3 += gradient_correlation[dim]*gradient_correlation[dim];     // OK
+            term3 += gradient_correlation[dim]*gradient_correlation[dim];
         }
     }
     laplacian += term1 + term2 + term3 + term4;
@@ -211,13 +149,9 @@ double EllipticalGaussian::computeLaplacian(std::vector<class Particle *> partic
 }
 
 
-// * Redo this function according to the gradient for elliptical, interacting wavefunction !!!
-// * |
-// * |
-// * V
-
-
 arma::vec EllipticalGaussian::computeGradient(std::vector<class Particle *> particles, int i) {
+    // compute the gradient
+
     int nDim, nPart;
     double term1, term2, rij, sum1, sum2;
     nDim = m_system->getNumberOfDimensions();
@@ -240,6 +174,8 @@ arma::vec EllipticalGaussian::computeGradient(std::vector<class Particle *> part
 
 
 double EllipticalGaussian::computeDerivativePsi_alpha(std::vector<class Particle *> particles){
+    // compute the derivative of psi wrt. variational parameter alpha
+
     int nPart, nDim;
     double m_alpha, m_beta, deriv, r, rij, psi;
     std::vector<double> pos;
@@ -248,8 +184,8 @@ double EllipticalGaussian::computeDerivativePsi_alpha(std::vector<class Particle
     nPart = m_system->getNumberOfParticles();
     m_alpha = getParameters()[0];
     m_beta = getParametersBeta()[0];
-    psi = evaluate(particles);
-
+//    psi = evaluate(particles);
+    psi = m_system->getWaveFunctionValue();
 
     for (int i=0; i<nPart; i++){
         pos = particles[i]->getPosition();
@@ -262,27 +198,12 @@ double EllipticalGaussian::computeDerivativePsi_alpha(std::vector<class Particle
 
     deriv *= psi;
 
-
-    /*
-    for (int i=0; i<nPart; i++){
-        pos = particles[i]->getPosition();
-        for (int dim=0; dim<nDim; dim++){
-            r = pos[dim]*pos[dim];
-            if (dim==2){ deriv += m_beta*r; }
-            else { deriv += r; }
-        }
-        for (int j=0; j<nPart; j++){
-            rij = getDistance(particles, i, j);
-            deriv*=correlationWaveFunction(particles, rij);
-        }
-        deriv *= SingleParticleFunction(particles, i);
-    }
-*/
     return deriv;
 }
 
 
 double EllipticalGaussian::computeLaplacian_SPF(int particle_i){
+    // compute the laplacian of the single-particle wavefunction
 
     double r, laplacian;
     int nDim = m_system->getNumberOfDimensions();
@@ -297,6 +218,7 @@ double EllipticalGaussian::computeLaplacian_SPF(int particle_i){
 
     for (int j=0; j<nDim; j++){
         r = pos[j];
+        // perturb the z-direction by beta
         if (j==2){ r *= beta; }
 
         laplacian += -2*alpha*r*r;
@@ -312,6 +234,7 @@ double EllipticalGaussian::computeLaplacian_SPF(int particle_i){
 
 
 vec EllipticalGaussian::computeGradient_SPF(int particle_i){
+    // compute the gradient of the single-particle wavefunction
 
     double r;
     int nDim = m_system->getNumberOfDimensions();
@@ -334,19 +257,22 @@ vec EllipticalGaussian::computeGradient_SPF(int particle_i){
 
 
 double EllipticalGaussian::computeLaplacian_correlation(std::vector<class Particle *> particles, int particle_i){
+    // compute the laplacian of the correlation wavefunction
+
     double a, rij, du, ddu, laplacian;
     int nPart = m_system->getNumberOfParticles();
 
     a = m_hard_core_diameter;
 
+    // initialise position vector for particle i
     std::vector<double> pos_i;
-
     pos_i = m_system->getParticles()[particle_i]->getPosition();
 
     laplacian = 0.0;
     for (int particle_j=0; particle_i<nPart; particle_i++){
         if (particle_j != particle_i){
             rij = getDistance(particles, particle_i, particle_j);
+            // ensure boundary conditions for hard-sphere diameter
             if (rij <= a){ laplacian = 0; }
             else{
                 du = computeDerivative_correlation(particle_i, particle_j);
@@ -362,6 +288,8 @@ double EllipticalGaussian::computeLaplacian_correlation(std::vector<class Partic
 
 
 arma::vec EllipticalGaussian::computeGradient_correlation(std::vector<class Particle *> particles, int particle_i){
+    // compute the gradient of the correlation wavefunction
+
     double a = m_hard_core_diameter;
     double rij, du;
     int nPart = m_system->getNumberOfParticles();
@@ -385,6 +313,7 @@ arma::vec EllipticalGaussian::computeGradient_correlation(std::vector<class Part
             du = computeDerivative_correlation(particle_i, particle_j);
 
             for (int dim=0; dim<nDim; dim++){
+                // ensure boundary conditions for hard-sphere diameter
                 if (rij <= a){ gradient[dim] = 0; }
                 else{
                     gradient[dim] += (pos_i[dim] - pos_j[dim]) /rij * du;
@@ -397,6 +326,8 @@ arma::vec EllipticalGaussian::computeGradient_correlation(std::vector<class Part
 
 
 double EllipticalGaussian::computeDerivative_correlation(int particle_i, int particle_j){
+    // compute the derivative of the correlation functoin wrt. distance between particles (rij)
+
     double a = m_hard_core_diameter;
     int nDim = m_system->getNumberOfDimensions();
 
@@ -412,31 +343,30 @@ double EllipticalGaussian::computeDerivative_correlation(int particle_i, int par
 
 
 double EllipticalGaussian::computeDoubleDerivative_correlation(int particle_i, int particle_j){
+    // compute the double derivative of the correlation function wrt. distance between particles (rij)
+
     double a = m_hard_core_diameter;
-    double laplacian = 0.0;
+    double deriv = 0.0;
 
     std::vector<class Particle* > particles = m_system->getParticles();
 
     double rij = getDistance(particles, particle_i, particle_j);
 
-    laplacian += a*(a-2*rij) / ((double) rij*rij*(a - rij)*(a - rij));
+    deriv += a*(a-2*rij) / ((double) rij*rij*(a - rij)*(a - rij));
 
-    return laplacian;
+    return deriv;
 }
 
 
 double EllipticalGaussian::computeDoubleDerivative_analytic(std::vector<class Particle*> particles) {
-    /*
-     * Compute the analytic laplacian used in finding the expression for the analytic local energy
-    */
+     // Compute the analytic laplacian used in finding the expression for the analytic local energy
+
     return computeLaplacian(particles);
 }
 
 
 double EllipticalGaussian::computeDoubleDerivative_numeric(std::vector<class Particle*> particles) {
-    /*
-     * Compute the numeric laplacian used in finding the expresion for the numeric local energy
-    */
+    // Compute the numeric laplacian used in finding the expresion for the numeric local energy
 
     double h, wfplus, wfminus, wfcurrent;
     double deriv;

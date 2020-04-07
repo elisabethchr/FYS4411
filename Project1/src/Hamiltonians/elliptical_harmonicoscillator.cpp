@@ -18,6 +18,7 @@ EllipticalHarmonicOscillator::EllipticalHarmonicOscillator(System* system, doubl
 }
 
 double EllipticalHarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, bool type) {
+    // function for computing the local energy of an elliptical system (with perturbation)
 
     double coordinate;
     double potentialEnergy = 0.0;
@@ -45,27 +46,26 @@ double EllipticalHarmonicOscillator::computeLocalEnergy(std::vector<Particle*> p
         }
     }
 
-    // compute kinetic energy
-//    kineticEnergy -= 0.5*m_system->getWaveFunction()->computeLaplacian(particles);
-
+    // obtain current value for the wavefunction
     double psi = m_system->getWaveFunctionValue();
 
-    if(type == true){ kineticEnergy -= (1/psi)*0.5*m_system->getWaveFunction()->computeDoubleDerivative_numeric(particles); }
-    else if(type == false){ kineticEnergy -= 0.5*m_system->getWaveFunction()->computeDoubleDerivative_analytic(particles); }
+    // compute kinetic energy
+    if(type == true){ kineticEnergy -= (1/psi)*0.5*(hbar*hbar/M)*m_system->getWaveFunction()->computeDoubleDerivative_numeric(particles); }
+    else if(type == false){ kineticEnergy -= 0.5*(hbar*hbar/M)*m_system->getWaveFunction()->computeDoubleDerivative_analytic(particles); }
 
 
     return potentialEnergy + kineticEnergy;
 }
 
 vec EllipticalHarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles, int i){
-    /*
-     * Compute the drift force expreienced by particles
-    */
+     // compute the drift force experienced by particles
 
     int nDim = m_system->getNumberOfDimensions();
     double psi = m_system->getWaveFunctionValue();
 
     vec force(nDim); force.zeros();
+
+    // compute gradient
     vec gradient = m_system->getWaveFunction()->computeGradient(particles, i);
 
     force = 2*gradient;
@@ -74,6 +74,8 @@ vec EllipticalHarmonicOscillator::computeQuantumForce(std::vector<Particle *> pa
 }
 
 vec EllipticalHarmonicOscillator::computeGradientPsi(std::vector<Particle*> particles){
+    // compute the gradient of wavefunction psi
+
     int nDim, nPart;
     double psi;
     nDim = m_system->getNumberOfDimensions();

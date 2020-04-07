@@ -123,9 +123,6 @@ void Sampler::printOutputToTerminal() {
     double  ef = m_system->getEquilibrationFraction();
     std::vector<double> pa = m_system->getWaveFunction()->getParameters();
 
-//    cout << "m_cumulativeenergy = " << m_cumulativeEnergy << endl;
-//    cout << "Analytic energy: " << m_cumulativeEnergyAnalytic << endl;
-
     cout << endl;
     cout << "  -- System info -- " << endl;
     cout << " Number of particles  : " << np << endl;
@@ -135,9 +132,6 @@ void Sampler::printOutputToTerminal() {
     cout << endl;
     cout << "  -- Wave function parameters -- " << endl;
     cout << " Number of parameters : " << p << endl;
-//    for (int i=0; i < p; i++) {
-//        cout << " Parameter " << i+1 << " : " << pa.at(i) << endl;
-//    }
     cout << endl;
     cout << "  -- Results -- " << endl;
     cout << " Energy : " << m_energy << endl;
@@ -146,9 +140,8 @@ void Sampler::printOutputToTerminal() {
 }
 
 void Sampler::computeAverages() {
-    /* Compute the averages of the sampled quantities. You need to think
-     * thoroughly through what is written here currently; is this correct?
-     */
+    // Compute the averages of the sampled quantities
+
     int m_metropolisStep = m_system->getMetropolisStep();
 
     // test to make sure m_energy != nan
@@ -156,23 +149,17 @@ void Sampler::computeAverages() {
     else {m_energy = m_cumulativeEnergy / ((double) m_stepNumber);}
 
     m_energy2 = m_cumulativeEnergy2 / ((double )m_stepNumber);
-//    m_energyAnalytic = m_cumulativeEnergyAnalytic / (m_stepNumber);
     m_derivativePsiE = m_cumulativeDerivativePsiE / ((double) m_stepNumber);
     m_deltaPsi = m_cumulativeDeltaPsi / ((double) m_stepNumber);
     m_derivativeE = 2*(m_derivativePsiE - m_deltaPsi*m_energy);
 
     m_variance = (m_energy2 - m_energy*m_energy) / ((double) m_stepNumber);
     m_error = pow(abs(m_variance), 0.5);
-//    cout << "computeAverages: m_variance = " << m_variance << endl;
-//    cout << "computeAverages: m_error = " << m_error << endl;
 }
 
 
 void Sampler::writeTotalToFile(){
     int nParticles = m_system->getNumberOfParticles();
-    //    int nDim = m_system->getNumberOfDimensions();
-    //    int nSteps = m_system->getNumberOfMetropolisSteps();
-
 
     ofstream ofile;
     string filename = "10steps.txt";
@@ -182,8 +169,6 @@ void Sampler::writeTotalToFile(){
         ofile << setw(10) << "N_{particles}" <<setw(15) << "t_{num}" << setw(15)<<"t_{anal}"<< endl;
     }else{ofile.open(filename, ios::app | ios::out);}
 
-    //    cout << "m_energy: " << m_energy << endl;
-    //    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
     if (ofile.is_open()){
         ofile << setiosflags(ios::showpoint | ios::uppercase);
         ofile << setw(10) << setprecision(8) << nParticles;
@@ -196,6 +181,8 @@ void Sampler::writeTotalToFile(){
 }
 
 void Sampler::writeStepToFile(int step, int steps){
+    // write sampled quantities for each Metropolis step to file
+
     int i = m_system->getAlphaIndex();
     double alpha = m_system->getWaveFunction()->getParameters()[i];
     int timestep = m_system->getTimeStepIndex();
@@ -216,13 +203,8 @@ void Sampler::writeStepToFile(int step, int steps){
     if(solv==true){ solver = "bruteForce"; }
     else if (solv==false){ solver = "importance"; }
 
-//    cout << "m_cumulativeEnergy = " << m_cumulativeEnergy << endl;
-//    cout << "m_stepNumber = " << m_stepNumber << endl;
-//    cout << "m_energy = " << m_cumulativeEnergy / ((double) m_stepNumber) << endl << " " << endl;
-
     ofstream ofile;
     string filename = "data/blocking/proper_3d_";
-//    string filename = "data/test";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));
@@ -258,6 +240,8 @@ void Sampler::writeStepToFile(int step, int steps){
 
 
 void Sampler::writeAlphaToFile(){
+    // write averaged quantities for each value of alpha to file
+
     int i = m_system->getAlphaIndex();
     int step = m_system->getMetropolisStep();
     double nParticles = m_system->getNumberOfParticles();
@@ -282,7 +266,6 @@ void Sampler::writeAlphaToFile(){
     else if (solv==false){ solver = "importance"; }
 
     ofstream ofile;
-//    string filename = "data/1c_nParticles_";
     string filename = "data/e/1e_alpha_";
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
@@ -295,8 +278,8 @@ void Sampler::writeAlphaToFile(){
     filename.append(arg1);
     filename.append("_nDim_");
     filename.append(arg2);
-//    filename.append("_nSteps_");
-//    filename.append(arg3);
+    filename.append("_nSteps_");
+    filename.append(arg3);
     filename.append("_stepLength_");
     filename.append(arg4);
     filename.append("_.txt");
@@ -319,6 +302,8 @@ void Sampler::writeAlphaToFile(){
 }
 
 void Sampler::writeTimeStepToFile(){
+    // write averaged quantities for each value of time step (dt) to file
+
     int i = m_system->getTimeStepIndex();
     int step = m_system->getMetropolisStep();
     double nParticles = m_system->getNumberOfParticles();
@@ -355,9 +340,6 @@ void Sampler::writeTimeStepToFile(){
     }
     else{ofile.open(filename, ios::app | ios::out);}
 
-    //    cout << "m_energy: " << m_energy << endl;
-    //    cout << "m_energyAnalytic: " << m_energyAnalytic << endl;
-
     ofile << setiosflags(ios::showpoint | ios::uppercase);
     ofile << setw(10) << setprecision(8) << timestep;
     ofile << setw(15) << setprecision(8) << m_cumulativeEnergy / ((double) m_stepNumber);
@@ -369,11 +351,11 @@ void Sampler::writeTimeStepToFile(){
 }
 
 void Sampler::writeOneBodyDensityToFile(){
+    // write one-body densities to file
 
     int i = m_system->getTimeStepIndex();
 
     int nBins = m_nBins;
-//    std::vector<double> bins = m_system->getBins();
     double r_max = m_Rmax;
     bool interacting = m_system->getWaveFunction()->getJastrow(); //adjust for spherical
     int step = m_system->getMetropolisStep();
@@ -392,15 +374,6 @@ void Sampler::writeOneBodyDensityToFile(){
     if(interacting==true){ Jastrow = "interacting"; }
     else if(interacting==false){ Jastrow = "non-interacting"; }
 
-//    char *s = "0.4794255386042030002732879352156";
-//    double d;
-
-////    sscanf(s,"%lf",&d);
-////    printf("%.12e\n",d);
-//    sscanf(s,"%lf";
-//    printf("%.12e\n");
-
-
     ofstream ofile;
 //    string filename = "data/1c_nParticles_";
 //    string filename = "data/g/1/final/plusDR_spherical_onebody_dv2_nPart_";
@@ -411,7 +384,6 @@ void Sampler::writeOneBodyDensityToFile(){
     string arg3 = to_string(int(nSteps));
     string arg4 = to_string(stepLength);
     string arg5 = to_string(m_nBins);
-//    string arg6 = to_string(Jastrow);
     filename.append(arg1);
     filename.append("_nDim_");
     filename.append(arg2);

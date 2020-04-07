@@ -20,7 +20,6 @@ using namespace arma;
 int main() {
     clock_t c_start = clock();
 
-    // setting variational parameter alpha
     int n = 10;     // number of values for alpha
     int m = 10;     // number of values for time steps dt
     int k = 10;     // length of array for the number of Metropolis steps
@@ -31,7 +30,7 @@ int main() {
     double timestep_min = 0.1;
     double dt = (timestep_max - timestep_min)/m;
 
-    double a; //Hard core diamater
+    double a; // hard-core diamater
 
 
 
@@ -97,6 +96,7 @@ int main() {
     int numberOfDimensions  = 3;
     int numberOfParticles   = 1;
     double omega            = 1.0;          // Oscillator frequency.
+    double gamma            = 2.8483;       // perturbation when elliptical
     double stepLength       = 1.0;          // Metropolis step length.
     double equilibration    = pow(2, 12);          // Amount of the total steps used for equilibration.
 
@@ -108,7 +108,7 @@ int main() {
     system->setSolver                   (bruteForce);
     if(elliptical){
         system->setHamiltonian              (new EllipticalHarmonicOscillator(system, omega));
-        system->setWaveFunction             (new EllipticalGaussian(system, alpha, beta, a, Jastrow));
+        system->setWaveFunction             (new EllipticalGaussian(system, alpha, beta, a, Jastrow, gamma));
         cout << "Elliptical"<<endl;
     }else{
         system->setHamiltonian              (new HarmonicOscillator(system, omega));

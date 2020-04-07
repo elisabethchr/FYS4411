@@ -4,7 +4,7 @@
 
 class EllipticalGaussian : public WaveFunction {
 public:
-    EllipticalGaussian(class System* system, std::vector<double> alpha, std::vector<double> beta, double hard_core_diameter, bool Jastrow);
+    EllipticalGaussian(class System* system, std::vector<double> alpha, std::vector<double> beta, double hard_core_diameter, bool Jastrow, double gamma);
     double evaluate(std::vector<class Particle*> particles);
     arma::vec computeGradient(std::vector<class Particle*> particles, int i);
     double computeDoubleDerivative_numeric(std::vector<class Particle*> particles);

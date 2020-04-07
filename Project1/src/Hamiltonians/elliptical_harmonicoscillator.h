@@ -11,5 +11,7 @@ public:
     vec computeGradientPsi(std::vector<Particle*> particles);
 
 private:
-    double m_omega = 0;
+    double m_omega = 0;     // oscillator frequency
+    double hbar = 1.0;
+    double M = 1.0;
 };
