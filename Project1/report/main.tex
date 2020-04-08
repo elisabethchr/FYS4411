@@ -551,7 +551,9 @@ This computation is furthermore done for $N = 1$, 10 and 100 particles in both $
 %  Adding importance sampling
 %*******************************
 \subsubsection{Adding importance sampling}
-Next, we look at the case of importance sampling, i.e. implementing the Metropolis-Hastings algorithm. We continue to look at the case of a spherical harmonic oscillator with $\beta=1$ and $a=0$. As found from the brute-force algorithm, we can use the fact that we can obtain a local minima of the local energy when $\alpha = 0.5$. And as can be seen from table~\ref{tab:c_brute_force_vs_importance_tCPU}, we compare the time required to compute the local energy in the cases of $N=1$, 10, 100 and 500 particles in 3 dimensions. This was done using $1e5$ Metropolis steps, with a steplength of 0.5 and timestep 0.01. The CPU run times have been averaged over 10 samples. Since the run time will vary depending on what the machine is doing, a breakpoint was used to get samples that are more spaced out in time. Here, we see a clear difference between the two methods. Importance sampling uses a longer computational time, both for the analytic and the numeric solutions. But in return it gives a higher acceptance ratio which leads to a lower estimate on the biased error, as can be shown in table~\ref{tab:c_importance_sampling_1part_3dim}. 
+Next, we look at the case of importance sampling, i.e. implementing the Metropolis-Hastings algorithm. We continue to look at the case of a spherical harmonic oscillator with $\beta=1$ and $a=0$. As found from the brute-force algorithm, we can use the fact that we can obtain a local minima of the local energy when $\alpha = 0.5$. And as can be seen from table~\ref{tab:c_brute_force_vs_importance_tCPU}, we compare the time required to compute the local energy in the cases of $N=1$, 10, 100 and 500 particles in 3 dimensions. This was done using $1e5$ Metropolis steps, with a steplength of 0.5 and timestep 0.01. The CPU run times have been averaged over 10 samples. Since the run time will vary depending on what the machine is doing, a breakpoint was used to get samples that are more spaced out in time. Here, we see a clear difference between the two methods. Importance sampling uses a longer computational time, both for the analytic and the numeric solutions. 
+% But in return it gives a higher acceptance ratio which leads to a lower estimate on the biased error, as can be shown in table
+However, it produces less correlated measurements and is a more efficient sampling method since it pushes the walker to regions where the wavefunction is large, thus requiring fewer steps. The results are shown in table ~\ref{tab:b_bruteforce_1part_3dim} and ~\ref{tab:c_importance_sampling_1part_3dim}. 
 
 \begin{table}[h!]
 \caption{Sample measurements of the local energy using Standard Metropolis algorithm, for 1 particle in 3 dimensions. This is run with $2^{20}$ Metropolis steps and a step length of 1.0.}
@@ -605,11 +607,11 @@ $\alpha$ & $E_L$  & $\sigma$ & $\sigma_b$ & $A_{ratio}$ & $t_{CPU}[\si{s}]$  \\
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{blocking_1particle_3d_2e23steps_alpha=0.3_steplength=1_automated.png}
-    \caption{Comparison of the biased estimator $\sigma_k^2/n_k$ and $\sigma_b^2$ found through the automated blocking described in ~\ref{subsubsec:blocking}, using a significance level of $\alpha = 0.01$. As can be seen, the plateau is reached at about the sixth iteration, indicating a correlation time of $\tau \sim 2^6$ [You sure?] for a step length of 1. As expected, the behaviour of $\sigma_k^2/n_k$ becomes increasingly erratic for high $k$. This is because the number of blocks are too low to give a good estimate of the sample variance.}
+    \caption{Comparison of the biased estimator $\sigma_k^2/n_k$ and $\sigma_b^2$ found through the automated blocking described in ~\ref{subsubsec:blocking}, using a significance level of $\alpha = 0.01$. As can be seen, the plateau is reached at about the sixth iteration, indicating a correlation time of $\tau \sim 2^6$  for a step length of 1. As expected, the behaviour of $\sigma_k^2/n_k$ becomes increasingly erratic for high $k$. This is because the number of blocks are too low to give a good estimate of the sample variance.}
     \label{fig:blocking_behaviour}
 \end{figure}
 
-Of course, the number of accepted steps is dependent on the timestep chosen for importance sampling. The relation between the number of accepted steps and the timesteps can be shown in figure~\ref{fig:c_importance_acceptance_ratio_timesteps}, where $\delta t \in [0.1, 1.0]$. Here, we see that the ratio declines as the timesteps increases. Optimally, the timestep $\delta t$ is to be within the range $[0.001, 0.01]$ for stable values of the local energy. We can choose a low timestep, such as $\delta t = 0.001$, but this would require even more computational power as more steps are accepted. Thus, there is a fine line between the desired accuracy of the local energy, and the computational power needed behind the scenes when it comes to importance sampling.
+Of course, the number of accepted steps is dependent on the timestep chosen for importance sampling. The relation between the number of accepted steps and the timesteps can be shown in figure~\ref{fig:c_importance_acceptance_ratio_timesteps}, where $\delta t \in [0.1, 1.0]$. Here, we see that the ratio declines as the timesteps increases. Optimally, the timestep $\delta t$ is to be within the range $[0.001, 0.01]$ for stable values of the local energy. We can choose a low timestep, such as $\delta t = 0.001$, but this would require even more computational power as the correlation decreases our effective sample size. Thus, there is a fine line between the desired accuracy of the local energy, and the computational power needed behind the scenes when it comes to importance sampling.
 
 
 \begin{table}[h!]
@@ -750,7 +752,14 @@ The one-body densities are shown in figure~\ref{fig:g_onebody_density}, where we
 
 Note that the one-body density for the spherical wavefunction is smaller than that of the elliptical wavefunction. This is to be expected, as $\Delta V$ increases by a factor of $\sqrt{\beta}$ when integrating over spherical shells compared to elliptical ones. From equation \eqref{eq:29}, the elliptical one-body density should therefore be a factor of $\sqrt{\beta}$ greater than the spherical. A rough estimate from figure \ref{fig:g_onebody_density} reveals this factor to be $1.666 \approx 1.682 = \sqrt{\beta}$.
 
-\begin{table}[H]
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.45\textwidth]{onebodydensity_steplength0.1_nbins500_nsteps1e7.png}
+    \caption{One-body density vs. radial distance in units of $a_{ho}$. This was run with 20 particles in 3 dimensions, with a steplength of 0.1 and 1e7 number of Metropolis steps.}
+    \label{fig:g_onebody_density}
+\end{figure}
+
+\begin{table}[h]
 
 \caption{Local energy as a function of $\alpha$ when running the brute force algorithm for $N = 10$, 50 and 100 particles in 3 dimensions. This is done with $2^{17}$ steps for $N=10, 50$, whereas the computation for $N=100$ is done with $2^{16}$ steps. All is run with a step length 1.0.}
 \label{tab:e_brute_force_localE_stepLength_1.0}
@@ -780,7 +789,7 @@ $\alpha$ & $E_L$   & $\sigma$ & $\sigma_b$ & $A_{ratio}$ \\
 \multicolumn{5}{c}{50 particles}               \\
 \hline
 0.20     & 190.3719 & 0.1971   & 0.457067    & 0.5454       \\
-0.25     & 167.2134 & 0.2417   & 0.605498    & 0.5454
+0.25     & 167.2134 & 0.2417   & 0.605498    & 0.5454   \\
 0.30     & 166.5803 & 0.8381   & 2.10527     & 0.5114    \\
 0.35     & 155.6323 & 0.4971   & 1.30742     & 0.4831   \\
 0.40     & 182.5975 & 2.8327   & 4.74049     & 0.4569      \\
@@ -810,12 +819,7 @@ $\alpha$ & $E_L$   & $\sigma$ & $\sigma_b$ & $A_{ratio}$ \\
 }
 \end{table}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.45\textwidth]{onebodydensity_steplength0.1_nbins500_nsteps1e7.png}
-    \caption{One-body density vs. radial distance in units of $a_{ho}$. This was run with 20 particles in 3 dimensions, with a steplength of 0.1 and 1e7 number of Metropolis steps.}
-    \label{fig:g_onebody_density}
-\end{figure}
+
 
 
 
@@ -849,7 +853,7 @@ The one-body density is found by estimating the integral in eq. \eqref{eq:onebod
 
 Ideally we would like to plot the one-body density for 100 particles to see a more pronounced spread for the interacting case compared to the non-interacting. The drastic increase in run-time is what prevented us from doing so. Future improvements would include optimizing our code so as to make this possible. 
 
-Our initial plots of the one-body density were suboptimal due to the way we estimated $\Delta V$. For a discussion on this, see Appendix G.
+Our initial plots of the one-body density were suboptimal due to the way we estimated $\Delta V$. For a discussion on this, see Appendix H.
 
 
 %----------------------------------------------------------------------
@@ -858,18 +862,8 @@ Our initial plots of the one-body density were suboptimal due to the way we esti
 \section{Extra remarks}\label{sec:extra_remarks}
 As can be seen from table~\ref{tab:e_brute_force_localE_stepLength_1.0} there is a noticeable difference between the error as calculated by the Monte Carlo runs and the blocking error. This is due to the autocorrelation time $\tau$. If we had adjusted the step length in such a way that the number of accepted steps increased, then the time between a sample and the next uncorrelated sample would increase, thus resulting in a higher blocking error. This is illustrated in table~\ref{tab:e_brute_force_localE_stepLength_0.1} below, where each measurement of the local energy has been run using a step length of 0.1. Here, we see that the blocking error drastically increases, along with the number of particles, compared to the blocking error from table~\ref{tab:e_brute_force_localE_stepLength_1.0}.
 
-%----------------------------------------------------------------------
-%   CONCLUSION SECTION
-%----------------------------------------------------------------------
-\section{Conclusion}
-Throughout this report we have attempted to find the local energy of both a non-interacting as well as an interacting boson system. This has been done in all 3 dimensions for $N = 1, 10, 50, 100$ and 500 particles. We started out with a non-interacting, spherical boson system using the Standard Metropolis algorithm, which allowed us to find an approximation to the minima of the local energy at $\alpha = 0.5$. 
-Furthermore, we added importance sampling to the same system and observed the effects it had on the blocking error along with some additional computational time compared to that of the brute force method.
 
- We have also examined how the Jastrow factor, i.e. an interacting system, affects the local energy when dealing with an elliptical potential. This was done using the brute force method. We also studied how to find the optimal variational parameter $\alpha$ leading to a minima of the local energy, although one must be aware that the method used, that is gradient descent, has a tendency to converge to a local minima of a system, and not necessarily the global minima.
- 
- Finally, we studied the one-body densities in the ellipsoidal system both with and without the Jastrow factor. Here, we found that the effects of including the Jastrow factor leads to a larger spread between the bosons and thus a lower density compared to that of a non-interacting system.
-
-\begin{table}[H]
+\begin{table}[h!]
 
 \caption{Local energy as a function of $\alpha$ when running the brute force algorithm for $N = 10$, 50 and 100 particles in 3 dimensions. This is done with $2^{17}$ steps for $N=10, 50$, whereas the computation for $N=100$ is done with $2^{16}$ steps. All is run with a step length 0.1.}
 \label{tab:e_brute_force_localE_stepLength_0.1}
@@ -929,6 +923,19 @@ $\alpha$ & $E_L$   & $\sigma$ & $\sigma_b$ & $A_{ratio}$ \\
 }
 \end{table}
 
+%----------------------------------------------------------------------
+%   CONCLUSION SECTION
+%----------------------------------------------------------------------
+\section{Conclusion}
+Throughout this report we have attempted to find the local energy of both a non-interacting as well as an interacting boson system. This has been done in all 3 dimensions for $N = 1, 10, 50, 100$ and 500 particles. We started out with a non-interacting, spherical boson system using the Standard Metropolis algorithm, which allowed us to find an approximation to the minima of the local energy at $\alpha = 0.5$. 
+
+Furthermore, we added importance sampling to the same system and observed the effects it had on the blocking error along with some additional computational time compared to that of the brute force method.
+
+We have also examined how the Jastrow factor, i.e. an interacting system, affects the local energy when dealing with an elliptical potential. This was done using the brute force method. We also studied how to find the optimal variational parameter $\alpha$ leading to a minima of the local energy, although one must be aware that the method used, that is gradient descent, has a tendency to converge to a local minima of a system, and not necessarily the global minima.
+
+Finally, we studied the one-body densities in the ellipsoidal system both with and without the Jastrow factor. Here, we found that the effects of including the Jastrow factor leads to a larger spread between the bosons and thus a lower density compared to that of a non-interacting system.
+
+
 % \begin{table}
 %     \caption{Importance sampled simulations of $N=10$ particles in
 %     $d=3$ dimensions. Average acceptance ratios and standard
@@ -955,7 +962,7 @@ $\alpha$ & $E_L$   & $\sigma$ & $\sigma_b$ & $A_{ratio}$ \\
 %         \label{tab:imp_time_step}
 % \end{table}
 
-
+\newpage
 \printbibliography
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1236,7 +1243,7 @@ The final expression for the derivative of the expectation value of the local en
 \end{equation}
 
 % \newpage
-
+\newpage
 \section{Scaling the Hamiltonian}
 
 The most general form our Hamiltonian is given by 
@@ -1280,29 +1287,35 @@ We get the same expression for the scaled Hamiltonian in the spherically symmetr
 \section{Brute Force vs. Importance Sampling}
 
 
-The main reason for using Importance sampling is to reduce correlation between measurements, since this leads to an under estimation of sample variance. We therefore expect the biased sample variance by use of Importance sampling to be higher than that of brute force. In figure 7, we have plotted the biased sample variance on a logarithmic scale against the number of metropolis steps and $\alpha$. The top layer is importance sampling whilst the bottom layer is brute force.
+An attribute of importance sampling is that it reduces correlation between measurements compared to brute force. Since correlation leads to an underestimation of sample variance, we expect the biased sample variance by use of importance sampling to be higher than that of brute force. In figure 7, we have plotted the biased sample variance on a logarithmic scale against the number of metropolis steps and $\alpha$. The top layer is importance sampling whilst the bottom layer is brute force.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.45\textwidth]{50x50_dt0.01_bruteforce&importance_analytic2.0.png}
-    \caption{Biased sample variance as a function of $\alpha$ and number of Metropolis steps. The top layer represents importance sampling whilst the bottom layer is brute force. This is for the spherically symmetric non-interacting case. }
+    \caption{Biased sample variance as a function of $\alpha$ and number of Metropolis steps. The top layer represents importance sampling whilst the bottom layer is brute force. This is for the spherically symmetric non-interacting case.}
     \label{fig:blocking_behaviour}
 \end{figure}
 
-As seen, the variance spikes for very low number of steps, but is otherwise reasonably constant as a function of number of steps. The variance depends much more strongly on $\alpha$. As shown in section ~\ref{appendix:local_energy}, the local energy in the spherically symmetric case is given by
+As seen, the variance spikes at very low step numbers, but is otherwise reasonably constant as a function of number of steps. The variance depends much more strongly on $\alpha$. As shown in section ~\ref{appendix:local_energy}, the local energy in the spherically symmetric case is given by
 
-\begin{equation}
+\begin{equation}\label{eq:localenergy_alpha_pos}
     E_L = \frac{1}{\Psi_T} \sum_i^N \left[\frac{-\hbar^2}{2m} 2\alpha(2\alpha \boldsymbol{r}_i^2 - d) \Psi_T + \frac{1}{2}m \omega_{ho}^2 \boldsymbol{r}_i^2 \Psi_T\right]
 \end{equation}
 
-Which for $\alpha = 0.5$ reduces to
+The biased variance is calculated by sampling $E_L$ and $E_L^2$ at each step
+\begin{align}
+    &\frac{\sigma^2}{N} = \frac{1}{n} \left(\langle E_L^2 \rangle - \langle E_L \rangle^2\right)\\
+   & = \frac{1}{N} \left( \frac{1}{N}\sum_{i=1}^{N}E_L^2 - \left( \frac{1}{N}\sum_{i=1}^N E_L \right)^2\right)
+\end{align}
+
+For  $\alpha = 0.5$, we found that the kinetic and potential terms in eq.(120) cancel, and the local energy becomes independent of position:
 \begin{equation}
     E_L = \frac{d}{2} \hbar \omega_{ho} N
 \end{equation}
-The biased variance 
-\begin{equation}
-    \frac{\sigma^2}{n} = \frac{1}{n} \langle E_L^2 \rangle - \langle E_L \rangle 
-\end{equation}
+
+This means that  $\sum_{i=1}^{N} E_L = N E_L$ and $\sum_{i=1}^{N} E_L^2 = N E_L^2$ thus giving us zero variance for $\alpha =0.5$. 
+
+As $\alpha$ diverges from $0.5$, the local energy becomes more and more dependent on position and so we expect to see a greater difference between $\langle E_L^2 \rangle$ and $\langle E_L \rangle^2$. The variance should therefore increase the further away from $\alpha = 0.5$ we go, and this is what we see in figure 7. 
 
 \section{One-Body Density}
 An alternative method for estimating $dV$ would be differentiating the volume of the ellipsoid
