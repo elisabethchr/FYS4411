@@ -1,252 +1,208 @@
-# Calculate the blocking method on different solvers, write calculations to file and plot errors
+
+# from numpy import log2, zeros, mean, var, sum, loadtxt, arange, \
+#                   array, cumsum, dot, transpose, diagonal, floor
+
 
 import numpy as np
+from numpy import log2, zeros, mean, var, sum, loadtxt, arange, array, cumsum, dot, transpose, diagonal, floor
+from numpy.linalg import inv
+from time import time
 import matplotlib.pyplot as plt
-import sys, glob, os
-import operator
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import PolynomialFeatures
+import glob, os
+# from scipy.interpolate import spline
 
 
-def alpha(filename):
-    variables = filename.split('_')
-    alpha = variables[12]
-    return float(alpha)
+
+#filename = '3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_4194304_dt_0.010000_alpha_0.300000_.txt'  #No dip
+#filename = '3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_16777216_dt_0.010000_alpha_0.300000_.txt'  #No dip
+#filename = '3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_268435456_dt_0.010000_alpha_0.300000_.txt'  #No dip
+
+#filename = 'proper_3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_1048576_dt_0.010000_alpha_0.300000_steplength0.1.txt'  #No dip
+#filename = 'proper_3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_1048576_dt_0.010000_alpha_0.300000_steplength1.txt'  #No dip
+
+#filename = 'proper_3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_16777216_dt_0.010000_alpha_0.300000_steplength1.txt'  #No dip
+#filename = 'proper_3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_16777216_dt_0.010000_alpha_0.300000_steplength0.1.txt'  #No dip
+
+#filename = 'proper_3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_16777216_dt_0.010000_alpha_0.300000_steplength1.txt'
+#filename = 'proper_3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_16777216_dt_0.010000_alpha_0.300000_steplength0.1.txt'
+#
+#filename = 'proper/1e_AratioNewbruteForce_analytic_nParticles_50_nDim_3_nSteps_131072_dt_0.010000_alpha_0.250000_stepLength_1.000000_.txt'
+
 
 def type(filename):
     variables = filename.split('_')
     type = variables[3]
     return type
 
-def dimension(filename):
-    variables = filename.split('_')
-    dim = variables[7]
-    return int(dim)
-"""
-def auto_covariance(data, mu):
-    n = len(data)
-    autoCov = np.sum((data[0:n-1] - mu)*(data[1:n] - mu))
-    return autoCov/float(n)
-"""
+# filename_ideal = 'ideal_onebody_dv2_nPart_1_nDim_3_nSteps_100000000_stepLength_0.100000_nBins_500_non-interacting_analytic.txt'  #No dip
+# filename_noJastrow = 'Nonideal_onebody_dv2_nPart_1_nDim_3_nSteps_100000000_stepLength_0.100000_nBins_500_non-interacting_analytic.txt' #No dip
+# filename_jastrow = 'plusDR_spherical_onebody_dv2_nPart_20_nDim_3_nSteps_10000000_stepLength_0.100000_nBins_500_interacting_analytic.txt' #No dip
 
-def auto_covariance(data, mu):
-    n = len(data)
-    ek=0
-    autoCov = 0
-    for h in range(1,n-1):
-        autoCov = np.sum((data[0:n-h] - mu)*(data[h:n] - mu))
-        ek+=((1-(h/n))*autoCov)
 
-    return ek*(2/float(n))
+#x = np.loadtxt("3d_bruteForce_analytic_nParticles_1_nDim_3_nSteps_268435456_dt_0.010000_alpha_0.300000_.txt")
 
-# blocking method
+x = np.loadtxt('../data/e/1e_importance_analytic_nParticles_1_nDim_3_nSteps_1048576_dt_0.010000_alpha_0.650000_.txt')
+
 def blocking(data1):
-#    n = len(data1[4096:, 0])
-    n = len(data1[:, 0])
+    n = len(data1)
     d = int(np.log2(n))
-    data = data1[:, 1]
-#    data = data1[4096:, 1]
-    mean = np.mean(data)
-    sigma = np.zeros(d)     # d number of variances (one for each block transformation)
+    data = data1
+#    mean = np.mean(data)
+    sigma_k = np.zeros(d)     # d number of variances (one for each block transformation)
     gamma_k = np.zeros(d)
-    corr = np.zeros(d)
-    block_sizes = np.zeros(d)
+    e_k0 = np.zeros(d)
+    exponent = np.zeros(d)
+    EK=0
+
     # make d number of block transformations
-    for i in xrange(d-1):
+    for i in range(0,d):
+        mean = np.mean(data)
+        exponent[i] = i
         n = len(data)
 
-        block_sizes[i] = n
-
         # auto-covariance of energies
-        corr[i] = auto_covariance(data, mean)
+       # e_k[i] = auto_covariance(data, mean)
 
+#        if(i==10):
+#           EK = auto_covariance(data,mean)
+        e_k=0
         # variance of energies
-        sigma[i] = np.var(data)
+        sigma_k[i] = np.var(data)/n
 
         # create two arrays containing respecitvely odd and even values of data
         X1 = np.zeros(int(len(data)/2.))
         X2 = np.zeros(int(len(data)/2.))
-        for i in xrange(int(len(data)/2.)):
+        for i in range(int(len(data)/2.)):
             X1[i] = data[2*i + 1]
             X2[i] = data[2*i]
 
         data = 1/2.*(X1 + X2)
 
-    blockingMean = mean
-    blockingVar = np.average(sigma)
-    #blockingVar = np.sum(sigma) / (float(n-d))
-    blockingErr = np.sqrt(blockingVar)
-    blockingCov = np.average(corr)
+#    blockingMean = mean
+#    blockingVar = np.average(sigma)
+#    #blockingVar = np.sum(sigma) / (float(n-d))
+#    blockingErr = np.sqrt(blockingVar)
+#    blockingCov = np.average(corr)
+    var = sigma_k + e_k
 
-    return blockingMean, blockingVar, blockingCov, blockingErr, sigma, block_sizes
+    return var, sigma_k, e_k, exponent, EK
+
+def block(x):
+    # preliminaries
+    n = len(x); d = int(log2(n)); s, gamma = zeros(d), zeros(d);
+    mu = mean(x); t0 = time()
+
+    # estimate the auto-covariance and variances
+    # for each blocking transformation
+    for i in arange(0,d):
+        n = len(x)
+        # estimate autocovariance of x
+        gamma[i] = (n)**(-1)*sum( (x[0:(n-1)]-mu)*(x[1:n]-mu) )
+        # estimate variance of x
+        s[i] = np.var(x)
+        # perform blocking transformation
+        print(np.log2(len(x)))
+        x = 0.5*(x[0::2] + x[1::2])
+
+    # generate the test observator M_k ferr2rom the theorem
+    M = (cumsum( ((gamma/s)**2*2**arange(1,d+1)[::-1])[::-1] )  )[::-1]
+
+    # we need a list of magic numbers
+    q =array([6.634897,9.210340, 11.344867, 13.276704, 15.086272, 16.811894, 18.475307,
+              20.090235, 21.665994, 23.209251, 24.724970, 26.216967, 27.688250, 29.141238,
+              30.577914, 31.999927, 33.408664, 34.805306, 36.190869, 37.566235, 38.932173,
+              40.289360, 41.638398, 42.979820, 44.314105, 45.641683, 46.962942, 48.278236, 49.587884, 50.892181])
+
+    # use magic to determine when we should have stopped blocking
+    for k in arange(0,d):
+        if(M[k] < q[k]):
+            break
+    if (k >= d-1):
+        print("Warning: Use more data")
+    ans = s[k]/2**(d-k)
+    print("Runtime: %g sec" % (time()-t0)); print("Blocking Statistics :")
+    print("average            iterations      std. error")
+    print("%8g %20g %15g" % (mu, k, ans**.5))
+    return ans
 
 
-# get filenames and sorted according to time created
-#timesteps_numeric = sorted(glob.glob('data/e/1e_bruteForce_numeric_nParticles_1_nDim_3*'), key=os.path.getmtime)
-timesteps_analytic = sorted(glob.glob('../data/c/1c_AratioNewimportance_analytic_nParticles_1_nDim_3_nSteps_1048576_dt_0.400000_alpha_*_stepLength_1.000000_.txt'), key=os.path.getmtime)
+#var,sigma_k, e_k, exponent, EK = blocking(energy)
+filenames = sorted(glob.glob('../data/e/1e_bruteForce_analytic_nParticles_10_nDim_3_nSteps_1048576_dt_0.010000_alpha_*_.txt'), key=os.path.getmtime)
 
-#filenames = [timesteps_numeric, timesteps_analytic]
-filenames = [timesteps_analytic]
+blockingErr = []
+for x in filenames:
+    print x
+    MC = np.loadtxt(x, skiprows=1)
+    energy = MC[:,1]
 
-blocking_alphas = [[], []]
-blockingMean = [[], []]
-blockingVar = [[], []]
-blockingCov = [[], []]
-blockingErr = [[], []]
+    d = np.log2(len(energy))
+    if(d-np.floor(d)!=0):
+        print("Number of steps not a power of 2. Truncating measurements.")
+        energy = energy[0:2**int(np.floor(d))]
+    var = block(energy)
+    err = np.sqrt(var)
+    blockingErr.append(err)
 
-# variance from blocking, i.e. correlated standard deviations
-for i in xrange(len(filenames)):
-    for j in xrange(len(filenames[i])):
-        file = filenames[i][j]
-        print file
-        data = np.loadtxt(file, skiprows=1)
 
-        a = alpha(file)
-        blocking_alphas[i].append(a)
-
-        mean, var, cov, err, sigma, block_sizes= blocking(data)
-        blockingMean[i].append(mean)
-        blockingVar[i].append(var)
-        blockingErr[i].append(err)
-        blockingCov[i].append(cov)
-
-# variance from data, i.e. uncorrelated standard deviation
-dim = 3
-#filenames = glob.glob('../data/e/1e_alpha_AratioNewbruteForce_analytic_nPart_50_nDim_3_stepLength_1.000000_.txt')
-filenames = '../data/c/1c_alpha_AratioNewimportance_analytic_nPart_1_nDim_3_stepLength_1.000000_.txt'
-
-filenames_alpha = []
-for i in filenames:
-    if dimension(i) == dim:
-        filenames_alpha.append(i)
-
-print filenames_alpha
-
-legends = [[]]*len(filenames_alpha)
-alphas = [[]]*len(filenames_alpha)
-energies = [[]]*len(filenames_alpha)
-variance = [[]]*len(filenames_alpha)
-std = [[]]*len(filenames_alpha)
-legends = [[]]*len(filenames_alpha)
-accepted_ratio = [[]]*len(filenames_alpha)
-t_CPU = [[]]*len(filenames_alpha)
+file = '../data/e/1e_alpha_bruteForce_analytic_nPart_10_nDim_3_stepLength_0.800000_.txt'
 
 header = "Alpha <E> Error Error_b Accepted t_CPU"
 #datafile_path = "../data/c/blocking2_ANewRatio_error_50particle_3dim_2^17_steps_bruteForce_stepLength_1.0_"
-datafile_path = "../data/c/blocking_error_ANewRatio_1particle_3dim_2^20_steps_importance_dt_0.4_"
+datafile_path = "../data/e/blocking_error_test_10particle_3dim_2^17_steps_bruteforce_steplength_0.8_"
 
-j=0
-for i in filenames_alpha:
-    print i
-    t = type(i)
-    legends[j] = r"$\sigma$ " + t
-    ofile = datafile_path + t +".txt"
+t = type(file)
+#legends[j] = r"$\sigma$ " + t
+ofile = datafile_path + t +".txt"
 
-    data = np.loadtxt(i, skiprows=1)
+data = np.loadtxt(file, skiprows=1)
+alphas = data[:, 0]
+energies = data[:, 2]
+variance = data[:, 3]
+std = data[:, 4]
+accepted_ratio = data[:, 5]
+t_CPU = data[:, 6]
+np.savetxt(ofile, np.column_stack((alphas, energies, std, blockingErr, accepted_ratio, t_CPU)), fmt='%1.2f %1.4f %1.4f %1.4f %1.4f %1.4f', delimiter='   ',  header = header, comments='')
 
-    alphas[j] = data[:, 0]
-    energies[j] = data[:, 2]
-    variance[j] = data[:, 3]
-    std[j] = data[:, 4]
-    accepted_ratio[j] = data[:, 5]
-    t_CPU[j] = data[:, 6]
+"""
+ans = block(energy)
+a = np.empty(len(var))
+a.fill(ans)
 
-    np.savetxt(ofile, np.column_stack((alphas[j], energies[j], std[j], blockingErr[j], accepted_ratio[j], t_CPU[j])), fmt='%1.2f %1.4f %1.4f %1.4f %1.4f %1.4f', delimiter='   ',  header = header, comments='')
+mean = np.mean(energy)
+varC =np.zeros(len(sigma_k))
+#EK = auto_covariance(energy_a, mean)
+for l in range(0,int(d)-1):
+    varC[l] = sigma_k[10] + EK
 
-    plt.plot(alphas[j], std[j], linestyle = '--', marker = '+')
-    j+=1
 
-#legends.append(r'$\sigma_b$ numeric')
-legends.append(r'$\sigma_b$'+t)
-plt.plot(blocking_alphas[0], blockingErr[0], linestyle = '--', marker = '+')
-plt.plot(blocking_alphas[1], blockingErr[1], linestyle = '--', marker = '+')
-plt.title('Brute force')
-plt.xlabel(r'$\alpha$', size=12)
-plt.ylabel(r'$\sigma$', size=12)
-plt.legend(legends)
+print(var)
+print(exponent)
+
+
+fig0 = plt.figure(0)
+ax = fig0.gca()
+# legends.append(r'$\sigma_b$ numeric')
+# legends.append(r'$\sigma_b$ analytic')
+
+
+#plt.plot(exponent, sigma_k, linestyle = '-',label='$\sigma_k^2/n_k$')
+plt.plot(exponent, var,'r',linestyle = '--',label='$\sigma_k^2/n_k$')
+plt.plot(exponent,a,'b',linestyle ='--', label = '$\sigma_b^2$')
+#plt.plot(exponent,varC,linestyle='--',label='$Var(\\overline{X}$')
+plt.xlabel('Blocking iteration, $k$', size=12)
+plt.ylabel('Variance', size=12)
+
+
+
+plt.legend()
+ax.set_xticks(np.arange(0, int(np.floor(d)), 1))
+
 plt.grid(b=True, which='major', color='#666666', linestyle='-')
 # Show the minor grid lines with very faint and almost transparent grey lines
-plt.minorticks_on()
-plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
-plt.tight_layout()
-plt.grid('on')
-#plt.savefig('data/plots/e/blocking_error_10particle_3dim_2^17_steps_bruteForce.pdf')
-plt.show()
-"""
-
-# plot blocking error vs steplength
-
-filenames = sorted(glob.glob("../data/d/1d_bruteForce_analytic_nParticles_1_nDim_1_nSteps_1048576_dt_0.010000_alpha_0.250000_stepLength_*.txt"), key=os.path.getmtime)
-
-err = np.zeros(len(filenames))
-steplength = np.zeros(len(filenames))
-
-err_list = []
-steplength_list = []
-for i in xrange(len(filenames)):
-    print filenames[i]
-    stepLength = float(filenames[i].split('_')[14])
-    data = np.loadtxt(filenames[i], skiprows=1)
-
-    # get blocking error
-    blockingMean, blockingVar, blockingCov, blockingErr, sigma, block_size = blocking(data)
-    err[i] = blockingErr
-    steplength[i] = stepLength
-
-    err_list.append(blockingErr)
-    steplength_list.append(steplength)
-    print steplength
-    print err
-
-print err_list
-print steplength_list
-
-"""
-"""
-#plot blocking error vs. step length
-plt.plot(steplength, err, 'r.')
-plt.plot(steplength, lin2.predict(poly.fit_transform(steplength)), 'r--')
-plt.xlabel(r'$\Delta x$')
-plt.ylabel(r'$\sigma_b$')
-plt.title('Blocking error vs. step length')
-plt.grid('on')
-plt.tight_layout()
-plt.savefig('../data/plots/d/blocking_error_vs_steplength.pdf')
-plt.show()
-"""
-"""
-print "steplength total = ", steplength
-print "err total = ", err
-# transforming the data to include another axis
-x = steplength[:, np.newaxis]
-y = err[:, np.newaxis]
-print "x = ", x
-print "y = ", y
-
-polynomial_features= PolynomialFeatures(degree=3)
-x_poly = polynomial_features.fit_transform(x)
-
-model = LinearRegression()
-model.fit(x_poly, y)
-y_poly_pred = model.predict(x_poly)
-
-rmse = np.sqrt(mean_squared_error(y,y_poly_pred))
-r2 = r2_score(y,y_poly_pred)
-print(rmse)
-print(r2)
-
-plt.plot(steplength, err, 'b.')
-# sort the values of x before line plot
-sort_axis = operator.itemgetter(0)
-sorted_zip = sorted(zip(x,y_poly_pred), key=sort_axis)
-x, y_poly_pred = zip(*sorted_zip)
-plt.plot(x, y_poly_pred, 'r--')
-plt.xlabel(r'$\Delta x$')
-plt.ylabel(r'$\sigma_b$')
-plt.title('Blocking error vs. step length')
-plt.grid('on')
-plt.tight_layout()
-#plt.savefig('../data/plots/d/blocking_error_vs_steplength_fit.pdf')
+#plt.minorticks_on()
+#plt.grid(b=true, which='minor', color='#999999', linestyle='-', alpha=0)
+#plt.tight_layout()
+#plt.grid('on')
+# plt.savefig('data/plots/d/blocking_error_1particle_3dim_2^19_steps_bruteForce.pdf')
 plt.show()
 """
