@@ -94,7 +94,7 @@
 %----------------------------------------------------------------------------------------
 
 \HRule \\[0.4cm]
-{ \huge \bfseries Project 1: \\ Simulation of hard-sphere Bose gas using variational Monte Carlo}\\[0.4cm] % Title of your document
+{ \huge \bfseries Project 1: \\ Simulation of hard-sphere Bose gas using Variational Monte Carlo}\\[0.4cm] % Title of your document
 \HRule \\[1.5cm]
  
 %----------------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ Håkon \textsc{D. Fossheim} % Supervisor's Name
 %----------------------------------------------------------------------------------------
 
 \begin{abstract}
-In this project we apply the variational Monte-Carlo method to find the ground state of a dilute hard-sphere bose gas trapped in a harmonic potential. The method is first tested against the closed-form expression for a non-interacting system with a spherically symmetric potential by use of the Metropolis algorithm. It is then expanded to include two-body interactions in an elliptical potential by use of the Metropolis-Hastings algorithm. This is done in one, two and three dimensions for up to 500 particles. The results are benchmarked against [cite article] (and found to be in agreement for...). Due to correlated measurements, the blocking method is applied in order to present a proper error analysis. The optimal variational parameter for the trial wavefunction is calculated analytically to be $\alpha = 0.5$ for the non-interacting spherically symmetric system. No closed-form solution is obtainable for the elliptical system and so we resort to the steepest descent method to find the value of $\alpha$ that minimizes local energy. Lastly, we plot the one-body density of the interacting and non-interacting system and find that it qualitatively fits our theoretical model. 
+In this project we apply the variational Monte Carlo method to find the ground state of a dilute hard-sphere bose gas trapped in a harmonic potential. The method is first tested against the closed-form expression for a non-interacting system with a spherically symmetric potential by use of both the Metropolis algorithm and the Metropolis-Hastings algorithm. It is then expanded to include two-body interactions in an elliptical potential by use of the Metropolis algorithm alone. This is done in one, two and three dimensions for up to 500 particles. Due to correlated measurements, the blocking method is applied in order to present a proper error analysis. The optimal variational parameter for the trial wavefunction is calculated analytically to be $\alpha = 0.5$ for the non-interacting spherically symmetric system. No closed-form solution is obtainable for the elliptical system and so we resort to the steepest descent method to find the value of $\alpha$ that minimizes local energy. Lastly, we plot the one-body density of the interacting and non-interacting system and find that it qualitatively fits our theoretical model. 
 \end{abstract}
 
 \maketitle
@@ -176,13 +176,13 @@ When dealing with complicated, intricate systems, such as many-body quantum mech
     \langle\hat{O}\rangle = \frac{\int d\bold r_1 d\bold r_2 ... d\bold r_N \Psi^\dagger(\bold r_1, \bold r_2, ..., \bold r_N)\hat{O}\Psi(\bold r_1, \bold r_2, ..., \bold r_N)}{\int d\bold r_1 d\bold r_2 ... d\bold r_N \Psi^\dagger(\bold r_1, \bold r_2, ..., \bold r_N)\Psi(\bold r_1, \bold r_2, ..., \bold r_N)}.
 \end{equation}
 
-Replacing the arbitrary quantum mechanical operator $\hat{O}$ with the more concrete operator $\hat{H}$, i.e. the Hamiltonian of the system, we can find the expectation value of the ground state energy. However, what if the exact form of the wavefunction is unknown? This is where the variational principle comes into play, as it allows us to find the \textit{upper bound} for the ground state energy of a system. That is, we guess a form of the wavefunction which satisfies the criteria to the system in question, and calculate the ground state energy $E_{gs}$ as a function of the Hamiltonian. This is what we will apply to our system of the hard-sphere Bose gas. The variational principle is based on the claim that
+Replacing the arbitrary quantum mechanical operator $\hat{O}$ with the more concrete operator $\hat{H}$, i.e. the Hamiltonian of the system, we can find the expectation value of the ground state energy. However, what if the exact form of the wavefunction is unknown? This is where the variational principle comes into play, as it allows us to find the \textit{upper bound} for the ground state energy of a system. That is, we guess a form of the wavefunction which satisfies the criteria to the system in question, and calculate the ground state energy, $E_{gs}$, as a function of the Hamiltonian. This is what we will apply to our system of the hard-sphere Bose gas. The variational principle is based on the claim that
 \begin{align}
 E_{gs} \leq \bra{\Psi_T}\hat{H}\ket{\Psi_T} \equiv \langle \hat{H} \rangle \label{eq:E_ground_state_var},
 \end{align}
 where $\Psi_T$ is the trial wavefunction and is considered to be normalised. The Hamiltonian can be expressed as
 \begin{align}
-    \hat{H} = \sum_i^N\left(-\frac{\hbar^2}{2m}\nabla_i^2 + V_{onebody}(\bold{r}_i)\right) + \sum_{i<j}^N V_{int}(\bold{r}_i, \bold{r}_j) \label{eq:Hamiltonian}
+    \hat{H} = \sum_i^N\left(-\frac{\hbar^2}{2m}\nabla_i^2 + V_{onebody}(\bold{r}_i)\right) + \sum_{i<j}^N V_{int}(\bold{r}_i, \bold{r}_j). \label{eq:Hamiltonian}
 \end{align}
 
 \subsubsection{Local energy} From the definitions of the Hamiltonian and the trial wavefunction we can declare a new operator $\hat{E}_L$, also known as the local energy,
@@ -196,18 +196,18 @@ The expected value of the local energy can be found by multiplying the integrand
 \end{align}
 Which may be rewritten as 
 \begin{equation}
-    \langle \hat{E}_L \rangle = \int d\bold r E_L(\bold r; \alpha) \rho_T(\bold r; \alpha)
+    \langle \hat{E}_L \rangle = \int d\bold r E_L(\bold r; \alpha) \rho_T(\bold r; \alpha),
 \end{equation}
 where 
 \begin{equation}\label{eq:7}
-    \rho_T(\bold r; \alpha) = \frac{ |\Psi_T(\bold r; \alpha)|^2}{\int d\bold r |\Psi_T(\bold r; \alpha)|^2}
+    \rho_T(\bold r; \alpha) = \frac{ |\Psi_T(\bold r; \alpha)|^2}{\int d\bold r |\Psi_T(\bold r; \alpha)|^2}.
 \end{equation}
 Finding a closed-form expression for $\langle \hat{E}_L \rangle$ is in general not possible when dealing with interacting many-body systems. One must therefore resort to numerical integration. For a fixed step length, the truncation error in integration methods based on Taylor expansion goes as $N^{-k/d}$ where $N$ is the number of grid points,  $d$ is the dimensionality of the system and $k \geq 1$ is an integer that depends on the method of choice. If we want to go from a  one dimensional integral to a $d$ dimensional one whilst keeping the truncation error fixed, we must compensate by increasing the number of grid points by a factor of $N^{(d-1)}$. This quickly results in absurd run-times.
-In contrast, the truncation error in Monte-Carlo integration scales as $\sigma \sim 1/\sqrt{N}$ for all dimensions. 
+In contrast, the truncation error in Monte Carlo integration scales as $\sigma \sim 1/\sqrt{N}$ for all dimensions. 
 
-The idea behind Monte-Carlo integration is to estimate the integral by taking the sum of a large set of samples randomly distributed in phase-space with weights corresponding to the underlying PDF
+The idea behind Monte Carlo integration is to estimate the integral by taking the sum of a large set of samples randomly distributed in phase-space with weights corresponding to the underlying PDF
 \begin{equation}\label{eq:8}
-    \langle \hat{E}_L \rangle = \int d\bold r E_L(\bold r; \alpha) \rho(\bold r; \alpha) \approx  \sum_{i=1}^{N} E_L(\bold r; \alpha) \rho(\bold r; \alpha)
+    \langle \hat{E}_L \rangle = \int d\bold r E_L(\bold r; \alpha) \rho(\bold r; \alpha) \approx  \sum_{i=1}^{N} E_L(\bold r; \alpha) \rho(\bold r; \alpha).
 \end{equation}
 Because we are unable to perform the integral in equation \eqref{eq:7} analytically, we do not know the normalization constant of the trial PDF. This is where the Metropolis algorithm comes to our rescue. We pick a random starting position and evaluate $E_L$. We then propose a new move in an arbitrary direction, and accept it if 
 \begin{equation}
@@ -241,14 +241,14 @@ where $\omega_{ho}^2$ is the trap potential strength. The repulsive potential $V
 simulating the interaction between the particles. Here, $a$ is the hard-core diameter of the bosons, so that it is not possible for the bosons to penetrate each other.
 \subsubsection{Trial wavefunction} The trial wavefunction must be able to satisfy the criteria following that of a harmonic oscillator. One criterion is that the wavefunction, including its derivative, must be well-defined at the origin. That is, at the boundary condition of when a boson approaches zero ($r_{i}\rightarrow 0$), the wavefunction must converge. In such a case, we can require that
 \begin{align}
-    \Psi_T \propto e^{-Zr_i} \label{eq:psi_T_boundary_condition}
+    \Psi_T \propto e^{-Zr_i}. \label{eq:psi_T_boundary_condition}
 \end{align}
 
 However, there is also the criterion of interaction between the particles, which can be incorporated in a so-called \textit{cusp} condition. In other words, we must take into consideration the distance $r_{ij}$ between the particles. The generalized trial wavefunction for $N$ particles can then be expressed as
 
 \begin{align}
     &\Psi_T(\bold r) = \phi(\bold r_1)\phi(\bold r_2)...\phi(\bold r_N) \prod_{j<k}f(r_{jk}) \label{eq:trial_wavefunction_total}\\
-    &= \left[\prod_i\exp[-\alpha(x_i^2 + y_i^2 + \beta z_i^2)]\right]\left[\prod_{j<k}f(a, |\bold r_j - \bold r_k|)\right]\nonumber
+    &= \left[\prod_i\exp[-\alpha(x_i^2 + y_i^2 + \beta z_i^2)]\right]\left[\prod_{j<k}f(a, |\bold r_j - \bold r_k|)\right]. \nonumber
 \end{align}
 
 Here, $\phi(\bold r_i)$ corresponds to the single-particle wavefunction of particle $i$ with a Gaussian shape. The product over $f(r_{jk})$ is also known as the Jastrow factor of the wavefunction, and takes into account the hard-sphere diameter of the bosons. This factor is expressed as
@@ -264,13 +264,13 @@ Here, $\phi(\bold r_i)$ corresponds to the single-particle wavefunction of parti
 The analytic expression for the local energy for N non-interacting particles in $d$ dimensions can be deduced from the trial wavefunction and the Hamiltonian as defined above\footnote{See section~\ref{appendix:local_energy} under appendices for the derivation of this expression.}, i.e.
 \begin{align}
     E_L(\bold r) &= \frac{1}{\Psi_T(\bold r)}\hat{H}\Psi_T \label{eq:E_local_analytic}\\
-    &= \frac{1}{\Psi_T} \sum_i^N \left[\frac{-\hbar^2}{2m} 2\alpha(2\alpha \boldsymbol{r}_i^2 - d) \Psi_T + \frac{1}{2}m \omega_{ho}^2 \boldsymbol{r}_i^2 \Psi_T\right] \nonumber
+    &= \frac{1}{\Psi_T} \sum_i^N \left[\frac{-\hbar^2}{2m} 2\alpha(2\alpha \boldsymbol{r}_i^2 - d) \Psi_T + \frac{1}{2}m \omega_{ho}^2 \boldsymbol{r}_i^2 \Psi_T\right]. \nonumber
 \end{align}
 
 \subsubsection{Drift force}\label{subsubsec:drift_force}
 The drift force $F$ as experienced by a particle can be expressed as the derivative of the trial wavefunction\footnote{See section~\ref{appendix:local_energy} under appendices for the derivation of eqs.~\eqref{eq:drift_force_non-interacting} and~\eqref{eq:double_derivative}.}, i.e.
 \begin{align}
-    F = \frac{2\nabla \Psi_T}{\Psi_T} = -4\alpha \boldsymbol{r}_i \label{eq:drift_force_non-interacting}
+    F = \frac{2\nabla \Psi_T}{\Psi_T} = -4\alpha \boldsymbol{r}_i. \label{eq:drift_force_non-interacting}
 \end{align}
 While for the interacting case we have that the double derivative in~\eqref{eq:Hamiltonian}, when acting on the trial wavefunction, is
 \begin{align}
@@ -284,13 +284,13 @@ While for the interacting case we have that the double derivative in~\eqref{eq:H
 For a system of N particles, the one-body density of particle \boldsymbol{i} is 
 
 \begin{equation}
-    \rho(\boldsymbol{r}_i) = \int |\psi(\boldsymbol{r}_1,...,\boldsymbol{r}_{i},...,\boldsymbol{r}_{N})|^2 d\boldsymbol{r}_1 \cdots d\boldsymbol{r}_{i-1} d\boldsymbol{r}_{i+1} \cdots d\boldsymbol{r}_{N}
+    \rho(\boldsymbol{r}_i) = \int |\psi(\boldsymbol{r}_1,...,\boldsymbol{r}_{i},...,\boldsymbol{r}_{N})|^2 d\boldsymbol{r}_1 \cdots d\boldsymbol{r}_{i-1} d\boldsymbol{r}_{i+1} \cdots d\boldsymbol{r}_{N},
 \end{equation}
 
-And is the probability of finding particle \boldsymbol{i} within the volume $d\boldsymbol{r}_i^3$. The likelyhood of finding the particle anywhere is one, and so 
+and is the probability of finding particle \boldsymbol{i} within the volume $d\boldsymbol{r}_i^3$. The likelyhood of finding the particle anywhere is one, and so 
 
 \begin{equation}
-    \int \rho(\boldsymbol{r}_i) d\boldsymbol{r}_i^3 =1
+    \int \rho(\boldsymbol{r}_i) d\boldsymbol{r}_i^3 = 1.
 \end{equation}
 
 The one-body density is the same for every particle, and thus 
@@ -298,16 +298,14 @@ The one-body density is the same for every particle, and thus
     \sum_{i=1}^{N}\int \rho(\boldsymbol{r}_i) d\boldsymbol{r}_i^3 =
     \int \rho(\boldsymbol{r}) d\boldsymbol{r}^3 =N
 \end{equation}
+where we defined $\rho(\boldsymbol{r}) \equiv \sum_{i=1}^N \rho(\boldsymbol{r}_i)$. 
 
-Where we defined $\rho(\boldsymbol{r}) \equiv \sum_{i=1}^N \rho(\boldsymbol{r}_i)$. 
-
-In the case of an elliptical potential, the single particle wavefunction $\psi \propto e^{-\alpha(x^2+y^2+\beta z^2)}$ which gives 
+In the case of an elliptical potential, the single particle wavefunction $\psi \propto e^{-\alpha(x^2+y^2+\beta z^2)}$ gives 
 $\rho(\boldsymbol{r}) \propto e^{-2\alpha(x^2+y^2+\beta z^2)}$. $\rho(\boldsymbol{r})$ is therefore constant on the surfaces of ellipsoids. For $\beta >1$ the ellipsoids are oblate spheroids (disc-shaped) and for $\beta<1$, they are prolate spheroids (cigar-shaped). In either case, the following holds 
 \begin{equation}
-    x^2+y^2+\beta z^2 = R^2
+    x^2+y^2+\beta z^2 = R^2,
 \end{equation}
-
-Where $R^2$ is the radius of the projection of the ellipsoid onto the xy-plane, i.e. $R^2 = (x^2+y^2)|_{z=0}$. We can then perform the integral in equation \eqref{eq:21} by integrating $\rho(R)$ with respect to ellipsoidal shells of thickness $dR$, see figure \ref{fig:1}. 
+where $R^2$ is the radius of the projection of the ellipsoid onto the xy-plane, i.e. $R^2 = (x^2+y^2)|_{z=0}$. We can then perform the integral in equation \eqref{eq:21} by integrating $\rho(R)$ with respect to ellipsoidal shells of thickness $dR$, see figure \ref{fig:1}. 
 
 \begin{figure}[H]
 \makebox[0.5\textwidth][c]{\includesvg[width=0.5\textwidth]{ellipsoidgrey.svg}}%
@@ -315,103 +313,74 @@ Where $R^2$ is the radius of the projection of the ellipsoid onto the xy-plane, 
  \label{fig:1}
 \end{figure}
 The volume of our ellipsoid is given by 
-\begin{equation}
-    V = \frac{4\pi}{3\sqrt{\beta}} R^3
+\begin{equation}\label{eq:ellipsoid_volume}
+    V = \frac{4\pi}{3\sqrt{\beta}} R^3,
 \end{equation}
-And so 
+and so 
 \begin{equation}
-    dV =\frac{4\pi}{3\sqrt{\beta}}\left((R+dR)^3-(R)^3 \right)
+    dV =\frac{4\pi}{3\sqrt{\beta}}\left((R+dR)^3-(R)^3 \right).
 \end{equation}
 Equation \eqref{eq:21} then becomes
-\begin{equation}
-   N= \int \rho(\boldsymbol{r}) d\boldsymbol{r}^3 = \int_0^{\infty} \rho(R) dV \label{eq:onebody_density_integral}
+\begin{equation}\label{eq:onebody_density_integral}
+   N= \int \rho(\boldsymbol{r}) d\boldsymbol{r}^3 = \int_0^{\infty} \rho(R) dV. 
 \end{equation}
 We can discretize this integral. Let $R_{max}$ be large enough that $\rho(R_{max})$ is practically zero. For a chosen $\Delta R$, the number of bins is given by $M = R_{max}/\Delta R$, and so the discretized version of the integral is
 \begin{equation}
-    N \approx \sum_{i=0}^{M} \rho(R_i)  \Delta V_i
+    N \approx \sum_{i=0}^{M} \rho(R_i)  \Delta V_i,
 \end{equation}
-Or 
+or 
 \begin{equation}\label{eq:27}
-    N_i \approx\rho(R_i) \Delta V_i
+    N_i \approx\rho(R_i) \Delta V_i,
 \end{equation}
-Where $N_i$ is the number of particles in shell $i$. And 
+where $N_i$ is the number of particles in shell $i$, and 
 \begin{equation}
-    \Delta V_i =\frac{4\pi}{3\sqrt{\beta}}\left((R_i+\Delta R)^3-(R_i)^3 \right)
+    \Delta V_i =\frac{4\pi}{3\sqrt{\beta}}\left((R_i+\Delta R)^3-(R_i)^3 \right).
 \end{equation}
 We can rearrange equation \eqref{eq:27} to get the one-body density expressed in terms of variables we can easily extract from our Monte Carlo steps: 
 \begin{equation}\label{eq:29}
    \rho(R_i)   \approx \frac{N_i}{\Delta V_i} = \frac{3\sqrt{\beta}}{4 \pi \left((R_i+\Delta R)^3-(R_i)^3 \right)} N_i
 \end{equation}
-Sampling $R_i$ for every particle in every Monte Carlo step and adding the expression in equation \eqref{eq:29} to the bin corresponding to $R_i$ yields a histogram. Normalizing this histogram by dividing each bin by the number of particles times the number of Monte-Carlo steps gives us an  approximation of the one-body density $\rho(\boldsymbol{r})$. Note that in the spherically symmetric case we get the exact same equations, but with $\sqrt{\beta} = 1$.
+Sampling $R_i$ for every particle in every Monte Carlo step and adding the expression in equation \eqref{eq:29} to the bin corresponding to $R_i$ yields a histogram. Normalizing this histogram by dividing each bin by the number of particles times the number of Monte Carlo steps gives us an  approximation of the one-body density $\rho(\boldsymbol{r})$. Note that in the spherically symmetric case we get the exact same equations, but with $\sqrt{\beta} = 1$.
 
 
 \subsection{Statistical physics}
 When performing a Monte Carlo sampling, one may be subject to both systematic and statistical errors. A possible source is that of the steplengths chosen for our system, which can lead to increasing nuisance parameters, such as the variance $\sigma^2$. So, let's look at the nuisance parameters necessary to tell us about the precision of our Monte Carlo sampling.
 
 \subsubsection{Uncorrelated stochastic variables}
-When dealing with Monte Carlo sampling we often draw random values, but by doing so at large scales the system can become predictable. In such a case, we can adjust the nuisance parameters to include stochastic variables within a certain sample size $n$. Thus, the mean can be expressed as
+When dealing with Monte Carlo sampling we often draw random values, but by doing so at large scales the system can become predictable. In such a case, we can adjust the nuisance parameters to include stochastic variables within a certain sample size $n$. Thus, the sample mean can be expressed as
 \begin{equation}%\label{eq:30}
     \Bar{x}_n \equiv \frac{1}{n} \sum_{k=1}^n x_k. \label{eq:uncorrelated_mean}
 \end{equation}
 % Let $X$ be the stochastic variable whose PDF is that of the measurements, and let $\overline{X}$ be the stochastic variable whose PDF is the same as the sample average.
-
 The variance of the measurements is given by
 \begin{equation}%\label{eq:31}
-    \sigma^2 = \frac{1}{n}\sum_{i=1}^n (x_i - \Bar{x}_n)^2. \label{eq:uncorrelated_variance}
+    \sigma^2 = \frac{1}{n}\sum_{i=1}^n (x_i - \Bar{x}_n)^2, \label{eq:uncorrelated_variance}
 \end{equation}
- Where we used $\bar{x}_n$ as an estimate of the true sample mean, $\mu$. The central limit theorem tells us that $\bar{x}_n$ approaches $\mu$ as the number of measurements goes to infinity.
+ where we used $\bar{x}_n$ as an estimate of the true sample mean, $\mu$. The central limit theorem tells us that $\bar{x}_n$ approaches $\mu$ as the number of measurements goes to infinity.
 
  
 Furthermore, the covariance of the measurements can be expressed as
 \begin{equation}\label{eq:32}
-    \text{cov}(x) \equiv \frac{1}{n} \sum_{kl} (x_k-\Bar{x}_n)(x_l-\Bar{x}_n)  
+    \text{cov}(x) \equiv \frac{1}{n} \sum_{kl} (x_k-\Bar{x}_n)(x_l-\Bar{x}_n),
 \end{equation}
-Which for an uncorrelated set of measurements is just the variance given in eq.\eqref{eq:uncorrelated_variance}. 
+which for an uncorrelated set of measurements is just the variance given in eq.\eqref{eq:uncorrelated_variance}. 
 To determine how well the sample mean approximates the true mean value, we can calculate the sample error, which is just the standard deviation of the sample mean itself. It turns out that the sample variance is related to the measurements in the following manner \cite{Stat.Phys.}
 \begin{equation}\label{eq:33}
     \text{err}_{\overline{x}}^2 = \text{var}(\overline{x})= \frac{1}{n}\text{cov}(x). 
 \end{equation}
 
 \subsubsection{Serially correlated stochastic variables}
-% In the previous expressions, we have assumed that the measurements of our dataset is independent of one another, but what happens if they are correlated? Here, we assume we have a time series, in which each Monte Carlo step is equivalent to one step in time. For uncorrelated results we have that the standard deviation is
-% \begin{align}
-%     \sigma = \sqrt{\frac{1}{n-1}(\langle x^2 \rangle - \langle x \rangle ^2)}. \label{eq:sigma_uncorrelated}
-% \end{align}
-
-% However, when dealing with correlation, which we under reasonable suspicion can assume we have in our dataset, we have
-
-% \begin{align}
-%     \sigma = \sqrt{\frac{1 + 2\tau/\Delta t}{n-1}(\langle x^2 \rangle - \langle x \rangle ^2)} \label{eq:sigma_correlated}
-% \end{align}
-% where $\tau$ is the so-called \textit{autocorrelation time}, i.e. the time between an arbitrary sample and the next uncorrelated sample, whereas $\Delta t$ is the time between one sample and the next. The definition of autocorrelation is essentially the similarity of measurements separated by a distance $d$. Now, this distance can be used to reflect the correlation between measurements in a value known as $f_d$, where
-
-% \begin{align}
-%     f_d = \frac{1}{nm}\sum_{\alpha=1}^m\sum_{kl=1}^n(x_{\alpha, k} - \langle x_m \rangle)(x_{\alpha, l} - \langle x_m \rangle). \label{eq:f_d}
-% \end{align}
-% The autocorrelation function can then be expressed as
-% \begin{align}
-%     k_d = \frac{f_d}{\sigma^2} \label{eq:autocorrelation},
-% \end{align}
-% with the autocorrelation time
-% \begin{align}
-%     \tau = 1+2\sum_{d=1}^{n-1}k_d\label{eq:autocorrelation_time}.
-% \end{align}
-
-% In order to find a good estimate on the correlation between measurements we can use a method known as \textit{blocking}\footnote{This is further described in section~\ref{subsubsec:blocking} under~\ref{sec:Methods}.~\nameref{sec:Methods}.}.
-
-
-% To determine how well these estimates approximate the true mean value, we can calculate the sample error, which is just the standard deviation of the sample means. Let's look at a specific block $(\vec{X}_i)_k$, denoted by $X$ for brevity. The sample error is given by \cite{notes}
 The Metropolis algorithm produces a time-series which is serially correlated, meaning that each measurement covaries with neighbouring measurements within a certain distance. We are interested in finding this "radius" of influence. From eq. \eqref{eq:33} and \eqref{eq:32}, we have
 \begin{equation}
-    \text{err}_{\overline{x}}^2 = \frac{1}{n} \text{cov}(x) = \frac{1}{n}\frac{1}{n}\sum_{kl}(x_k - \bar{x}_n) (x_l - \bar{x}_n)
+    \text{err}_{\overline{x}}^2 = \frac{1}{n} \text{cov}(x) = \frac{1}{n}\frac{1}{n}\sum_{kl}(x_k - \bar{x}_n) (x_l - \bar{x}_n).
 \end{equation}
 We may split the covariance into cross terms and terms where $x_k = x_l$. The latter terms just sum up to the variance, and so 
 \begin{equation}
-    \text{err}_{\overline{x}}^2 = \frac{1}{n} \text{var}(x) + \frac{1}{n}(\text{cov}(x)-\text{var}(x))
+    \text{err}_{\overline{x}}^2 = \frac{1}{n} \text{var}(x) + \frac{1}{n}(\text{cov}(x)-\text{var}(x)).
 \end{equation}
 The cross terms sum over all pairwise combinations of $x_k$ and $x_l$ twice while excluding the terms where $x_k = x_l$. We therefore get 
 \begin{equation}\label{eq:36}
-    \text{err}_{\overline{x}}^2=\frac{1}{n^2} \sum_{k=1}^n (x_k - \Bar{x}_n)^2 + \frac{2}{n^2}\sum_{k<l}(x_k - \Bar{x}_n)(x_l-\Bar{x}_n)
+    \text{err}_{\overline{x}}^2=\frac{1}{n^2} \sum_{k=1}^n (x_k - \Bar{x}_n)^2 + \frac{2}{n^2}\sum_{k<l}(x_k - \Bar{x}_n)(x_l-\Bar{x}_n).
 \end{equation}
 Denoting $(x_k - \bar{x}_n)(x_l - \bar{x}_n)$ by $\Tilde{x}_k\Tilde{x}_l$, the correlation term may be written as 
 \begin{align}\label{eq:34}
@@ -424,35 +393,35 @@ Denoting $(x_k - \bar{x}_n)(x_l - \bar{x}_n)$ by $\Tilde{x}_k\Tilde{x}_l$, the c
 \end{align}
 This sum can be split up into its diagonal parts. As can be seen above, the samples in a given diagonal are all separated by a fixed distance $d$, with $d=1$ for the leftmost diagonal and $d=n-1$ for the rightmost one. The sum over a given diagonal $d$ is then 
 \begin{equation}
-     \sum_{k=1}^{n-d}\Tilde{x}_k \Tilde{x}_{k+d}
+     \sum_{k=1}^{n-d}\Tilde{x}_k \Tilde{x}_{k+d}.
 \end{equation}
-Defining 
+Now, defining 
 \begin{equation}
     f_d = \frac{1}{n} \sum_{k=1}^{n-d} \Tilde{x}_k \Tilde{x}_{k+d}
 \end{equation}
-The correlation part of equation \eqref{eq:33} can then be written as 
+the correlation part of equation \eqref{eq:33} can be written as 
 \begin{equation}
  \frac{2}{n^2} \sum_{k<l} \Tilde{x}_k \Tilde{x}_l = \frac{2}{n} \sum_{d=1}^{n-1} f_d   
 \end{equation}
-When $d=0$, $f_d$ is simply the variance. It is therefore natural to introduce the auto correlation function
+When $d=0$, $f_d$ is simply the variance. It is therefore natural to introduce the autocorrelation function
 \begin{equation}
-\kappa_d = \frac{f_d}{\text{var}(x)}
+\kappa_d = \frac{f_d}{\text{var}(x)},
 \end{equation}
-Which is always equal to 1 for $d=0$. The sample error can now be written as 
+which is always equal to 1 for $d=0$. The sample error can now be written as 
 \begin{align}
     \text{err}^2 &= \frac{1}{n}\text{var}(x) + \frac{2}{n} \text{var}(x) \sum_{d=1}^{n-1} \frac{f_d}{\text{var}(x)}\\ 
-    & = \frac{1}{n} \text{var}(x) \left( 1 + 2\sum_{d=1}^{n-1} \kappa_d \right) 
+    & = \frac{1}{n} \text{var}(x) \left( 1 + 2\sum_{d=1}^{n-1} \kappa_d \right).
 \end{align}
 Defining the autocorrelation time as 
 \begin{equation}
-\tau \equiv \left( 1 + 2\sum_{d=1}^{n-1} \kappa_d \right) 
+\tau \equiv \left( 1 + 2\sum_{d=1}^{n-1} \kappa_d \right),
 \end{equation}
-The final expression for our sample error becomes 
+the final expression for our sample error becomes 
 \begin{equation}\label{eq:43}
-    \text{err}_{\overline{x}}^2 = \frac{\tau}{n}\text{var}(x)
+    \text{err}_{\overline{x}}^2 = \frac{\tau}{n}\text{var}(x).
 \end{equation}
 The sample can be thought of as being reduced to effectively $n_{eff} = \frac{n}{\tau}$ measurements. 
-When all the measurements are uncorrelated, $\tau = 1$ and the sample error is given by $\text{var}(x)/n$. For correlated samples, $\tau>1$ and so the error increases. This means that simply calculating the sample error with $\tau=1$ will in our case give a too low estimate of the error, since our measurements are correlated. We therefore need to find the autocorrelation time in order to find the true sample error. Doing this every time we run a Monte-Carlo simulation by actually calculating $f_d$ which would be very computationally expensive, as every measurement would have to be stored. In addition we would have to calculate the sum of $(n^2-n)/2$ products in order to evaluate $f_d$, which is no small task for $n \sim 10^7 $. 
+When all the measurements are uncorrelated, $\tau = 1$ and the sample error is given by $\text{var}(x)/n$. For correlated samples, $\tau>1$ and so the error increases. This means that simply calculating the sample error with $\tau=1$ will in our case give a too low estimate of the error, since our measurements are correlated. We therefore need to find the autocorrelation time in order to find the true sample error. Doing this every time we run a Monte Carlo simulation by actually calculating $f_d$ would be very computationally expensive, as every measurement would have to be stored. In addition we would have to calculate the sum of $(n^2-n)/2$ products in order to evaluate $f_d$, which is no small task for $n \sim 10^7 $. 
 
 Instead we can determine the autocorrelation time and the correct sample error through blocking. We calculate ${\text{err}}_X^2$ for each blocking transformation. When the error stops increasing and reaches a plateau, the last measurements of a block are no longer correlated with the first, and we can set this block size as the correlation time. The blocking procedure is described in more detail in section~\ref{subsubsec:blocking}.
 
@@ -472,11 +441,11 @@ The Standard Metropolis algorithm, also known as \textit{brute force} Metropolis
 
 \indent The total probability distribution function at three different times $t_0 < t' < t$, can be expressed by the Einstein-Smoluchenski-Kolmogorov-Chapman (ESKC) equation
 \begin{align}
-    W(\bold x, t | \bold x_0, t_0) = \int_{-\infty}^\infty W(\bold x, t | \bold x', t')W(\bold x', t' | \bold x_0, t_0)d\bold x' \label{eq:W_PDF}
+    W(\bold x, t | \bold x_0, t_0) = \int_{-\infty}^\infty W(\bold x, t | \bold x', t')W(\bold x', t' | \bold x_0, t_0)d\bold x', \label{eq:W_PDF}
 \end{align}
 and is derived from the three different probability functions at separate times $t_0$, $t'$, $t$, as defined below
 \begin{align*}
-    w(\bold x, t) &= \int_{-\infty}^\infty W(\bold x, t | \bold x', t') w(\bold x', t')d\bold x', \textcolor{red}{(??)}\\
+    w(\bold x, t) &= \int_{-\infty}^\infty W(\bold x, t | \bold x', t') w(\bold x', t')d\bold x', \\
     w(\bold x, t) &= \int_{-\infty}^\infty W(\bold x, t | \bold x_0, t_0) w(\bold x_0, t_0)d\bold x_0, \\
     w(\bold x', t') &= \int_{-\infty}^\infty W(\bold x', t' | \bold x_0, t_0) w(\bold x_0, t_0)d\bold x_0.
 \end{align*}
@@ -498,19 +467,19 @@ Once these properties are taken into consideration, one can calculate the accept
 \subsubsection{Bootstrap}\label{subsubsec:bootstrap}
 The idea of the bootstrap method is as follows. We have a sample consisting of $n$ independent, identically distributed (i.i.d.) variables represented by the vector $\hat{x}$. Our goal is to find the PDF of some function of $\hat{x}$,  $\hat{\theta}(\hat{x})$. To find this PDF, we draw with replacement $n$ numbers from $\hat{x}$. Denote this vector of numbers by $\hat{x}^{\ast}$. Calculate $\hat\theta^{\ast}(\hat{x}^{\ast}) =\hat\theta(\hat{x}^{\ast})$ and repeat the process $n$ or less times. From this we can create a histogram of the relative frequency of $\hat\theta^{\ast}$, which is our estimate of the PDF. This is rarely done in practice, as one usually just calculates the quantity in interest with a point estimator.
 
-In our case, we are interested in knowing the variance of the sample means. For a sample of size $n$, the bootstrap algorithm then tells us to draw  $n$ measurements with replacement from the same Monte-Carlo sample and calculate the mean $\overline{x}^{\ast}$. Repeating this process $\sim n$ times, an estimate of the sample variance is found by use of eq.\eqref{eq:33}. This method works best for small samples. For larger sample sizes the complexity of the bootstrap method is deterring, not to mention that the measurements in our case aren't i.i.d.
+In our case, we are interested in knowing the variance of the sample means. For a sample of size $n$, the bootstrap algorithm then tells us to draw  $n$ measurements with replacement from the same Monte Carlo sample and calculate the mean $\overline{x}^{\ast}$. Repeating this process $\sim n$ times, an estimate of the sample variance is found by use of eq.\eqref{eq:33}. This method works best for small samples. For larger sample sizes the complexity of the bootstrap method is deterring, not to mention that the measurements in our case aren't i.i.d.
 \subsubsection{Blocking}\label{subsubsec:blocking}
-% Since the Metropolis Algorithm only proposes new moves that are in the vicinity of the last one, more specifically within one step length of the current position, the measurements of a given Monte-Carlo sample will be dependent on one another, i.e. correlated. When evaluating eq.~\eqref{eq:sigma_correlated} we must take into account the autocorrelation time $\tau$. The problem is however, that we do not know the correlation time. This is where the resampling method of blocking becomes useful.
+% Since the Metropolis Algorithm only proposes new moves that are in the vicinity of the last one, more specifically within one step length of the current position, the measurements of a given Monte Carlo sample will be dependent on one another, i.e. correlated. When evaluating eq.~\eqref{eq:sigma_correlated} we must take into account the autocorrelation time $\tau$. The problem is however, that we do not know the correlation time. This is where the resampling method of blocking becomes useful.
 
 In contrast to the bootstrap method, the blocking method works best for large sample sizes. Let the original sample contain $n=2^d$ measurements, where $d$ is an integer. In order to guarantee that the automation process introduced later in this section works, let's restrict ourselves to the case where these measurements form a stationary time series, which is the case when using the Metropolis algorithm. Denote this time series by the vector $\hat{X}$. The idea behind blocking is to perform so-called blocking transformations, which halves the length of the vector by taking the mean of two adjacent elements of the previous vector. Mathematically, a transformation $k$, where $k \in [1, 2, ..., d]$, is expressed as
 \begin{align}
     &(\hat X_0)_k \equiv (\hat X)_k \nonumber\\
-    &(\hat X_{i+1})_k \equiv \frac{1}{2}((\hat X_i)_{2k-1} + (\hat X_i)_{2k}) \label{eq:blocking_transformation}
+    &(\hat X_{i+1})_k \equiv \frac{1}{2}((\hat X_i)_{2k-1} + (\hat X_i)_{2k}). \label{eq:blocking_transformation}
 \end{align}
 % From these transformations, we can now compute the autocorrelation as described in eq.~\eqref{eq:autocorrelation}.
- It can be shown that if $\hat{X}_0$ is a stationary time series, then so is $\hat{X}_k$ \cite{Jonsson}. Now, we may treat each element/block of a given vector $\hat{X}_i$ as an estimate of the mean value of a Monte-Carlo sample. For brevity, denote the elements of a given vector by $X_k$. We wish to find the variance of these elements/means for a given blocking iteration. Ignoring the blocking iteration index, the variance is given by \cite{Jonsson}
+ It can be shown that if $\hat{X}_0$ is a stationary time series, then so is $\hat{X}_k$ \cite{Jonsson}. Now, we may treat each element/block of a given vector $\hat{X}_i$ as an estimate of the mean value of a Monte Carlo sample. For brevity, denote the elements of a given vector by $X_k$. We wish to find the variance of these elements/means for a given blocking iteration. Ignoring the blocking iteration index, the variance is given by \cite{Jonsson}
  \begin{equation}
-     \text{var}(\overline{X}) = \text{var}\left(\frac{1}{n_k} \sum_{k=1}^{n_k} X_k \right) = \frac{1}{n_k^2} \text{cov}\left( \sum_{i=1}^{n_k} X_i, \sum_{j=1}^{n_k} X_j \right)
+     \text{var}(\overline{X}) = \text{var}\left(\frac{1}{n_k} \sum_{k=1}^{n_k} X_k \right) = \frac{1}{n_k^2} \text{cov}\left( \sum_{i=1}^{n_k} X_i, \sum_{j=1}^{n_k} X_j \right).
  \end{equation}
 The autocovariance is defined as 
  \begin{equation}
@@ -518,16 +487,16 @@ The autocovariance is defined as
  \end{equation}
 where $h = |i-j|$. From the distributive property of the covariance, we get 
  \begin{align}
-     \text{var}(\overline{X}) &= \frac{1}{n_k^2}\sum_{i=1}^{n_k}\sum_{j=1}^{n_k} \text{cov}(X_i,X_j)\\ \nonumber
-     & = \frac{1}{n_k^2}\left[n_k\gamma(0) + (n_k-1)\gamma(1) + (n_k-2)\gamma(2)+...+\gamma(n_k-1)\\ \nonumber
-     & + (n_k-1) \gamma(-1) + (n_k-2) \gamma(-2) +...+\gamma(1-n_k)\right]
+     &\text{var}(\overline{X}) = \frac{1}{n_k^2}\sum_{i=1}^{n_k}\sum_{j=1}^{n_k} \text{cov}(X_i,X_j)\\ \nonumber
+     & = \frac{1}{n_k^2}\Big[n_k\gamma(0) + (n_k-1)\gamma(1) + (n_k-2)\gamma(2)+...+\gamma(n_k-1)\\ \nonumber
+     & + (n_k-1) \gamma(-1) + (n_k-2) \gamma(-2) +...+\gamma(1-n_k)\Big],
  \end{align}
 where $\gamma(0)$ is just the sample variance with no consideration to correlation. Let's denote this variance by $\sigma_k^2$. This yields
 \begin{align}
  \text{var}(\overline{X}) &= \frac{\sigma_k^2}{n_k} + \frac{2}{n_k^2} \sum_{h=1}^{n_k-1} (n_k-h)\gamma(h) \\
- &= \frac{\sigma_k^2}{n_k} + \underbrace{\frac{2}{n_k} \sum_{h=1}^{n_k-1}\left(1-\frac{h}{n_k} \right) \gamma(h)}_{e_k}
+ &= \frac{\sigma_k^2}{n_k} + \underbrace{\frac{2}{n_k} \sum_{h=1}^{n_k-1}\left(1-\frac{h}{n_k} \right) \gamma(h)}_{e_k},
 \end{align}
- Where $e_k$ is called the truncation error. It can be shown that \cite{Stat.Phys.}
+where $e_k$ is called the truncation error. It can be shown that \cite{Stat.Phys.}
  \begin{equation}
      \overline{X}_{j+1} = \overline{X}_{j},
  \end{equation}
@@ -539,11 +508,11 @@ where $\gamma(0)$ is just the sample variance with no consideration to correlati
  \begin{equation}
      \text{var}(\overline{X}) = \frac{\sigma_k^2}{n_k} + e_k
  \end{equation}
- The sequence $\{e_k\}_{k=0}^{d-1}$ is decreasing \cite{Jonsson}, and thus $e_k$ can be made as small as we like by increasing $k$ through increasing $d$. For the $\text{var}(\overline{X})$ to remain constant for each blocking iteration, $\frac{\sigma_k^2}{n_k}$  must increase as a function of $k$ and eventually reach a plateau when $e_k \approx 0$ and the blocks are no longer correlated. We can then extract the variance from one of these uncorrelated blocking iterations. 
+ The sequence $\{e_k\}_{k=0}^{d-1}$ is decreasing \cite{Jonsson}, and thus $e_k$ can be made as small as we like by increasing $k$ through increasing $d$. For $\text{var}(\overline{X})$ to remain constant for each blocking iteration, $\frac{\sigma_k^2}{n_k}$  must increase as a function of $k$ and eventually reach a plateau when $e_k \approx 0$ and the blocks are no longer correlated. We can then extract the variance from one of these uncorrelated blocking iterations. 
  
- This can be done in a brute force manner by plotting $\sigma_k^2/n_k$ vs $k$ and estimating when the plateau is reached, or one may automate this process. The automation procedure is explained in great detail in \cite{Stat.Phys.}. The outline is as follows: For each blocking iteration, calculate the test statistic $M_j$ given by 
+ This can be done in a brute force manner by plotting $\sigma_k^2/n_k$ vs. $k$ and estimating when the plateau is reached, or one may automate this process. The automation procedure is explained in great detail in \cite{Stat.Phys.}. The outline is as follows: For each blocking iteration, calculate the test statistic $M_j$ given by 
  \begin{equation}
-     M_j = \sum_{k=j}^{d-1}\frac{n_k\left[(n_k-1) \sigma_k^2/(n_k^2) \ \gamma_k(1) \right]}{\sigma_k^4}
+     M_j = \sum_{k=j}^{d-1}\frac{n_k\left[(n_k-1) \sigma_k^2/(n_k^2) \ \gamma_k(1) \right]}{\sigma_k^4}.
  \end{equation}
 $M_j$ is $\chi^2$-distributed with $d-k$ degrees of freedom. Next, pick a significance level, $\alpha$, and find the smallest $k$ such that $M_k \leq q_{d-k}(1-\alpha)$. Using this $k$, the final estimate of the sample variance is $\sigma_b^2 = \sigma_k^2/n_k$.
  
@@ -551,9 +520,9 @@ $M_j$ is $\chi^2$-distributed with $d-k$ degrees of freedom. Next, pick a signif
 \subsection{Optimization methods}
 In order to achieve the minimum value of the local energy expressed in eq.~\eqref{eq:local_energy}, we can adjust the variational parameter $\alpha$ of the trial wavefunction in eq.~\eqref{eq:trial_wavefunction_total}. This can be done by multiple methods such as the conjugate gradient method, the steepest descent method or simply by Newton's method. In this project we will rely on the steepest descent method, computationally known as gradient descent (GD).
 \subsubsection{Gradient descent}
-When dealing with a differentiable function $F$ dependent on a variational parameter, we can find the local minimum by taking steps in the negative direction proportional to $-\nabla F$.\footnote{If we want the local maximum we may take steps in the positive direction proportional to $+\nabla F$.} Now, there is a certain learning curve as to how quickly we can reach a local minima. This learning curve is dependent on the learning rate $\gamma$, often also referred to as the step length. The smaller the learning rate, the longer it takes to converge to an optimal value. The greater the learning rate the more prone we are to experience fluctuant behaviour.
+When dealing with a differentiable function $F$ dependent on a variational parameter, we can find the local minimum by taking steps in the negative direction proportional to $-\nabla F$.\footnote{If we want the local maximum we may take steps in the positive direction proportional to $+\nabla F$.} Now, there is a certain learning curve as to how quickly we can reach a local minimum. This learning curve is dependent on the learning rate $\gamma$, often also referred to as the step length. The smaller the learning rate, the longer it takes to converge to an optimal value. The greater the learning rate the more prone we are to experience fluctuant behaviour.
 
-The gradient descent method is based on an iterative scheme in which the next value $x_{k+1}$ is dependent on the previous value $x_k$. This can also be expressed as
+The gradient descent method is based on an iterative scheme in which the next value, $x_{k+1}$, is dependent on the previous value $x_k$. This can also be expressed as
 \begin{align}
     \bold x_{k+1} = \bold x_{k} - \gamma_k\nabla F(\bold x_k),
 \end{align}
@@ -573,7 +542,7 @@ One must however be aware of the limits of conjugate gradient methods, such as t
 %   Brute force
 %*********************
 \subsubsection{Standard Metropolis}
-We start off by looking at the simplest case, i.e. examining the brute force Metropolis algorithm. By setting $\beta = 1$ and $a=0$ we will look at a spherical harmonic oscillator with no interaction. Table~\ref{tab:b_bruteforce_1part_3dim} shows the measurements of the local energy as a function of $\alpha$. Here, $\sigma$ corresponds to the biased sample error of the Monte Carlo runs, whereas $\sigma_b$ corresponds the error produced by the blocking method. As we can see, $\sigma$ produces lower errors between the measurements than that of the blocking error, giving a misleading confidence in our results. The number of accepted steps is represented by the variable $A_{ratio}$, while $t_{CPU}$ tells us the amount of computational time required (in seconds) to calculate the local energy.
+We start off by looking at the simplest case, i.e. examining the brute force Metropolis algorithm. By setting $\beta = 1$ and $a=0$ we will look at a spherical harmonic oscillator with no interaction. Table~\ref{tab:b_bruteforce_1part_3dim} shows the measurements of the local energy as a function of $\alpha$. Here, $\sigma$ corresponds to the biased sample error of the Monte Carlo runs, whereas $\sigma_b$ corresponds to the error produced by the blocking method. As we can see, $\sigma$ produces lower errors between the measurements than that of the blocking error, giving a misleading confidence in our results. The number of accepted steps is represented by the variable $A_{ratio}$, while $t_{CPU}$ tells us the amount of computational time required (in seconds) to calculate the local energy.
 
 This computation is furthermore done for $N = 1$, 10 and 100 particles in both $d = 1$, 2 and 3 dimensions, as is visualized in figure~\ref{fig:brute_force_spherical_localE} showing the local energy as a function of $\alpha$.
 
@@ -665,8 +634,52 @@ Of course, the number of accepted steps is dependent on the timestep chosen for 
   \label{tab:c_brute_force_vs_importance_tCPU}
 \end{table}
 
+% \begin{table}[h!]
+% \caption{Sample measurements of the local energy using the Metropolis-Hastings algorithm, for 1 particle in 3 dimensions. This is run with 1e5 Metropolis steps and a step length of 0.5 and a time step $\delta t = 0.01$.}
+% \label{tab:c_importance_sampling_1part_3dim}
+
+% \centering
+% \begin{ruledtabular}
+% \begin{tabular}{cccccc}
+% $\alpha$ & $E_L$  & $\sigma$ & $\sigma_b$ & $A_{ratio}$ & $t_{CPU}[\si{s}]$  \\
+% \hline
+%           \multicolumn{6}{c}{Analytic}\\
+% \hline
+
+
+% 0.20     & 1.3802 & 0.0009   & 0.0184     & 0.9520      & 1.0247    \\
+% 0.25     & 1.2976 & 0.0006   & 0.0141     & 0.9473      & 1.0047    \\
+% 0.30     & 1.2969 & 0.0005   & 0.0093     & 0.9431      & 1.0066       \\
+% 0.35     & 1.3205 & 0.0003   & 0.0062     & 0.9388      & 0.9951      \\
+% 0.40     & 1.3662 & 0.0002   & 0.0022     & 0.9355      & 0.9943       \\
+% 0.45     & 1.4284 & 0.0001   & 0.0017     & 0.9317      & 0.9918      \\
+% 0.50     & 1.5000 & 0.0000   & 0.0000     & 0.9288      & 0.9922       \\
+% 0.55     & 1.5796 & 0.0001   & 0.0013     & 0.9261      & 0.9905       \\
+% 0.60     & 1.6655 & 0.0002   & 0.0017     & 0.9230      & 0.9857    \\
+% 0.65     & 1.7519 & 0.0002   & 0.0017     & 0.9197      & 0.9779    \\
+% 0.70     & 1.8447 & 0.0003   & 0.0042     & 0.9171      & 0.9768   \\
+% \hline
+%          \multicolumn{6}{c}{Numeric}                                                     \\
+% \hline
+
+% 0.20     & 1.3594 & 0.0009   & 0.0174     & 0.9528      & 3.7641    \\
+% 0.25     & 1.3035 & 0.0007   & 0.0149     & 0.9478      & 3.7386    \\
+% 0.30      & 1.2929 & 0.0005   & 0.0072     & 0.9434      & 3.8651    \\
+% 0.35      & 1.3184 & 0.0003   & 0.0070     & 0.9393      & 3.7873    \\
+% 0.40     & 1.3662 & 0.0002   & 0.0028     & 0.9351      & 3.7665    \\
+% 0.45      & 1.4288 & 0.0001   & 0.0012     & 0.9318      & 3.7455    \\
+% 0.50       & 1.5000 & 0.0000   & 0.0000     & 0.9294      & 3.7112    \\
+% 0.55     & 1.5789 & 0.0001   & 0.0014     & 0.9255      & 3.7167    \\
+% 0.60     & 1.6666 & 0.0002   & 0.0014     & 0.9229      & 3.6921    \\
+% 0.65       & 1.7566 & 0.0002   & 0.0029     & 0.9201      & 3.6837    \\
+% 0.70     & 1.8482 & 0.0003   & 0.0038     & 0.9173      & 3.6689 \\
+% \end{tabular}
+% \end{ruledtabular}
+% \end{table}
+
+
 \begin{table}[h!]
-\caption{Sample measurements of the local energy using the Metropolis-Hastings algorithm, for 1 particle in 3 dimensions. This is run with 1e5 Metropolis steps and a step length of 0.5 and a time step $\delta t = 0.01$.}
+\caption{Sample measurements of the local energy using the Metropolis-Hastings algorithm, for 1 particle in 3 dimensions. This is run with 1e5 Metropolis steps and a step length of 1.0 and a time step $\delta t = 0.45$.}
 \label{tab:c_importance_sampling_1part_3dim}
 
 \centering
@@ -677,33 +690,32 @@ $\alpha$ & $E_L$  & $\sigma$ & $\sigma_b$ & $A_{ratio}$ & $t_{CPU}[\si{s}]$  \\
           \multicolumn{6}{c}{Analytic}\\
 \hline
 
-
-0.20     & 1.3802 & 0.0009   & 0.0184     & 0.9520      & 1.0247    \\
-0.25     & 1.2976 & 0.0006   & 0.0141     & 0.9473      & 1.0047    \\
-0.30     & 1.2969 & 0.0005   & 0.0093     & 0.9431      & 1.0066       \\
-0.35     & 1.3205 & 0.0003   & 0.0062     & 0.9388      & 0.9951      \\
-0.40     & 1.3662 & 0.0002   & 0.0022     & 0.9355      & 0.9943       \\
-0.45     & 1.4284 & 0.0001   & 0.0017     & 0.9317      & 0.9918      \\
-0.50     & 1.5000 & 0.0000   & 0.0000     & 0.9288      & 0.9922       \\
-0.55     & 1.5796 & 0.0001   & 0.0013     & 0.9261      & 0.9905       \\
-0.60     & 1.6655 & 0.0002   & 0.0017     & 0.9230      & 0.9857    \\
-0.65     & 1.7519 & 0.0002   & 0.0017     & 0.9197      & 0.9779    \\
-0.70     & 1.8447 & 0.0003   & 0.0042     & 0.9171      & 0.9768   \\
+0.20 &1.4256 &0.0008 &0.0020 &0.7129 &1.5696 \\
+0.25 &1.3521 &0.0006 &0.0013 &0.6761 &1.4816 \\
+0.30 &1.3371 &0.0004 &0.0009 &0.6415 &1.4160 \\
+0.35 &1.3536 &0.0003 &0.0006 &0.6107 &1.3452 \\
+0.40 &1.3915 &0.0002 &0.0004 &0.5809 &1.2764 \\
+0.45 &1.4415 &0.0001 &0.0002 &0.5520 &1.2402 \\
+0.50 &1.5000 &0.0000 &0.0000 &0.5257 &1.2024 \\
+0.55 &1.5643 &0.0001 &0.0002 &0.5007 &1.1300 \\
+0.60 &1.6326 &0.0002 &0.0003 &0.4761 &1.0480 \\
+0.65 &1.7051 &0.0003 &0.0005 &0.4525 &0.9942 \\
+0.70 &1.7796 &0.0004 &0.0006 &0.4306 &0.9484 \\ 
 \hline
          \multicolumn{6}{c}{Numeric}                                                     \\
 \hline
 
-0.20     & 1.3594 & 0.0009   & 0.0174     & 0.9528      & 3.7641    \\
-0.25     & 1.3035 & 0.0007   & 0.0149     & 0.9478      & 3.7386    \\
-0.30      & 1.2929 & 0.0005   & 0.0072     & 0.9434      & 3.8651    \\
-0.35      & 1.3184 & 0.0003   & 0.0070     & 0.9393      & 3.7873    \\
-0.40     & 1.3662 & 0.0002   & 0.0028     & 0.9351      & 3.7665    \\
-0.45      & 1.4288 & 0.0001   & 0.0012     & 0.9318      & 3.7455    \\
-0.50       & 1.5000 & 0.0000   & 0.0000     & 0.9294      & 3.7112    \\
-0.55     & 1.5789 & 0.0001   & 0.0014     & 0.9255      & 3.7167    \\
-0.60     & 1.6666 & 0.0002   & 0.0014     & 0.9229      & 3.6921    \\
-0.65       & 1.7566 & 0.0002   & 0.0029     & 0.9201      & 3.6837    \\
-0.70     & 1.8482 & 0.0003   & 0.0038     & 0.9173      & 3.6689 \\
+0.20 &1.4231 &0.0008 &0.0020 &0.7126 &5.7639 \\ 
+0.25 &1.3536 &0.0006 &0.0014 &0.6770 &5.4619 \\ 
+0.30 &1.3364 &0.0004 &0.0009 &0.6418 &5.1868 \\ 
+0.35 &1.3541 &0.0003 &0.0006 &0.6117 &4.9487 \\ 
+0.40 &1.3916 &0.0002 &0.0004 &0.5808 &4.6998 \\ 
+0.45 &1.4414 &0.0001 &0.0002 &0.5531 &4.4726 \\ 
+0.50 &1.5000 &0.0000 &0.0000 &0.5258 &4.2706 \\ 
+0.55 &1.5644 &0.0001 &0.0002 &0.4999 &4.0544 \\ 
+0.60 &1.6323 &0.0002 &0.0003 &0.4766 &3.8601 \\ 
+0.65 &1.7048 &0.0003 &0.0005 &0.4528 &3.6759 \\ 
+0.70 &1.7787 &0.0004 &0.0006 &0.4307 &3.4941
 \end{tabular}
 \end{ruledtabular}
 \end{table}
@@ -734,9 +746,9 @@ Taking the mean of $\alpha$ at the 100'th iteration for each test value of $\alp
 \end{figure}
 
 \subsubsection{One-body density}
-The one-body densities are shown in figure~\ref{fig:g_onebody_density}, where we have plotted the density for the ellipsoidal system with and without the Jastrow factor as well as the spherical non-interacting system. As seen, the effect of including the Jastrow factor, viz. interaction, is to spread out the particles. This is because the hard-core radius prevents the particles from stacking up on each other. This effect would be more pronounced for a larger number of particles. 
+The one-body densities are shown in figure~\ref{fig:g_onebody_density}, where we have plotted the density for the ellipsoidal system with and without the Jastrow factor as well as the spherical non-interacting system. As in \cite{vortex} and \cite{trapped}, we have set $a/a_{ho} = 0.0043$ and $\beta = \sqrt{8}$. The figure illustrates that the effect of including the Jastrow factor, viz. interaction, is to spread out the particles. This is because the hard-core radius prevents the particles from stacking up on each other. This effect would be more pronounced for a larger number of particles. 
 
-Note that the one-body density for the spherical wavefunction is smaller than that of the elliptical wavefunction. This is to be expected, as $\Delta V$ increases by a factor of $\sqrt{\beta}$ when integrating over spherical shells compared to elliptical ones. From equation \eqref{eq:29}, the elliptical one-body density should therefore be a factor of $\sqrt{\beta}$ greater than the spherical. A rough estimate from figure \ref{fig:g_onebody_density} reveals this factor to be $1.666 \approx 8^{1/4} = \sqrt{\beta}$.
+Note that the one-body density for the spherical wavefunction is smaller than that of the elliptical wavefunction. This is to be expected, as $\Delta V$ increases by a factor of $\sqrt{\beta}$ when integrating over spherical shells compared to elliptical ones. From equation \eqref{eq:29}, the elliptical one-body density should therefore be a factor of $\sqrt{\beta}$ greater than the spherical. A rough estimate from figure \ref{fig:g_onebody_density} reveals this factor to be $1.666 \approx 1.682 = \sqrt{\beta}$.
 
 \begin{table}[H]
 
@@ -753,46 +765,46 @@ $\alpha$ & $E_L$   & $\sigma$ & $\sigma_b$ & $A_{ratio}$ \\
 \hline
     \multicolumn{5}{c}{10 particles} \\              
 \hline
-0.20     & 36.3429 & 0.1635   & 1.3209     & 0.6489      \\
-0.25     & 31.0444 & 0.0860   & 0.2377     & 0.6150       \\
-0.30     & 28.5313 & 0.0374   & 0.2050     & 0.5851      \\
-0.35     & 27.0695 & 0.0991   & 0.1233     & 0.5588       \\
-0.40     & 30.9139 & 1.9405   & 3.0032     & 0.5342       \\
-0.45     & 26.4922 & 0.1349   & 0.8399     & 0.5114         \\
-0.50     & 30.0830 & 1.1763   & 1.4501     & 0.4914     \\
-0.55     & 28.8557 & 0.8074   & 1.3812     & 0.4732      \\
-0.60     & 27.5154 & 0.1505   & 1.0744     & 0.4554     \\
-0.65     & 27.2751 & 0.3708   & 0.8324     & 0.4395       \\
-0.70     & 28.5333 & 0.1853   & 0.3816     & 0.4241      \\
+0.20 &36.3429 &0.1635 &0.2623 &0.6489 \\
+0.25 &31.0444 &0.0860 &0.0625 &0.6150 \\
+0.30 &28.5313 &0.0374 &0.0541 &0.5851 \\
+0.35 &27.0695 &0.0991 &0.0242 &0.5588 \\
+0.40 &30.9139 &1.9405 &0.5084 &0.5342 \\
+0.45 &26.4922 &0.1349 &0.1914 &0.5114 \\
+0.50 &30.0830 &1.1763 &0.0470 &0.4914 \\
+0.55 &28.8557 &0.8074 &0.3922 &0.4732 \\
+0.60 &27.5154 &0.1505 &0.2982 &0.4554 \\
+0.65 &27.2751 &0.3708 &0.1506 &0.4395 \\
+0.70 &28.5333 &0.1853 &0.0816 &0.4241 \\
 \hline
 \multicolumn{5}{c}{50 particles}               \\
 \hline
-0.20     & 190.3719 & 0.1971   & 1.9594     & 0.5855      \\
-0.25     & 167.2134 & 0.2417   & 2.0284     & 0.5454       \\
-0.30     & 166.5803 & 0.8381   & 6.5717     & 0.5114    \\
-0.35     & 155.6323 & 0.4971   & 4.2984     & 0.4831   \\
-0.40     & 182.5975 & 2.8327   & 18.5162    & 0.4569      \\
-0.45     & 158.9000 & 1.4974   & 5.1179     & 0.4335           \\
-0.50     &  163.9296 & 3.7315   & 9.7222     & 0.4106     \\
-0.55     & 166.6583 & 1.3770   & 22.6293    & 0.3915     \\
-0.60     & 167.3481 & 0.8089   & 6.3983     & 0.3744    \\
-0.65     & 234.4480 & 4.1277   & 27.1030    & 0.3597        \\
-0.70     & 237.2478 & 8.8231   & 21.1818    & 0.3440          \\
+0.20     & 190.3719 & 0.1971   & 0.457067    & 0.5454       \\
+0.25     & 167.2134 & 0.2417   & 0.605498    & 0.5454
+0.30     & 166.5803 & 0.8381   & 2.10527     & 0.5114    \\
+0.35     & 155.6323 & 0.4971   & 1.30742     & 0.4831   \\
+0.40     & 182.5975 & 2.8327   & 4.74049     & 0.4569      \\
+0.45     & 158.9000 & 1.4974   & 1.52235     & 0.4335           \\
+0.50     &  163.9296 & 3.7315  & 2.27611     & 0.4106     \\
+0.55     & 166.6583 & 1.3770   & 2.64776     & 0.3915     \\
+0.60     & 167.3481 & 0.8089   & 6.65364     & 0.3744    \\
+0.65     & 234.4480 & 4.1277   & 12.0293     & 0.3597        \\
+0.70     & 237.2478 & 8.8231   & 3.11682     & 0.3440          \\
 \hline
 \multicolumn{5}{c}{100 particles}               \\
 \hline
 
-0.20     & 444.8302 & 3.6103   & 32.8586    & 0.5713      \\
-0.25     & 353.9400 & 0.4392   & 6.1599     & 0.5377      \\
-0.30     & 361.6295 & 1.7793   & 20.8677    & 0.5084      \\
-0.35     & 350.0379 & 3.2279   & 20.7966    & 0.4792      \\
-0.40     & 484.9373 & 10.3091  & 110.6710   & 0.4542      \\
-0.45     & 370.9348 & 5.8136   & 32.6495    & 0.4317      \\
-0.50     & 417.5323 & 6.0516   & 35.9970    & 0.4138      \\
-0.55     & 367.7318 & 1.7960   & 31.0120    & 0.3913      \\
-0.60     & 413.8120 & 2.2802   & 30.6715    & 0.3754      \\
-0.65     & 527.4375 & 4.3581   & 51.8095    & 0.3587      \\
-0.70     & 411.8401 & 2.9253   & 30.0112    & 0.3450     \\
+0.20     & 444.8302 & 3.6103   & 11.057     & 0.5713      \\
+0.25     & 353.9400 & 0.4392   & 1.08801    & 0.5377      \\
+0.30     & 361.6295 & 1.7793   & 5.68786    & 0.5084      \\
+0.35     & 350.0379 & 3.2279   & 4.18892    & 0.4792      \\
+0.40     & 484.9373 & 10.3091  & 38.1289    & 0.4542      \\
+0.45     & 370.9348 & 5.8136   & 6.13453    & 0.4317      \\
+0.50     & 417.5323 & 6.0516   & 4.80259    & 0.4138      \\
+0.55     & 367.7318 & 1.7960   & 9.79242    & 0.3913      \\
+0.60     & 413.8120 & 2.2802   & 6.65364    & 0.3754      \\
+0.65     & 527.4375 & 4.3581   & 12.0293    & 0.3587      \\
+0.70     & 411.8401 & 2.9253   & 3.11682    & 0.3450     \\
 \end{tabular}
 \end{ruledtabular}
 }
@@ -805,12 +817,7 @@ $\alpha$ & $E_L$   & $\sigma$ & $\sigma_b$ & $A_{ratio}$ \\
     \label{fig:g_onebody_density}
 \end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.45\textwidth]{50x50_dt0.01_bruteforce&importance_analytic2.0.png}
-    \caption{Biased sample variance as a function of $\alpha$ and number of Metropolis steps. The top layer represents brute force whilst the bottom layer is for importance sampling. This is for the spherically symmetric non-interacting case. }
-    \label{fig:blocking_behaviour}
-\end{figure}
+
 
 
 %----------------------------------------------------------------------
@@ -824,7 +831,9 @@ From table~\ref{tab:b_bruteforce_1part_3dim} we see that the brute force method 
 In figure~\ref{fig:brute_force_spherical_localE} we see that the analytic and numeric approximations to the local energy as a function of $\alpha$ agrees quite well, in all dimensions. The local energy reaches a minimum around $\alpha = 0.5$ as expected.
 
 \subsubsection{Adding importance sampling}
-When adding importance sampling, as can be seen in table~\ref{tab:c_importance_sampling_1part_3dim}, we do not assume a symmetric distribution. Here, the error $\sigma$ appears smaller than that of the brute force method, which is due to the acceptance ratio being higher in this case. However, this is also reflected in the blocking error $\sigma_b$ which is higher than that for the brute force method. This is due to the fact that the autocorrelation time $\tau$ increases along with the accepted number of steps.
+When adding importance sampling, as can be seen in table~\ref{tab:c_importance_sampling_1part_3dim}, we do not assume a symmetric distribution. Here, the biased error $\sigma$ appears smaller than that of the brute force method, which is due to the acceptance ratio being higher in this case. We can also see that the blocking error for importance is somewhat smaller for some of the parameters of $\alpha$.. This is due to the fact that the autocorrelation time $\tau$ increases along with the accepted number of steps.
+
+%For the exact same parameters, the biased sample variance is higher for brute force compared to importance sampling. This is shown in  figure (...). This is for the sp
 
 The computational time required for importance sampling is longer than that of brute force, as can be seen in table~\ref{tab:c_brute_force_vs_importance_tCPU}. This is due to the additional computational power required in calculating the quantum force, as expressed in eq.~\eqref{eq:drift_force_non-interacting}.
 
@@ -836,7 +845,7 @@ The local energy when including interaction between the bosons in an elliptical 
 From the use of gradient descent we find that the most optimal value of $\alpha$ for an interacting, elliptical system is $\alpha = 0.514232\pm 0.013922$. Figure~\ref{fig:f_gradient_descent} shows the learning curve of approaching $\alpha$, when starting out with an initial 'guess' value. We could have chosen a smaller learning rate, which would hopefully converge to a more precise value of $\alpha$, but this would then have required more iterations. Another thing to be aware of is the sudden spikes in $\alpha$, especially for $\alpha_0 = 0.1, 0.3$ and 0.8, although they converge back to $\alpha \sim 0.51$.
 
 \subsubsection{One-body density}
-The one-body density is found by estimating the integral in eq. \eqref{eq:onebody_density_integral} by use of Monte-Carlo integration. As explained in section~\ref{subsubsec:one_body}, we sum the one-body densities of all the particles rather than calculating the one-body density of an arbitrary particle in the ensemble. This is to save CPU cycles. To get a reasonably smooth plot, we needed 1e7 Monte-Carlo steps for 20 particles. Sampling the position of every particle at each step is a lot cheaper than increasing the number of steps by a factor of $20$ and only sampling the position of one particle each time.
+The one-body density is found by estimating the integral in eq. \eqref{eq:onebody_density_integral} by use of Monte Carlo integration. As explained in section~\ref{subsubsec:one_body}, we sum the one-body densities of all the particles rather than calculating the one-body density of an arbitrary particle in the ensemble. This is to save CPU cycles. To get a reasonably smooth plot, we needed 1e7 Monte Carlo steps for 20 particles. Sampling the position of every particle at each step is a lot cheaper than increasing the number of steps by a factor of $20$ and only sampling the position of one particle each time.
 
 Ideally we would like to plot the one-body density for 100 particles to see a more pronounced spread for the interacting case compared to the non-interacting. The drastic increase in run-time is what prevented us from doing so. Future improvements would include optimizing our code so as to make this possible. 
 
@@ -950,16 +959,15 @@ $\alpha$ & $E_L$   & $\sigma$ & $\sigma_b$ & $A_{ratio}$ \\
 \printbibliography
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%\newpage
+\newpage
 \begin{appendices}
 
 \section{Trial wavefunction}
 The trial wavefunction is given by
-\begin{align}
+\begin{align}\label{trial_wavefunction}
     \Psi_T(\boldsymbol{r}) &= \Psi_T(\boldsymbol{r}_1,\boldsymbol{r}_2,...,\boldsymbol{r}_N,\alpha,\beta) \\
-    &= \left[\prod_i g(\alpha,\beta,\boldsymbol{r}_i)\right] \left[\prod_{j<k} f(a,|\boldsymbol{r}_j - \boldsymbol{r}_k|)\right]
+    &= \left[\prod_i g(\alpha,\beta,\boldsymbol{r}_i)\right] \left[\prod_{j<k} f(a,|\boldsymbol{r}_j - \boldsymbol{r}_k|)\right] \nonumber
 \end{align}
-
 Where
 \begin{equation}\label{eq:2}
     f(a,|\boldsymbol{r}_i - \boldsymbol{r}_j|) =
@@ -968,29 +976,22 @@ Where
      \left(1-\frac{a}{|\boldsymbol{r}_i - \boldsymbol{r}_j|}\right) & |\boldsymbol{r}_i - \boldsymbol{r}_j| > a\\
     \end{cases} 
 \end{equation}
-
 Is the correlation wavefunction and 
-
 \begin{equation}
     g(\alpha, \beta, \boldsymbol{r}_i) =  \exp[-\alpha(x_i^2 + y_i^2 + \beta z_i^2)]
 \end{equation}
 Where $\alpha$ and $\beta$ are variational parameters. $\beta = 1$ for spherical traps  and for non-interacting bosons ($a=0$) we have $\alpha = 1/2a_{ho}^2$ 
 \newline
-
 \section{Local Energy}\label{appendix:local_energy}
 We want to find the local energy  
-
-\begin{equation}
+\begin{equation}\label{local_energy}
    E_L(\boldsymbol{r}) =  \frac{1}{\Psi_T(\boldsymbol{r})} H \Psi_T(\boldsymbol{r})
 \end{equation}
-
 For the harmonic oscillator potential in one, two and three dimensions with
-
 \begin{align*}
     a&=0 \quad \text{Non-interacting potential} \\
     \beta& = 1 \quad \text{Spherically symmetric potential}
 \end{align*}
-
 For $N$ particles. The external potential in this case is given by 
 \begin{equation}
     V_{ext} =
@@ -1000,145 +1001,99 @@ For $N$ particles. The external potential in this case is given by
      \frac{1}{2}m \omega_{ho}^2\left(x^2 +  y^2 +z^2 \right) & 3\text{D}
     \end{cases} 
 \end{equation}
-
 And the Hamiltonian is 
 \begin{equation}
     H = \sum_i^N \left(\frac{-\hbar^2}{2m} \nabla_i^2 + V_{ext}(\boldsymbol{r}_i)\right)
 \end{equation}
-
-
-
 Inserting $a=0$ into \eqref{eq:2} gives $f(a,|\boldsymbol{r}_i - \boldsymbol{r}_j|) =1$ and so
 \begin{equation}
     \Psi_T = \prod_i g(\alpha,\beta,\boldsymbol{r}_j) = \prod_j \exp\left[ -\alpha \left(x_j^2 + y_j^2 + z_j^2\right)\right]
 \end{equation}
-
-Next, we calculate the laplacian of the trial wavefunction. Differentiating only with respect to $x$ gives
-
+Next, we calculate the Laplacian of the trial wavefunction. Differentiating only with respect to $x$ gives
 \begin{align*}
     \frac{\partial^2}{\partial x_i^2} \Psi_T &= \frac{\partial}{\partial x_i} \left(-2\alpha x_i \prod_j \exp\left[ -\alpha \left(x_j^2 + y_j^2 + z_j^2\right)\right] \right)\\
     &= 2\alpha \left(2\alpha x_i^2 -1\right) \prod_j \exp\left[ -\alpha \left(x_j^2 + y_j^2 + z_j^2\right)\right]
 \end{align*}
-
 Repeating the same calculation for the $y$ and $z$ coordinates yields
-
-
-
 \begin{equation}
 \nabla_i^2 \Psi_T = 2\alpha \left(2\alpha \boldsymbol{r}_i^2 -3\right) \Psi_T
 \end{equation}
-
 This can be generalized for a system of dimension $d\in [1,2,3]$ to
-
 \begin{equation}
 \nabla_i^2 \Psi_T = 2\alpha \left(2\alpha \boldsymbol{r}_i^2 -d\right) \Psi_T
 \end{equation}
-
-Inserting this into eq(...) gives 
-
-\begin{equation}
+Inserting this into eq. \eqref{local_energy} gives 
+\begin{equation}\label{local_energy_applied}
     E_L = \frac{1}{\Psi_T} \sum_i^N \left[\frac{-\hbar^2}{2m} 2\alpha(2\alpha \boldsymbol{r}_i^2 - d) \Psi_T + \frac{1}{2}m \omega_{ho}^2 \boldsymbol{r}_i^2 \Psi_T\right]
 \end{equation}
-
-Since we are dealing with non-interacting bosons, $\alpha = 1/2 a_{ho}^2 = \frac{m\omega_{ho}}{2\hbar}$. Inserting this into equation (...) makes the first and last terms cancel, and we are left with
-
-
+Since we are dealing with non-interacting bosons, $\alpha = 1/2 a_{ho}^2 = \frac{m\omega_{ho}}{2\hbar}$. Inserting this into eq. \eqref{local_energy_applied} makes the first and last terms cancel, and we are left with
 \begin{equation}
     E_L = \frac{d}{2} \hbar \omega_{ho} N
 \end{equation}
-
 Where $d\in [1,2,3]$ is the dimension of our system and $N$ the number of particles. 
-
-
 The drift force is given by 
-
 \begin{align}
     F &= \frac{2\nabla \Psi_T}{\Psi_T}\\
     &= \frac{2}{\Psi_T}\nabla_i\prod_j \exp[-\alpha(x_j^2+y_j^2+z_j^2)] \\ 
     &= \frac{2}{\Psi_T} \left(-2\alpha (x_i \hat{i}+ y_i \hat{j} + z_i \hat{k})\right) \Psi_T \\
 \end{align}
-
 Or in general 
 \begin{equation}
     F =-4\alpha \boldsymbol{r}_i
 \end{equation}
-
 Where $\boldsymbol{r}_i = x_i \hat{i} + y_i \hat{j}$ in 2D and $\boldsymbol{r}_i = x_i \hat{i}$ in 1D.
-
 \section{First derivative}
-
-
-The trial wavefunction (reference)
-
+The trial wavefunction \cite{project1}
 \begin{align}
     \Psi_T(\boldsymbol{r}) &= \Psi_T(\boldsymbol{r}_1,\boldsymbol{r}_2,...,\boldsymbol{r}_N,\alpha,\beta) \\
     &= \left[\prod_i g(\alpha,\beta,\boldsymbol{r}_i)\right] \left[\prod_{j<k} f(a,|\boldsymbol{r}_j - \boldsymbol{r}_k|)\right]
 \end{align}
-
 Can be rewritten as 
-
 \begin{equation}
     \Psi_T(\boldsymbol{r}) = \left[\prod_i \phi(\boldsymbol{r}_i)\right] \exp \left(\sum_{j<k} u(r_{jk})\right)
 \end{equation}
-
 By defining 
 \begin{align*}
      \phi(\boldsymbol{r}_i) \equiv & g(\alpha, \beta, \boldsymbol{r}_i) =  \exp[-\alpha(x_i^2 + y_i^2 + z_i^2)]  \\
     r_{ij} \equiv& |\boldsymbol{r}_i - \boldsymbol{r}_j|
 \end{align*}
-
-
 and 
-
-\begin{equation*}
+\begin{equation}
     f(r_{ij}) = \exp \left(\sum_{i<j} u(r_{ij})\right)
-\end{equation*}
-
+\end{equation}
 Where $u(r_{ij}) = \ln{f(r_{ij})}$. 
-
 The first derivative for particle $k$ is then 
-
 \begin{align}
     \nabla_k \Psi_T(\boldsymbol{r}) &= \left[\nabla_k \prod_i \phi(\boldsymbol{r}_i)\right]\exp\left(\sum_{j<k} u(r_{jk})\right) \nonumber \\ 
     &+ \left[\prod_i \phi(\boldsymbol{r}_i)\right]\nabla_k \exp\left(\sum_{j<k} u(r_{jk})\right) 
 \end{align}
-
-
 Where the derivative of the exponential is
-
-\begin{align*}
+\begin{align}\label{exponential_deriv}
     \nabla_k \exp\left(\sum_{j<m} u(r_{jm})\right) = \exp\left(\sum_{j<m} u(r_{jm})\right)  \sum_{j < m} \nabla_k u(r_{jm}) 
-\end{align*}
-
+\end{align}
 And the sum 
-\begin{align*}
+\begin{align}
     \sum_{j<m} u(r_{jm}) =\sum_{j=1}\sum_{m=j+1} u(r_{jm})& \\
-    = \left[u(r_{12})+u(r_{13})+...+u(r_{1N})\right]& \\
-    + \left[u(r_{23})+...+u(r_{2N})\right]&\\
-     \ddots \qquad \qquad \vdots \qquad&\\
-    +\left[u(r_{N-1,N})\right]
-\end{align*}
-
+    = \left[u(r_{12})+u(r_{13})+...+u(r_{1N})\right]& \nonumber \\
+    + \left[u(r_{23})+...+u(r_{2N})\right]& \nonumber \\
+     \ddots \qquad \qquad \vdots \qquad& \nonumber \\
+    +\left[u(r_{N-1,N})\right] \nonumber
+\end{align}
 Ensures that every particle couples once to every other particle except itself. We see that the order in which they couple is not consistent, but because $r_{jm}$ is symmetric under interchange of indices, we get 
-
 \begin{equation}
     \sum_{j<m }\nabla_k  u(r_{jm}) = \sum_{l\neq k } \nabla_k u(r_{kl})
 \end{equation}
-
 The derivative of the product is simply 
-\begin{equation*}
+\begin{equation}
     \nabla_k \prod_{i}\phi(\boldsymbol{r}_i) = \nabla_k \phi(\boldsymbol{r}_k) \prod_{i \neq k} \phi(\boldsymbol{r}_i)
-\end{equation*}
-
+\end{equation}
 And so the first derivative of the trial wavefunction is
-
-
-\begin{align*}
+\begin{align}
     \nabla_k \Psi_T(\boldsymbol{r}) =& \nabla_k \phi(\boldsymbol{r_k}) \left[\prod_{i \neq k} \phi(\boldsymbol{r}_i)\right] \exp\left(\sum_{j<m} u(r_{jm})\right) \\
-    &+ \left[\prod_i \phi(\boldsymbol{r}_i)\right]\exp \left(\sum_{j<m} u(r_{jm})\right) \sum_{l\neq k} \nabla_k u(r_{kl})
-\end{align*}
+    &+ \left[\prod_i \phi(\boldsymbol{r}_i)\right]\exp \left(\sum_{j<m} u(r_{jm})\right) \sum_{l\neq k} \nabla_k u(r_{kl}) \nonumber
+\end{align}
 
-For our specific trial wavefunction...
+
 
 \section{Second derivative}
 
@@ -1152,108 +1107,82 @@ For our specific trial wavefunction...
     &+
     \left[\prod_{i} \phi(\boldsymbol{r}_i)\right] \exp\left(\sum_{j<m} u(r_{jm})\right) \nabla_k \sum_{j\neq k} \nabla_{k} u(r_{kj}) \Bigg\} \Bigg. \tag{v}\label{eq:v}
 \end{align}
-
-
-
-
 Using 
 \begin{equation*}
     \frac{\prod_{i \neq k} \phi(\boldsymbol{r}_i)}{\prod_i \phi(\boldsymbol{r}_i)} = \frac{1}{\phi(\boldsymbol{r}_k)}
 \end{equation*}
-And equation (...), the first three terms can be contracted to yield
-
-\begin{equation*}
+And eq.\eqref{exponential_deriv}, the first three terms can be contracted to yield
+\begin{equation}\label{i+ii+iii}
     \eqref{eq:i}+\eqref{eq:ii} + \eqref{eq:iii} = \frac{\nabla_i^2 \phi(\boldsymbol{r}_k)}{\phi(\boldsymbol{r}_k)} + 2\frac{\nabla_k \phi(\boldsymbol{r}_k)}{\phi(\boldsymbol{r}_k)} \sum_{j\neq k} \nabla_k u(r_{jm})
-\end{equation*}
-
+\end{equation}
 $\nabla_k u(r_{jm})$ can be calculated by use of the chain rule
-
-\begin{align*}
+\begin{align}\label{grad_k_u}
     \nabla_k u(r_{kj}) =& \left( \frac{\partial}{\partial x} \hat{i} + \frac{\partial}{\partial y} \hat{j} + \frac{\partial}{\partial z} \hat{k} \right) u(r_{kj}) \\
-    = &\left( \frac{\partial r_{kj}}{\partial x} \hat{i} + \frac{\partial r_{kj}}{\partial y} \hat{j} + \frac{\partial r_{kj}}{\partial z} \hat{k} \right) \frac{\partial u(r_{kj})}{\partial r_{kj}}
-\end{align*}
-
+    = &\left( \frac{\partial r_{kj}}{\partial x} \hat{i} + \frac{\partial r_{kj}}{\partial y} \hat{j} + \frac{\partial r_{kj}}{\partial z} \hat{k} \right) \frac{\partial u(r_{kj})}{\partial r_{kj}} \nonumber
+\end{align}
  Where
-\begin{align*}
+\begin{align}
     \frac{\partial r_{kj}}{\partial x} \hat{i} =& \frac{\partial}{\partial x} \left| \boldsymbol{r}_k - \boldsymbol{r}_j \right|\hat{i} \\
-    =& \frac{\partial}{\partial x} \sqrt{(x_k-x_j)^2+(y_k-y_j)^2+(z_k-z_j)^2} \hat{i}  \\
-    =& \frac{(x_k-x_j)}{r_{kj}} \hat{i}
-\end{align*}
-
-And similarly for the y and z derivatives. Equation ... therefore becomes 
-
-
+    =& \frac{\partial}{\partial x} \sqrt{(x_k-x_j)^2+(y_k-y_j)^2+(z_k-z_j)^2} \hat{i} \nonumber  \\
+    =& \frac{(x_k-x_j)}{r_{kj}} \hat{i} \nonumber
+\end{align}
+And similarly for the y and z derivatives. Equation \eqref{grad_k_u} therefore becomes 
 \begin{equation*}
     \nabla_k u(r_{kj}) = \frac{\boldsymbol{r}_k-\boldsymbol{r}_j}{r_{kj}} u'(r_{kj})
 \end{equation*}
-
-Where $u'(r_{kj}) \equiv  \frac{\partial u(r_{kj})}{r_{kj}}$
-
-Inserting this back into equation (...) yields 
-
-\begin{equation*}
+Where $u'(r_{kj}) \equiv  \frac{\partial u(r_{kj})}{r_{kj}}$.
+Inserting this back into eq.\eqref{i+ii+iii} yields 
+\begin{equation}
      \eqref{eq:i}+\eqref{eq:ii} + \eqref{eq:iii} = \frac{\nabla_i^2 \phi(\boldsymbol{r}_k)}{\phi(\boldsymbol{r}_k)} + 2\frac{\nabla_k \phi(\boldsymbol{r}_k)}{\phi(\boldsymbol{r}_k)} \sum_{j\neq k} \frac{\boldsymbol{r}_k-\boldsymbol{r}_j}{r_{kj}} u'(r_{kj})
-\end{equation*}
-
+\end{equation}
 After differentiating the exponent, the fourth term reduces to 
-
-\begin{align*}
-    \eqref{eq:iv} &= \sum_{i\neq k} \nabla_k u(r_{ki}) \sum_{j\neq k} \nabla_k u(r_{kj})\\
-    &= \sum_{i\neq k} \sum_{j\neq k} \left(\nabla_k u(r_{ki})\right) \left(\nabla_k u(r_{kj})\right) \\
+\begin{align}
+    \eqref{eq:iv} &= \sum_{i\neq k} \nabla_k u(r_{ki}) \sum_{j\neq k} \nabla_k u(r_{kj}) \nonumber\\
+    &= \sum_{i\neq k} \sum_{j\neq k} \left(\nabla_k u(r_{ki})\right) \left(\nabla_k u(r_{kj})\right)\nonumber \\
     &= \sum_{i\neq k} \sum_{j \neq k} \frac{\left(\boldsymbol{r}_k - \boldsymbol{r}_i\right)\left(\boldsymbol{r}_k - \boldsymbol{r}_j\right)}{r_{ki} r_{kj}} u'(r_{ki}) u'(r_{kj})
-\end{align*}
-
+\end{align}
 After cancelling terms in the numerator and denominator of the fifth term, one is left with 
-
-\begin{align*}
-    \eqref{eq:v} &= \nabla_k \sum_{j\neq k} \nabla_k u(r_{kj}) = \sum_{j \neq k} \nabla_k \left[\frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}} u'(r_{kj})\right] \\
-    &= \sum_{j\neq k}   \left[\nabla_k \frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\right]u'(r_{kj}) + \frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\nabla_k u'(r_{kj})
-\end{align*}
-
-Using the product rule gives
-\begin{align*}
+\begin{align}\label{v}
+    \eqref{eq:v} &= \nabla_k \sum_{j\neq k} \nabla_k u(r_{kj}) = \sum_{j \neq k} \nabla_k \left[\frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}} u'(r_{kj})\right] \nonumber \\
+    &= \underbrace{\sum_{j\neq k}   \left[\nabla_k \frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\right]u'(r_{kj})}_{\big{i'}} +\underbrace{\frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\nabla_k u'(r_{kj})}_{\big{ii'}} 
+\end{align}
+Let's calculate the first term, $\big{i'}$. Using the product rule
+gives
+\begin{align}
     \nabla_k \frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}} = \frac{\left[\nabla_k (\boldsymbol{r}_k - \boldsymbol{r}_j) \right]r_{kj} - (\boldsymbol{r}_k -\boldsymbol{r}_j)\nabla_k r_{kj}}{r_{kj^2}}
-\end{align*}
-
-Where $\nabla_k (\boldsymbol{r}_k - \boldsymbol{r}_j) = 3$ and $\nabla_k r_{kj} = (\boldsymbol{r}_k - \boldsymbol{r}_j)/r_{kj}$. Inserting this into eq (...) yields 
-
-\begin{equation*}
+\end{align}
+Where $\nabla_k (\boldsymbol{r}_k - \boldsymbol{r}_j) = 3$ and $\nabla_k r_{kj} = (\boldsymbol{r}_k - \boldsymbol{r}_j)/r_{kj}$. Using this, we get
+\begin{equation}
     \nabla_k \frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}} = \frac{3}{r_{kj}} - \frac{(\boldsymbol{r}_k - \boldsymbol{r}_j)^2}{r_{kj}^3} = \frac{3}{r_{kj}}- \frac{r_{kj}^2}{r_{kj}^3} = \frac{2}{r_{kj}} 
-\end{equation*}
-
-To calculate the last term, we use the chain rule as in equation (...) to get 
-
-\begin{align*}
-    &\frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\nabla_k u'(r_{kj}) = \frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\nabla_k \frac{\partial u(r_{kj})}{\partial r_{kj}} \\
-    &=\frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}} \underbrace{ \left( \frac{\partial r_{kj}}{\partial x} \hat{i} + \frac{\partial r_{kj}}{\partial y} \hat{j} + \frac{\partial r_{kj}}{\partial z} \hat{k} \right)}_{(\boldsymbol{r}_k - \boldsymbol{r}_j)/r_{kj}} \frac{\partial^2 u(r_{kj})}{\partial r_{kj}^2} \\ 
+\end{equation}
+And thus 
+\begin{equation}\label{i'}
+    (\big{i'}) =  \frac{2}{r_{kj}} u'(r_{kj})
+\end{equation}
+To calculate the last term, we use the chain rule as in eq.\eqref{grad_k_u} to get 
+\begin{align}
+    &\frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\nabla_k u'(r_{kj}) = \frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\nabla_k \frac{\partial u(r_{kj})}{\partial r_{kj}} \nonumber \\
+    &=\frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}} \underbrace{ \left( \frac{\partial r_{kj}}{\partial x} \hat{i} + \frac{\partial r_{kj}}{\partial y} \hat{j} + \frac{\partial r_{kj}}{\partial z} \hat{k} \right)}_{(\boldsymbol{r}_k - \boldsymbol{r}_j)/r_{kj}} \frac{\partial^2 u(r_{kj})}{\partial r_{kj}^2} \nonumber \\ 
     &= \frac{(\boldsymbol{r}_k - \boldsymbol{r}_j)^2}{r_{kj}^2} u''(r_{kj}) 
-\end{align*}
-
+\end{align}
 And so 
-\begin{equation*}
-    \frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\nabla_k u'(r_{kj}) = u''(r_{kj})
-\end{equation*}
-
-Inserting eq(..) and eq(..) into eq(...) gives 
-
-\begin{equation*}
+\begin{equation}\label{ii'}
+   (\big{ii'})= \frac{\boldsymbol{r}_k - \boldsymbol{r}_j}{r_{kj}}\nabla_k u'(r_{kj}) = u''(r_{kj})
+\end{equation}
+Inserting eq.\eqref{i'} and eq.\eqref{ii'} into eq.\eqref{v} gives 
+\begin{equation}
     \eqref{eq:v} = \sum_{j\neq k}\left( u''(r_{kj}) + \frac{2}{r_{kj}}u'(r_{kj}) \right)
-\end{equation*}
-
-Finally adding all the terms together gives 
-
-
-
-\begin{align*}
-     &\frac{1}{\Psi_T(\vec r)} \nabla^{2}_{k} \Psi_{T}(\boldsymbol{r})  =\frac{\nabla_k^2 \phi(\boldsymbol{r}_k)}{\phi(\boldsymbol{r}_k)} \\
-     &+ 2\frac{\nabla_k \phi(\boldsymbol{r}_k)}{\phi(\boldsymbol{r}_k)} \sum_{j\neq k} \frac{\boldsymbol{r}_k-\boldsymbol{r}_j}{r_{kj}} u'(r_{kj})\\
-    &+\sum_{i\neq k} \sum_{j \neq k} \frac{\left(\boldsymbol{r}_k - \boldsymbol{r}_i\right)\left(\boldsymbol{r}_k - \boldsymbol{r}_j\right)}{r_{ki} r_{kj}} u'(r_{ki}) u'(r_{kj})\\
+\end{equation}
+Finally adding the terms (i), (ii), (iii), (iv) and (v) together gives the expression for local energy with interaction
+\begin{align}
+     &\frac{1}{\Psi_T(\vec r)} \nabla^{2}_{k} \Psi_{T}(\boldsymbol{r})  =\frac{\nabla_k^2 \phi(\boldsymbol{r}_k)}{\phi(\boldsymbol{r}_k)} \nonumber \\
+     &+ 2\frac{\nabla_k \phi(\boldsymbol{r}_k)}{\phi(\boldsymbol{r}_k)} \sum_{j\neq k} \frac{\boldsymbol{r}_k-\boldsymbol{r}_j}{r_{kj}} u'(r_{kj}) \nonumber \\
+    &+\sum_{i\neq k} \sum_{j \neq k} \frac{\left(\boldsymbol{r}_k - \boldsymbol{r}_i\right)\left(\boldsymbol{r}_k - \boldsymbol{r}_j\right)}{r_{ki} r_{kj}} u'(r_{ki}) u'(r_{kj}) \nonumber\\
     &+\sum_{j\neq k}\left( u''(r_{kj}) + \frac{2}{r_{kj}}u'(r_{kj}) \right)
-\end{align*}
+\end{align}
 
 Where $u'(r_{kj}) \equiv \frac{\partial u(r_{kj})}{\partial r_{kj}}$ and 
 $u''(r_{kj}) \equiv \frac{\partial^2 u(r_{kj})}{\partial r_{kj}^2}$. Recall the definition of $u(r_{kj}) \equiv \ln{f(r_{kj})}$ with 
-
 \begin{equation}\label{eq:2}
     f(a,r_{kj}) =
     \begin{cases}
@@ -1261,25 +1190,18 @@ $u''(r_{kj}) \equiv \frac{\partial^2 u(r_{kj})}{\partial r_{kj}^2}$. Recall the 
      \left(1-\frac{a}{r_{kj}}\right) & r_{kj} > a\\
     \end{cases} 
 \end{equation}
-
 Where we defined $r_{kj} \equiv& |\boldsymbol{r}_k - \boldsymbol{r}_j|$. 
-
 For $r_{kj}\leq a$ we get 
-
 \begin{align}
     u'(r_{kj}) &= \frac{\partial}{\partial r_{kj}} \ln{0} = \frac{\partial}{\partial r_{kj}} (-\infty) = 0\\
     u''(r_{kj}) &= 0
 \end{align}
-
 Whilst for $r_{kj} > a$ we have
-
 \begin{align}
     u'(r_{kj}) &= \frac{\partial}{\partial r_{kj}} \ln({1-\frac{a}{r_{kj}}}) = \frac{1}{1-\frac{a}{r_{kj}}} \frac{\partial}{\partial r_{kj}}\left(1-\frac{a}{r_{kj}}\right)\\
     &= \frac{a}{r_{kj}(r_{kj}-a)}
 \end{align}
-
 Differentiating again yields
-
 \begin{equation}
     u''(r_{kj}) = \frac{a^2-2r_{kj}a}{r_{kj}^2(r_{kj}-a)^2}
 \end{equation}
@@ -1288,109 +1210,127 @@ Differentiating again yields
 
 \section{Finding $\frac{\partial }{\partial \alpha} \langle E_L(\alpha) \rangle $}
 
-
-
 We want to find 
 \begin{equation}
    \frac{\partial }{\partial \alpha} \langle E_L(\alpha) \rangle = \frac{\partial}{\partial \alpha}\frac{\int \psi_T^* E_L \psi_T d\tau}{\int \psi_T^* \psi_T d\tau}
 \end{equation}
-
 In our case, the trial wavefunction is real. We therefore get $\psi_T^* = \psi_T$. Furthermore, the local energy is defined as $E_L = \frac{1}{\psi_T} \hat{H} \psi_T$. This gives 
-
 \begin{align}
    &\frac{\partial }{\partial \alpha} \langle E_L(\alpha) \rangle = \frac{\partial}{\partial \alpha}\frac{\int \psi_T \hat{H} \psi_T d\tau}{\int \psi_T^2 d\tau}\\
-   &= \underbrace{\frac{1}{C}\int \psi_{\alpha} \hat{H} \psi_T + \psi_T \frac{\partial}{\partial \alpha} \hat{H} \psi_T d\tau}_{{\bigg i}}- \underbrace{\frac{\int \psi_T \hat{H} \psi_T d \tau}{C^2} \int 2 \psi_T \psi_{\alpha} d\tau}_{{\bigg{ii}}}
+   &= \underbrace{\frac{1}{C}\int \psi_{\alpha} \hat{H} \psi_T + \psi_T \frac{\partial}{\partial \alpha} \hat{H} \psi_T d\tau}_{{\bigg i}} \nonumber\\
+   &- \underbrace{\frac{\int \psi_T \hat{H} \psi_T d \tau}{C^2} \int 2 \psi_T \psi_{\alpha} d\tau}_{{\bigg{ii}}} \nonumber
 \end{align}
-
-Where we defined $C \equiv \int \psi_T^2 d\tau$ and $\psi_{\alpha} \equiv \frac{\partial \psi_T}{\partial_{\alpha}}$. From the expression of $\hat{H}$ given in eq(...) it can be seen that $\frac{\partial}{\partial \alpha}$ and $\hat{H}$ commute, and so $\frac{\partial}{\partial \alpha} \hat{H} = \hat{H}\frac{\partial}{\partial \alpha}$
-
+Where we defined $C \equiv \int \psi_T^2 d\tau$ and $\psi_{\alpha} \equiv \frac{\partial \psi_T}{\partial_{\alpha}}$. From the expression of $\hat{H}$ given in eq.\eqref{eq:Hamiltonian} it can be seen that $\frac{\partial}{\partial \alpha}$ and $\hat{H}$ commute, and so $\frac{\partial}{\partial \alpha} \hat{H} = \hat{H}\frac{\partial}{\partial \alpha}$
 \begin{equation}
     (\bigg{i}) = \frac{1}{C} \int \psi_{\alpha}\hat{H} \psi_T + \psi_T \hat{H} \psi_{\alpha} d\tau
 \end{equation}
-
-Our hamiltonian is hermitian, meaning that  $\psi_T \hat{H} \psi_{\alpha} &= \psi_{\alpha}\hat{H} \psi_T$. Using this gives
-
+Our Hamiltonian is Hermitian, meaning that  $\psi_T \hat{H} \psi_{\alpha} &= \psi_{\alpha}\hat{H} \psi_T$. Using this gives
 \begin{align}
     &\frac{\partial }{\partial \alpha} \langle E_L(\alpha) \rangle = \frac{2}{C} \int \psi_{\alpha} \hat{H} \psi_T d\tau -2\frac{\int \psi_T \hat{H} \psi_T d \tau}{C} \cdot \frac{\int \psi_T \psi_{\alpha} d\tau}{C} \\ 
-    & = \frac{2}{C} \int \frac{\psi_{\alpha} }{\psi_T} \frac{1}{\psi_T}\hat{H} \psi_T \cdot \psi_T^2d\tau - 2\frac{\int  \frac{1}{\psi_T} \hat{H} \psi_T \cdot \psi_T^2 d\tau }{C} \cdot \frac{\int \frac{\psi_{\alpha}}{\psi_T}\psi_T^2 d\tau}{C}
+    & = \frac{2}{C} \int \frac{\psi_{\alpha} }{\psi_T} \frac{1}{\psi_T}\hat{H} \psi_T \cdot \psi_T^2d\tau \nonumber \\
+    &- 2\frac{\int  \frac{1}{\psi_T} \hat{H} \psi_T \cdot \psi_T^2 d\tau }{C} \cdot \frac{\int \frac{\psi_{\alpha}}{\psi_T}\psi_T^2 d\tau}{C} \nonumber
 \end{align}
-
+The final expression for the derivative of the expectation value of the local energy is thus 
 \begin{equation}
-       \Rightarrow  \frac{\partial }{\partial \alpha} \big{\langle} E_L(\alpha) \big{\rangle} = 2\Big{\langle} \frac{\psi_{\alpha}}{\psi_T}E_L(\alpha) \Big{\rangle} - 2\big{\langle} E_L(\alpha) \big{\rangle} \Big{\langle} \frac{\psi_{\alpha}}{\psi_T} \Big{\rangle}
+        \frac{\partial }{\partial \alpha} \big{\langle} E_L(\alpha) \big{\rangle} = 2\Big{\langle} \frac{\psi_{\alpha}}{\psi_T}E_L(\alpha) \Big{\rangle} - 2\big{\langle} E_L(\alpha) \big{\rangle} \Big{\langle} \frac{\psi_{\alpha}}{\psi_T} \Big{\rangle}
 \end{equation}
 
-
-\newpage
+% \newpage
 
 \section{Scaling the Hamiltonian}
 
-The Hamiltonian in the interacting case is given by 
-
+The most general form our Hamiltonian is given by 
 \begin{equation}
     H = \sum_{i=1}^{N} -\frac{\hbar^2}{2m}\nabla_i^2 + V_{ext}(\bold{r}_i) + \sum_{i=1}^N V_{int} (\bold{r}_i \bold{r}_j) 
 \end{equation}
 
-% We wish to scale this Hamiltonian so lengths are expressed in units of the characteristic length of the trap, $a_{ho}$, and energy in units of $\hbar \omega_{ho}$. 
-The elliptical external potential is given by
-\begin{equation}
+ The Hamiltonian as it stands have positions in units of meters as arguments and outputs the Hamiltonian in units of Joule. We want to scale this Hamiltonian so that we can input positions in units of the characteristic length of the trap, $a_{ho}$, and get energy in units of $\hbar \omega_{ho}$ as output.
+ 
+Doing this for the elliptical potential results in an expression which can easily be modified to the spherically symmetric case. The elliptical potential is given by
+\begin{equation}\label{eq:v_ext}
     V_{ext} = \frac{1}{2}m[\omega_{ho}^2 (x^2+y^2) + \omega_z^2 z^2]
 \end{equation}
 Where $\omega_{ho}=\omega_{\perp}$ is the angular frequency perpendicular to the z-axis. It is related to the characteristic length of the trap $a_{ho}$ in the following manner
-\begin{equation}
+\begin{equation}\label{eq:a_ho}
     a_{ho} = \sqrt{\frac{\hbar}{m \omega_{ho}}}
 \end{equation}
-
-In our project, we use lengths in units of $a_{ho}$. This means that we need to multiply $\bold{r}$ by $a_{ho}$ to get back to SI units:  
+To convert the coordinates back to units of meters, we need to multiply by $a_{ho}$:  
 \begin{equation}
     V_{ext} = \frac{1}{2}m\left[ \omega_{ho}^2{a_{ho}^2 (x[a_{ho}]^2+y[a_{ho}]^2) + \omega_z^2 a_{ho}^2z[a_{ho}]}^2 \right]
 \end{equation}
-
-
 % Inserting for $\omega_{ho} = \frac{\hbar}{m a_{ho}^2}$  gives 
-Inserting the expression for $a_{ho}$ in eq. (...) into eq. gives 
+Inserting the expression for $a_{ho}$ in eq.\eqref{eq:a_ho} into eq.\eqref{eq:v_ext} gives 
 \begin{equation}
      V_{ext} = \frac{1}{2}[\hbar\omega_{ho} (x^2+y^2) + \hbar \frac{\omega_z^2}{\omega_{ho}} z^2]
 \end{equation}
-
-Which measured in units of $\hbar \omega_{ho}$ is 
-\begin{equation}
+Which measured in units of $\hbar \omega_{ho}$ is
+\begin{equation}\label{eq:scaled_v_ext}
      V_{ext} = \frac{1}{2}[(x^2+y^2) + \gamma z^2]
 \end{equation}
-Where $\gamma = \frac{\omega_z^2}{\omega_{ho}^2}$. The Laplacian transforms as follows in going from lengths in units of meters to $a_{ho}$: 
+Where $\gamma = \frac{\omega_z^2}{\omega_{ho}^2}$. The Laplacian transforms as follows in going from lengths in units of $a_{ho}$ to meters: 
 \begin{equation}
     \nabla^2[\SI{}{\meter}] = \frac{1}{a_{ho}^2} \nabla^2[a_{ho}] = \frac{m\omega_{ho}}{\hbar}\nabla^2[a_{ho}]
 \end{equation}
-
-Inserting this along with eq. (...) back into the Hamiltonian and converting to energy in units of $\hbar \omega_{ho}$ yields 
-
+Inserting this along with eq.\eqref{eq:scaled_v_ext} back into the Hamiltonian and converting the Laplacian to energy in units of $\hbar \omega_{ho}$ yields 
 \begin{equation}
     H = \sum_{i=1}^{N} \frac{1}{2}(-\nabla_i^2 +(x^2+y^2) + \gamma z^2) + \sum_{i=1}^N V_{int}(\bold r_i \bold r_j)
 \end{equation}
+We get the same expression for the scaled Hamiltonian in the spherically symmetric case, but with $\gamma = 1$.
+
+\section{Brute Force vs. Importance Sampling}
 
 
+The main reason for using Importance sampling is to reduce correlation between measurements, since this leads to an under estimation of sample variance. We therefore expect the biased sample variance by use of Importance sampling to be higher than that of brute force. In figure 7, we have plotted the biased sample variance on a logarithmic scale against the number of metropolis steps and $\alpha$. The top layer is importance sampling whilst the bottom layer is brute force.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.45\textwidth]{50x50_dt0.01_bruteforce&importance_analytic2.0.png}
+    \caption{Biased sample variance as a function of $\alpha$ and number of Metropolis steps. The top layer represents importance sampling whilst the bottom layer is brute force. This is for the spherically symmetric non-interacting case. }
+    \label{fig:blocking_behaviour}
+\end{figure}
+
+As seen, the variance spikes for very low number of steps, but is otherwise reasonably constant as a function of number of steps. The variance depends much more strongly on $\alpha$. As shown in section ~\ref{appendix:local_energy}, the local energy in the spherically symmetric case is given by
+
+\begin{equation}
+    E_L = \frac{1}{\Psi_T} \sum_i^N \left[\frac{-\hbar^2}{2m} 2\alpha(2\alpha \boldsymbol{r}_i^2 - d) \Psi_T + \frac{1}{2}m \omega_{ho}^2 \boldsymbol{r}_i^2 \Psi_T\right]
+\end{equation}
+
+Which for $\alpha = 0.5$ reduces to
+\begin{equation}
+    E_L = \frac{d}{2} \hbar \omega_{ho} N
+\end{equation}
+The biased variance 
+\begin{equation}
+    \frac{\sigma^2}{n} = \frac{1}{n} \langle E_L^2 \rangle - \langle E_L \rangle 
+\end{equation}
 
 \section{One-Body Density}
-
-An alternative method for estimating $dV$ would be differentiating equation (...) to get
-
+An alternative method for estimating $dV$ would be differentiating the volume of the ellipsoid
+\begin{equation}
+    V = \frac{4\pi}{3\sqrt{\beta}}R^3
+\end{equation}
+to get
 \begin{equation}
     dV = \frac{4\pi}{\sqrt{\beta}}R^2 dR
 \end{equation}
-
 and using
-
 \begin{equation}
     \Delta V' = \frac{4\pi}{\sqrt{\beta}}R_i^2 \Delta R
 \end{equation}
 
-To discretize the integral. However, this method underestimates $\Delta V$, as can be seen in figure (...). This because we are simply multiplying the surface area of the ellipsoid by $\Delta R$ rather than integrating the area between $R_i$ and $R_i+\Delta R$, which is effectively what we are  doing by taking the volumetric difference of two ellipsoids. For $R \gg \Delta R$, the relative difference between the two methods is small. The problem arises when $R=\mathcal{O}(\Delta R)$. Now the underestimation becomes significant, and manifests itself as a spike in $\rho(\boldsymbol{r})$ as $R\rightarrow 0$. 
 
-
-\begin{figure}[]
-\makebox[0.5\textwidth][c]{\includesvg[width=0.5\textwidth]{dVolume.svg}}}%
- \caption{$\Delta V'$ is given by the volume of the cuboid whilst $\Delta V$ is given by the volume of the inverted frustum. As $R \rightarrow 0$, $\Delta V$ approaches the volume of an inverted pyramid with a square base of length $\frac{\sqrt{2\pi}}{\beta^{1/4}} \Delta R$ while $\Delta V'$ goes to zero.}
- \label{fig:3}
+To discretize the integral in eq.\eqref{eq:onebody_density_integral}. However, this method underestimates $\Delta V$, as can be seen in figure 8. This because we are simply multiplying the surface area of the ellipsoid by $\Delta R$ rather than integrating the area between $R_i$ and $R_i+\Delta R$, which is effectively what we are  doing by taking the volumetric difference of two ellipsoids. For $R \gg \Delta R$, the relative difference between the two methods is small. The problem arises when $R=\mathcal{O}(\Delta R)$. Now the underestimation becomes significant, and manifests itself as a spike in $\rho(\boldsymbol{r})$ as $R\rightarrow 0$. 
+\begin{figure}[H]
+\makebox[0.5\textwidth][c]{\includesvg[width=0.5\textwidth]{dVolume.svg}}%
+ \caption{}
+ \label{fig:8}
 \end{figure}
+
+% \begin{figure}[H]
+% \makebox[0.5\textwidth][c]{\includesvg[width=0.5\textwidth]{dVolume.svg}}%
+%  \caption{$\Delta V'$ is given by the volume of the cuboid whilst $\Delta V$ is given by the volume of the inverted frustum. As $R \rightarrow 0$, $\Delta V$ approaches the volume of an inverted pyramid with a square base of length $\frac{\sqrt{2\pi}}{\beta^{1/4}} \Delta R$ while $\Delta V'$ goes to zero.}
+%  \label{dvComparison}
+% \end{figure}
 
 
 
