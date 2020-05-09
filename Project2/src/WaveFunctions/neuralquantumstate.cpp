@@ -94,6 +94,21 @@ arma::mat NeuralQuantumState::hadamardProd(arma::mat w){
     return w_Hadarad;
 }
 
+double NeuralQuantumState::getDistance(int p, int q){
+    int dim = m_system->getNumberDimensions();
+
+    double dist = 0;
+
+
+
+    for(int d = 0; d<dim; d++){
+        dist+= (X[dim*p+d]-X[dim*q+d])*(X[dim*p+d]-X[dim*q+d]); //Assumes particle index starts at 0
+    }
+
+    return sqrt(dist);
+
+}
+
 double NeuralQuantumState::computeDoubleDerivative_analytic(){
 
     int M = m_system->getNumberVisibleNodes();
@@ -112,7 +127,9 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
     }
 
 
-    double E_K= -1/(2*pow(m_sigma,4))*(m_x*m_x.t() - 2*S*((m_x-m_a)*m_w.t())+(S*m_w.t())*(m_w*S.t())+one_vector*(hadamardProd(m_w)*S_tilde.t())) - M*(2*pow(sigma,2));
+    double E_K= -1/(2*pow(m_sigma,4))*((m_x-m_a)*(m_x-m_a).t() - 2*S*((m_x-m_a)*m_w.t())+(S*m_w.t())*(m_w*S.t())+one_vector*(hadamardProd(m_w)*S_tilde.t())) - M*(2*pow(sigma,2));
 
     return E_k;
 }
+
+

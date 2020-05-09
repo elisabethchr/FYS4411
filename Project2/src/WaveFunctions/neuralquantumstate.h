@@ -18,6 +18,7 @@ public:
     arma::mat get_w(){ return m_w; }
 
     double computeDoubleDerivative_analytic();
+    double getDistance(int p, int q);
 
 
 
