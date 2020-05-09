@@ -70,3 +70,49 @@ double NeuralQuantumState::evaluate(arma::vec position){
 
     return exp(m_term1)*m_term2;
 }
+
+double NeuralQuantumState::sigmoid(double x){
+    return (1/(1+std::exp(-x));
+}
+
+double NeuralQuantumState::v(int j, arma::vec m_x, arma::mat m_w){
+
+    return m_b[j] + m_x*m_w.col(j);
+}
+
+arma::mat NeuralQuantumState::hadamardProd(arma::mat w){
+    int M = m_system->getNumberVisibleNodes();
+    int N = m_system->getNumberHiddenNodes();
+
+    arma::mat w_Hadard;
+    w_Hadard.zeros(M,N);
+    for(int i; i<M; i++){
+        for(int j; j<N; j++){
+            w_Hadamard(i,j) = w(i,j)*w(i,j);
+        }
+    }
+    return w_Hadarad;
+}
+
+double NeuralQuantumState::computeDoubleDerivative_analytic(){
+
+    int M = m_system->getNumberVisibleNodes();
+    int N = m_system->getNumberHiddenNodes();
+
+    arma::vec S;
+    arma::vec S_tilde;
+    arma::vec one_vector;
+    S.zeros(N);
+    S_tilde.zeros(N;
+    one_vector.ones(N);
+
+    for (int j = 0; j<N; j++){
+        S[j] = sigmoid(v(j,m_x, m_w));
+        S_tilde[j] = sigmoid(v(j,m_x, m_w))*sigmoid(-v(j,m_x, m_w));
+    }
+
+
+    double E_K= -1/(2*pow(m_sigma,4))*(m_x*m_x.t() - 2*S*((m_x-m_a)*m_w.t())+(S*m_w.t())*(m_w*S.t())+one_vector*(hadamardProd(m_w)*S_tilde.t())) - M*(2*pow(sigma,2));
+
+    return E_k;
+}
