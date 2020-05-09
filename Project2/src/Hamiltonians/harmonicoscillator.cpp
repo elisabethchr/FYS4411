@@ -11,22 +11,24 @@ using std::cout;
 using std::endl;
 using namespace arma;
 
-HarmonicOscillator::HarmonicOscillator(System* system, double omega) :
+HarmonicOscillator::HarmonicOscillator(System* system, double omega, bool interaction) :
     Hamiltonian(system) {
     assert(omega > 0);
     m_omega  = omega;
+    m_interaction = interaction;
 }
 
-double HarmonicOscillator::computeLocalEnergy(std::vector<Particle*> particles, bool type) {
-    // function for computing the local energy of a spherical system (no perturbation)
+/* Function for computing the local energy of a spherical system (no perturbation) */
+double HarmonicOscillator::computeLocalEnergy(arma::vec X) {
+
 
     return 0;
 }
 
-vec HarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles, int i){
-    // Compute the drift force experienced by particles
+/* Compute the drift force experienced by particles */
+vec HarmonicOscillator::computeQuantumForce(arma::vec X, int i){
 
-
+/*
 //    int nDim = m_system->getNumberOfDimensions();
     int nDim = 2;
     vec force(nDim); force.zeros();
@@ -38,4 +40,7 @@ vec HarmonicOscillator::computeQuantumForce(std::vector<Particle *> particles, i
     force = 2*gradient / psi;
 
     return force;
+*/
+    arma::vec a = zeros(2);
+    return a;
 }

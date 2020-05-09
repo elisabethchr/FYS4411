@@ -21,6 +21,7 @@ protected:
     class System* m_system = nullptr;
     int m_nv = 0;       // number visible nodes
     int m_nh = 0;       // number hidden nodes
+    int m_part = 0;     // number of particles
     int m_dim = 0;      // number of dimensions
     std::mt19937_64 m_randomEngine; // For the distributions
 

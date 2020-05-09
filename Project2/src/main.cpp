@@ -20,39 +20,28 @@ using namespace arma;
 int main() {
     clock_t c_start = clock();
 
-    int n = 10;     // number of values for alpha
     int m = 10;     // number of values for time steps dt
     int k = 10;     // length of array for the number of Metropolis steps
-    double alpha_min = 0.2;
-    double alpha_max = 0.7;
-    double d_alpha = (alpha_max - alpha_min)/n;
     double timestep_max = 1.0;
     double timestep_min = 0.1;
     double dt = (timestep_max - timestep_min)/m;
 
-    std::vector<double> alpha;      //Variational parameter for the wavefunction
-    std::vector<double> beta;       //Variational parameter for elliptical
-    std::vector<double> timestep;   //Timestep (delta t) used in Importance sampling
     std::vector<int> MC_cycles;     //Number of Monte Carlo steps in a sample
+    std::vector<double> timestep;   //Timestep (delta t) used in Importance sampling
 
 
 /////////////////////////////////////////////////////////////////////////////
 /// Bools to determine program flow
-    bool bruteForce = true;         //Set type of solver (brute force or importance sampling)
+    bool bruteForce = true;         // set type of solver (brute force or importance sampling)
+    bool interaction = false;       // if interaction should be included or not
 
-    bool alphaVec = false;          //Sets alpha to a vector
-    bool dtVec = false;             //Sets dt to a vector
-    bool nSteps = false;            //sets numberOfSteps to a vector
+    bool alphaVec = false;          // sets alpha to a vector
+    bool dtVec = false;             // sets dt to a vector
+    bool nSteps = false;            // sets numberOfSteps to a vector
 
 
 /////////////////////////////////////////////////////////////////////////////
 /// Set parameters
-    // set alpha
-    if (alphaVec){
-        for(int i=0; i<n+1; i++){ alpha.push_back(alpha_min + i*d_alpha);}
-    }else{
-       alpha.push_back(0.5);          //Set scalar alpha value here
-    }
 
     // set time steps
     if (dtVec){
@@ -71,8 +60,8 @@ int main() {
 
 /////////////////////////////////////////////////////////////////////////////////
 /// set main system
-    int P = 2;      // number of particles
-    int D = 2;      // number of dimensions
+    int P = 1;      // number of particles
+    int D = 1;      // number of dimensions
 
     int nVisible  = P*D;    // number of visible nodes
     int nHidden   = 2;     // number of hidden nodes
@@ -85,9 +74,8 @@ int main() {
     System* system = new System();
     system->setTimeSteps                (timestep);
     system->setSolver                   (bruteForce);
-    system->setHamiltonian              (new HarmonicOscillator(system, omega));
-    system->setWaveFunction             (new NeuralQuantumState(system, nHidden, nVisible, D, sigma));
-//    system->setInitialState             (new InitializeState(system, nHidden, nVisible, D));
+    system->setHamiltonian              (new HarmonicOscillator(system, omega, interaction));
+    system->setWaveFunction             (new NeuralQuantumState(system, nHidden, nVisible, P, D, sigma));
     system->setEquilibrationFraction    (equilibration);
     system->setStepLength               (stepLength);
     system->runMetropolisSteps          (MC_cycles);

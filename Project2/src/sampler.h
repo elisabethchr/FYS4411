@@ -16,11 +16,9 @@ public:
     double getEnergyAnalytic()      { return m_energyAnalytic;}
     double getVariance()            { return m_variance;}
     double getError()               { return m_error;}
-    void writeTotalToFile();
+    void writeToFile();
     void writeStepToFile(int step, int steps);
-    void writeAlphaToFile();
     void writeTimeStepToFile();
-    void writeOneBodyDensityToFile();
 
 
 

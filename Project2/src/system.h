@@ -10,23 +10,26 @@ public:
     void runMetropolisSteps         (std::vector<int> numberOfMetropolisSteps);
     void setNumberHiddenNodes       (int n_hidden);
     void setNumberVisibleNodes      (int n_visible);
+    void setNumberParticles         (int nPart);
+    void setNumberDimensions        (int nDim);
     void setStepLength              (double stepLength);
     void setEquilibrationFraction   (double equilibrationFraction);
     void setWaveFunctionValue       (double waveFunction);
     void setTimeSteps               (std::vector<double> timesteps){ m_timesteps = timesteps; }
     void setSolver                  (bool bruteForce){ m_solver = bruteForce; }
+    void setEnergy                  (double localEnergy){m_energy = localEnergy;}
     void setHamiltonian             (class Hamiltonian* hamiltonian);
     void setWaveFunction            (class WaveFunction* waveFunction);
     void setInitialState            (class InitialState* initialState);
-    void setEnergy                  (double localEnergy){m_energy = localEnergy;}
     class WaveFunction*             getWaveFunction()   { return m_waveFunction; }
     class Hamiltonian*              getHamiltonian()    { return m_hamiltonian; }
     class Sampler*                  getSampler()        { return m_sampler; }
     std::vector<class Particle*>    getParticles()      { return m_particles; }
     int getNumberHiddenNodes()          { return m_numberHiddenNodes; }
     int getNumberVisibleNodes()         { return m_numberVisibleNodes; }
+    int getNumberParticles()            { return m_numberParticles; }
+    int getNumberDimensions()           { return m_numberDimensions; }
     int getNumberOfMetropolisSteps()    { return m_numberOfMetropolisSteps; }
-    int getAlphaIndex()                 { return m_alpha; }
     int getTimeStepIndex()              { return m_timestep; }
     int getMetropolisStep()             { return m_stepMetropolis; }
     bool getSolver()                    { return m_solver; }
@@ -44,7 +47,8 @@ private:
     int                             m_numberHiddenNodes = 0;
     int                             m_numberVisibleNodes = 0;
     int                             m_numberOfMetropolisSteps = 0;
-    int                             m_alpha = 0;
+    int                             m_numberParticles = 0;
+    int                             m_numberDimensions = 0;
     int                             m_timestep = 0;
     int                             m_acceptedSteps = 0;
     int                             m_stepMetropolis = 0;

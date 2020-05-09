@@ -4,7 +4,7 @@
 
 class NeuralQuantumState : public WaveFunction {
 public:
-    NeuralQuantumState(class System* system, int n_hidden, int n_visible, int dim, double sigma);
+    NeuralQuantumState(class System* system, int n_hidden, int n_visible, int part, int dim, double sigma);
     double evaluate(arma::vec position);
 
     arma::vec set_X(arma::vec X){ m_x = X; }

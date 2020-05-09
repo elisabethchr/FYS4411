@@ -7,10 +7,12 @@ using namespace arma;
 class Hamiltonian {
 public:
     Hamiltonian(class System* system);
-    virtual double computeLocalEnergy(std::vector<class Particle*> particles, bool type) = 0;
+
     virtual double getOmega() = 0;
-    virtual vec computeQuantumForce(std::vector<class Particle*> particles, int i) = 0;
-    virtual vec computeGradientPsi(std::vector<Particle*> particles) = 0;
+    virtual double computeLocalEnergy(arma::vec X) = 0;
+
+    virtual vec computeQuantumForce(arma::vec X, int i) = 0;
+    virtual vec computeGradientPsi(arma::vec X) = 0;
 
 
 protected:

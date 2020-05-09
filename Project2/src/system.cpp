@@ -15,7 +15,7 @@
 using namespace std;
 using namespace arma;
 
-/* Algorithm for standard Metropolis (brute force): change one coordinate at a time per cycle */
+/* Algorithm for standard Metropolis (brute force): change one coordinate at a time per MC cycle */
 bool System::bruteForce() {
     int coor;
     double randu, s;
@@ -68,7 +68,7 @@ bool System::bruteForce() {
 }
 
 
-/* Algorithm for Metropolis-Hastings (importance sampling): change one coordinate at a time per cycle */
+/* Algorithm for Metropolis-Hastings (importance sampling): change one coordinate at a time per MC cycle */
 bool System::importanceSampling(){
 /*
     int random_i;
@@ -133,7 +133,6 @@ bool System::importanceSampling(){
 
 
 void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
-    m_alpha = 0;
 
     m_timestep = 0;
     m_numberOfMetropolisSteps = numberOfMetropolisSteps[0];
@@ -157,21 +156,24 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
         bool acceptedStep;
 
         // set the solver
-        if(m_solver==true){ acceptedStep = bruteForce(); }
+        if (m_solver==true){ acceptedStep = bruteForce(); }
         else if (m_solver==false){ acceptedStep = importanceSampling(); }
 
         // sample accepted steps
-        if(acceptedStep == true){
+        if (acceptedStep == true){
             m_acceptedSteps++;
             // allow for equilibration of energy (~5% of Metropolis steps)
-            if(i >= m_equilibrationFraction - 100){
+            if (i >= m_equilibrationFraction - 100){
                 m_sampler->sample(acceptedStep);
                 steps++;
                 m_stepMetropolis++;
             }
         }
 
-        if(i>= m_equilibrationFraction){ m_sampler->writeStepToFile(m_stepMetropolis, i); }
+        if (i>= m_equilibrationFraction){ m_sampler->writeStepToFile(m_stepMetropolis, i); }
+
+        // Only interested in sampling the final optimization cycle
+        if (i == m_numberOfMetropolisSteps - 1){ m_sampler->writeToFile(); }
 
         m_MCstep++;
     }
@@ -182,15 +184,15 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
     cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 }
 
-/*
-void System::setNumberOfParticles(int numberOfParticles) {
-    m_numberOfParticles = numberOfParticles;
+
+void System::setNumberParticles(int nPart) {
+    m_numberParticles = nPart;
 }
 
-void System::setNumberOfDimensions(int numberOfDimensions) {
-    m_numberOfDimensions = numberOfDimensions;
+void System::setNumberDimensions(int nDim) {
+    m_numberDimensions = nDim;
 }
-*/
+
 
 void System::setStepLength(double stepLength) {
     assert(stepLength >= 0);

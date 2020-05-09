@@ -10,11 +10,12 @@
 using namespace std;
 using namespace arma;
 
-NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visible, int dim, double sigma) :
+NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visible, int part, int dim, double sigma) :
     WaveFunction(system) {
     assert(n_hidden > 0 && n_visible > 0);
     m_nh = n_hidden;
     m_nv = n_visible;
+    m_part = part;
     m_dim = dim;
     m_sigma = sigma;
 
@@ -23,6 +24,8 @@ NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visib
 
     m_system->setNumberHiddenNodes(n_hidden);
     m_system->setNumberVisibleNodes(n_visible);
+    m_system->setNumberParticles(part);
+    m_system->setNumberDimensions(dim);
 
     setupInitialState();
 }
@@ -49,6 +52,7 @@ void NeuralQuantumState::setupInitialState(){
         m_b[j] = uniform_weights(m_randomEngine);
     }
 }
+
 
 /* Evaluate wavefunction at a certain position */
 double NeuralQuantumState::evaluate(arma::vec position){
