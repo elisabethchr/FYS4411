@@ -15,71 +15,62 @@
 using namespace std;
 using namespace arma;
 
-bool System::metropolisStep() {
-    /* Draw a particle at random and change its position by a random amount.
-     * Evaluate the wavefunctoin at this new position and check if step to the new state
-     * is accepted.
-     */
+/* Algorithm for standard Metropolis (brute force): change one coordinate at a time per cycle */
+bool System::bruteForce() {
+    int coor;
+    double randu, s;
+    arma::vec Xtrial = m_waveFunction->get_X();
 
     if(m_MCstep == 0){
-        m_wfValue = m_waveFunction->evaluate(m_particles);
-        cout << "m_wfValue = " << m_wfValue << endl;
+        m_wfValue = m_waveFunction->evaluate(Xtrial);
+//        cout << "m_wfValue = " << m_wfValue << endl;
     }
 
-    int random_i;
-    double random_d, change, s;
+    // draw a random coordinate
+    coor = Random::nextInt(m_numberVisibleNodes);        // number of visible nodes
 
-    // draw random particle i
-    random_i = Random::nextInt(m_numberOfParticles);
     // compute weight
     s = Random::nextDouble();
 
-    arma::vec change_vec(m_numberOfDimensions);
-    arma::vec rand(m_numberOfDimensions);
+    // compute change in coordinates from uniform distribution
+    randu = getUniform(-1.0, 1.0);
 
-    change_vec.zeros();
+//    cout << "Current Xtrial: " << endl;
+//    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
 
-    // evaluate wavefunction at old position
-    double oldWaveFunction = m_waveFunction->evaluate(m_particles);
-
-    // change positions
-    for(int dim=0; dim<m_numberOfDimensions; dim++){
-        random_d = getUniform(-1.0, 1.0);
-
-        rand[dim] = random_d;
-        change = m_stepLength*random_d;
-
-        change_vec[dim] = change;
-        m_particles[random_i]->adjustPosition(change, dim);
-    }
-
-    // evaluate wavefunction at new position
-    double newWaveFunction = m_waveFunction->evaluate(m_particles);
+    // evaluate wavefunction before and after change of coordinates
+    double oldWaveFunction = m_waveFunction->evaluate(Xtrial);
+    Xtrial[coor] += randu*m_stepLength;
+    double newWaveFunction = m_waveFunction->evaluate(Xtrial);
 
     double ratio = (newWaveFunction*newWaveFunction)/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
 
+//    cout << "New Xtrial: " << endl;
+//    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
+
+
     // if true, allow the new state with adjusted positions
-    if(s<=ratio){
+    if(s<ratio){
+        m_waveFunction->set_X(Xtrial);
         m_wfValue = newWaveFunction;
+
         return true;
     }
+
     // if false, reject the new state and reset positions
     else{
+        Xtrial[coor] -= randu*m_stepLength;
+        m_waveFunction->set_X(Xtrial);
         m_wfValue = oldWaveFunction;
-        for(int dim=0; dim<m_numberOfDimensions; dim++){
-            m_particles[random_i]->adjustPosition(-change_vec[dim], dim);
-        }
+
         return false;
     }
 }
 
 
+/* Algorithm for Metropolis-Hastings (importance sampling): change one coordinate at a time per cycle */
 bool System::importanceSampling(){
-    /* Draw a particle at random, change its position according to a normal distribution and calculate the new wavefunction.
-     * Calculate the corresponding quantum forces before and after the move, and compute the Green's function G as a function of the positions and
-     * the quantum forces. The ratio is then r = G*wfNew^2/wfOld^2.
-    */
-
+/*
     int random_i;
     double s, change;
     double D = 0.5;
@@ -136,6 +127,8 @@ bool System::importanceSampling(){
         }
         return false;
     }
+*/
+    return true;
 }
 
 
@@ -154,9 +147,9 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
 
     int steps = 0;
 
-    std::random_device i;
-    mt19937_64 gen(i());
-    m_seed = gen;
+    std::random_device seed;
+    mt19937_64 gen(seed());
+    m_randomengine = gen;
 
     // run Metropolis algorithm
     for (int i=0; i < m_numberOfMetropolisSteps; i++) {
@@ -164,7 +157,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
         bool acceptedStep;
 
         // set the solver
-        if(m_solver==true){ acceptedStep = metropolisStep(); }
+        if(m_solver==true){ acceptedStep = bruteForce(); }
         else if (m_solver==false){ acceptedStep = importanceSampling(); }
 
         // sample accepted steps
@@ -189,8 +182,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
     cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 }
 
-
-
+/*
 void System::setNumberOfParticles(int numberOfParticles) {
     m_numberOfParticles = numberOfParticles;
 }
@@ -198,6 +190,7 @@ void System::setNumberOfParticles(int numberOfParticles) {
 void System::setNumberOfDimensions(int numberOfDimensions) {
     m_numberOfDimensions = numberOfDimensions;
 }
+*/
 
 void System::setStepLength(double stepLength) {
     assert(stepLength >= 0);
@@ -219,12 +212,4 @@ void System::setWaveFunction(WaveFunction* waveFunction) {
 
 void System::setInitialState(InitialState* initialState) {
     m_initialState = initialState;
-}
-
-void System::setOneBodyDensity(int nBins, double r_max, double r_min, std::vector<double> beta){
-    m_nBins = nBins;
-    m_Rmax = r_max;
-    m_Rmin = r_min;
-    m_beta = beta;
-
 }

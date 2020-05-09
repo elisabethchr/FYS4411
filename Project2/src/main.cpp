@@ -38,7 +38,7 @@ int main() {
 
 /////////////////////////////////////////////////////////////////////////////
 /// Bools to determine program flow
-    bool bruteForce = false;         //Set type of solver (brute force or importance sampling)
+    bool bruteForce = true;         //Set type of solver (brute force or importance sampling)
 
     bool alphaVec = false;          //Sets alpha to a vector
     bool dtVec = false;             //Sets dt to a vector
@@ -78,6 +78,7 @@ int main() {
     int nHidden   = 2;     // number of hidden nodes
     double omega            = 1.0;          // Oscillator frequency.
     double stepLength       = 1.0;          // Metropolis step length.
+    double sigma            = 1.0;
     double equilibration    = pow(2, 12);          // Amount of the total steps used for equilibration.
 
 
@@ -85,8 +86,8 @@ int main() {
     system->setTimeSteps                (timestep);
     system->setSolver                   (bruteForce);
     system->setHamiltonian              (new HarmonicOscillator(system, omega));
-    system->setWaveFunction             (new NeuralQuantumState(system));
-    system->setInitialState             (new InitializeState(system, nHidden, nVisible, D));
+    system->setWaveFunction             (new NeuralQuantumState(system, nHidden, nVisible, D, sigma));
+//    system->setInitialState             (new InitializeState(system, nHidden, nVisible, D));
     system->setEquilibrationFraction    (equilibration);
     system->setStepLength               (stepLength);
     system->runMetropolisSteps          (MC_cycles);

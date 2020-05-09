@@ -5,7 +5,7 @@
 class System {
 public:
 //    bool metropolisStep             (unsigned gen);
-    bool metropolisStep             ();
+    bool bruteForce                 ();     // Standard Metropolis
     bool importanceSampling         ();     // Metropolis-Hastings
     void runMetropolisSteps         (std::vector<int> numberOfMetropolisSteps);
     void setNumberHiddenNodes       (int n_hidden);
@@ -35,8 +35,8 @@ public:
     double getEnergy()                  { return m_energy; }
     double getEnergyDerivative()        { return m_derivativeE; }
     double getWaveFunctionValue()       { return m_wfValue; }
-    double getUniform(double min, double max)    { std::uniform_real_distribution<float> gen(min, max); return gen(m_seed); }
-    double getGaussian(double mean, double std)  { std::normal_distribution<float> gen(mean, std); return gen(m_seed); }
+    double getUniform(double min, double max)    { std::uniform_real_distribution<float> gen(min, max); return gen(m_randomengine); }
+    double getGaussian(double mean, double std)  { std::normal_distribution<float> gen(mean, std); return gen(m_randomengine); }
     std::vector<double> getTimeSteps()           { return m_timesteps; }
 
 
@@ -64,6 +64,6 @@ private:
     std::vector<class Particle*>    m_particles = std::vector<class Particle*>();
     std::vector<double>             m_timesteps;
 
-    std::mt19937_64 m_seed;
+    std::mt19937_64 m_randomengine;
 
 };

@@ -5,14 +5,29 @@
 class WaveFunction {
 public:
     WaveFunction(class System* system);
-    virtual double evaluate(std::vector<class Particle*> particles) = 0;        //"virtual" implements function elsewhere, "virtual = 0" forces to implemented elsewhere
-    virtual arma::vec computeGradient(std::vector<class Particle*> particles, int i) = 0;
-    virtual double computeLaplacian(std::vector<class Particle*> particles) = 0;
-    virtual double computeDoubleDerivative_numeric(std::vector<class Particle*> particles) = 0;
-    virtual double getDistance(std::vector<class Particle *> particles, int particle_i, int particle_j) = 0;
-    virtual double computeDerivativePsi_alpha(std::vector<class Particle*> particles) = 0;
+    virtual double evaluate(arma::vec position) = 0;
+
+    virtual arma::vec set_X(arma::vec X) = 0;    // set visible nodes vector (i.e. position vector)
+    virtual arma::vec set_a(arma::vec a) = 0;    // set visible bias vector
+    virtual arma::vec set_b(arma::vec b) = 0;    // set hidden bias vector
+    virtual arma::mat set_w(arma::mat w) = 0;    // set interaction of biases matrix
+
+    virtual arma::vec get_X() = 0;    // get visible nodes vector (i.e. position vector)
+    virtual arma::vec get_a() = 0;    // get visible bias vector
+    virtual arma::vec get_b() = 0;    // get hidden bias vector
+    virtual arma::mat get_w() = 0;    // get interaction of biases matrix
 
 protected:
     class System* m_system = nullptr;
+    int m_nv = 0;       // number visible nodes
+    int m_nh = 0;       // number hidden nodes
+    int m_dim = 0;      // number of dimensions
+    std::mt19937_64 m_randomEngine; // For the distributions
+
+private:
+    virtual void setupInitialState() = 0;
+    virtual void setupWeights() = 0;
+    virtual void setupPositions() = 0;
+
 
 };
