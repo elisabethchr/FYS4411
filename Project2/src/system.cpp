@@ -133,14 +133,13 @@ bool System::importanceSampling(){
 
 
 void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
-
     m_timestep = 0;
     m_numberOfMetropolisSteps = numberOfMetropolisSteps[0];
     m_stepMetropolis = 0.0;
     m_stepImportance = 0.0;
     m_acceptedSteps = 0.0;
     m_MCstep = 0;
-    m_particles                 = m_initialState->getParticles();
+//    m_particles                 = m_initialState->getParticles();
     m_sampler                   = new Sampler(this);
     m_sampler->setNumberOfMetropolisSteps(m_numberOfMetropolisSteps);
 

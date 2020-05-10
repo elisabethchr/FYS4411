@@ -6,6 +6,8 @@ CONFIG  -= qt
 LIBS += -llapack -lblas -larmadillo
 
 SOURCES += main.cpp \
+    Optimizers/optimizer.cpp \
+    Optimizers/stochasticgradientdescent.cpp \
     WaveFunctions/neuralquantumstate.cpp \
     system.cpp \
     Hamiltonians/hamiltonian.cpp \
@@ -18,6 +20,8 @@ SOURCES += main.cpp \
     sampler.cpp \
 
 HEADERS += \
+    Optimizers/optimizer.h \
+    Optimizers/stochasticgradientdescent.h \
     WaveFunctions/neuralquantumstate.h \
     system.h \
     Hamiltonians/hamiltonian.h \

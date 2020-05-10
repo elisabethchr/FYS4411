@@ -8,8 +8,8 @@ public:
     bool bruteForce                 ();     // Standard Metropolis
     bool importanceSampling         ();     // Metropolis-Hastings
     void runMetropolisSteps         (std::vector<int> numberOfMetropolisSteps);
-    void setNumberHiddenNodes       (int n_hidden);
-    void setNumberVisibleNodes      (int n_visible);
+    void setNumberHiddenNodes       (int n_hidden){ m_numberHiddenNodes = n_hidden; }
+    void setNumberVisibleNodes      (int n_visible){ m_numberVisibleNodes = n_visible; }
     void setNumberParticles         (int nPart);
     void setNumberDimensions        (int nDim);
     void setStepLength              (double stepLength);
