@@ -28,7 +28,7 @@ private:
     void setupPositions(){}
 
     double sigmoid(double x); //The logistic function
-    double v(int j, arma::vec m_x, arma::mat m_w); //for simplification
+    double v(int j); //for simplification
     arma::mat hadamardProd(arma::mat w); //Calculates the hadamard product of w with itself
     arma::vec O;        // vector exponent in wavefunction
     arma::vec m_x;      // visible nodes (i.e. position)

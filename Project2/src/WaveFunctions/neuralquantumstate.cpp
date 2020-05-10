@@ -72,26 +72,26 @@ double NeuralQuantumState::evaluate(arma::vec position){
 }
 
 double NeuralQuantumState::sigmoid(double x){
-    return (1/(1+std::exp(-x));
+    return (1/(1+exp(-x)));
 }
 
-double NeuralQuantumState::v(int j, arma::vec m_x, arma::mat m_w){
+double NeuralQuantumState::v(int j){
 
-    return m_b[j] + m_x*m_w.col(j);
+    return (m_b[j] + m_x.t()*m_w.col(j)).eval()(0,0);
 }
 
 arma::mat NeuralQuantumState::hadamardProd(arma::mat w){
     int M = m_system->getNumberVisibleNodes();
     int N = m_system->getNumberHiddenNodes();
 
-    arma::mat w_Hadard;
-    w_Hadard.zeros(M,N);
+    arma::mat w_Hadamard;
+    w_Hadamard.zeros(M,N);
     for(int i; i<M; i++){
         for(int j; j<N; j++){
             w_Hadamard(i,j) = w(i,j)*w(i,j);
         }
     }
-    return w_Hadarad;
+    return w_Hadamard;
 }
 
 double NeuralQuantumState::getDistance(int p, int q){
@@ -102,7 +102,7 @@ double NeuralQuantumState::getDistance(int p, int q){
 
 
     for(int d = 0; d<dim; d++){
-        dist+= (X[dim*p+d]-X[dim*q+d])*(X[dim*p+d]-X[dim*q+d]); //Assumes particle index starts at 0
+        dist+= (m_x[dim*p+d]-m_x[dim*q+d])*(m_x[dim*p+d]-m_x[dim*q+d]); //Assumes particle index starts at 0
     }
 
     return sqrt(dist);
@@ -114,22 +114,22 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
     int M = m_system->getNumberVisibleNodes();
     int N = m_system->getNumberHiddenNodes();
 
-    arma::vec S;
-    arma::vec S_tilde;
-    arma::vec one_vector;
-    S.zeros(N);
-    S_tilde.zeros(N;
-    one_vector.ones(M);
+    arma::vec S; S.zeros(N);
+    arma::vec S_tilde; S_tilde.zeros(N);
+    arma::vec one_vector; one_vector.ones(M); //M elements of 1
+
+
+
 
     for (int j = 0; j<N; j++){
-        S[j] = sigmoid(v(j,m_x, m_w));
-        S_tilde[j] = sigmoid(v(j,m_x, m_w))*sigmoid(-v(j,m_x, m_w));
+        S[j] = sigmoid(v(j));
+        S_tilde[j] = sigmoid(v(j))*sigmoid(-v(j));
     }
 
 
-    double E_K= -1/(2*pow(m_sigma,4))*((m_x-m_a)*(m_x-m_a).t() - 2*S*(m_w.t()*(m_x-m_a).t())+(S*m_w.t())*(m_w*S.t())+one_vector*(hadamardProd(m_w)*S_tilde.t())) - M*(2*pow(sigma,2));
+    double E_K= (-1/(2*pow(m_sigma,4))*((m_x-m_a).t()*(m_x-m_a) - 2*S*(m_w.t()*(m_x-m_a))+(S.t()*m_w.t())*(m_w*S)+one_vector.t()*(hadamardProd(m_w)*S_tilde)) - M*(2*pow(m_sigma,2))).eval()(0,0);
 
-    return E_k;
+    return E_K;
 }
 
 

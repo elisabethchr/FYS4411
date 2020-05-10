@@ -24,13 +24,13 @@ double HarmonicOscillator::computeLocalEnergy(arma::vec X) {
     double kineticEnergy = 0;
     double potentialEnergy = 0;
     double interactionEnergy = 0;
-    int dim = m_system->getNumberOfDimensions();
-    int nPart= m_system->getNumberOfParticles();
+    int dim = m_system->getNumberDimensions();
+    int nPart= m_system->getNumberParticles();
     int M = m_system->getNumberVisibleNodes();
 
 
 
-    arma::vec X = m_system->getWaveFunction()->get_X(); //Gets visible nodes
+//    arma::vec X = m_system->getWaveFunction()->get_X(); //Gets visible nodes
 //    double psi = m_system->getWaveFunction()->evaluate(X); //Gets the wavefunction evaluated at the current pos.
 
     kineticEnergy = m_system->getWaveFunction()->computeDoubleDerivative_analytic();
@@ -43,8 +43,8 @@ double HarmonicOscillator::computeLocalEnergy(arma::vec X) {
 
 
     for (int p=0; p<nPart-1; p++){
-        for(int q=p+1; j<nPart; q++){
-            double distance = m_system->getWaveFunction->getDistance(p,q);
+        for(int q=p+1; q<nPart; q++){
+            double distance = m_system->getWaveFunction()->getDistance(p,q);
             interactionEnergy+= 1/distance;
         }
     }

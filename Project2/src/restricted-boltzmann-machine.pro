@@ -3,6 +3,8 @@ CONFIG  += console c++11
 CONFIG  -= app_bundle
 CONFIG  -= qt
 
+LIBS += -llapack -lblas -larmadillo
+
 SOURCES += main.cpp \
     WaveFunctions/neuralquantumstate.cpp \
     system.cpp \

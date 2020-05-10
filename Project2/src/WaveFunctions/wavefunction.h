@@ -17,6 +17,9 @@ public:
     virtual arma::vec get_b() = 0;    // get hidden bias vector
     virtual arma::mat get_w() = 0;    // get interaction of biases matrix
 
+    virtual double computeDoubleDerivative_analytic() = 0; //Returns E_k
+    virtual double getDistance(int p, int q) = 0;      //gets r_pq
+
 protected:
     class System* m_system = nullptr;
     int m_nv = 0;       // number visible nodes
