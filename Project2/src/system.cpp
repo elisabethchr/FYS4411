@@ -179,7 +179,7 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
     }
     m_sampler->computeAverages();
     m_sampler->printOutputToTerminal();
-    m_sampler->writeAlphaToFile();
+//    m_sampler->writeAlphaToFile();
     m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
     cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 }
