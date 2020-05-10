@@ -119,7 +119,7 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
     arma::vec one_vector;
     S.zeros(N);
     S_tilde.zeros(N;
-    one_vector.ones(N);
+    one_vector.ones(M);
 
     for (int j = 0; j<N; j++){
         S[j] = sigmoid(v(j,m_x, m_w));
@@ -127,7 +127,7 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
     }
 
 
-    double E_K= -1/(2*pow(m_sigma,4))*((m_x-m_a)*(m_x-m_a).t() - 2*S*((m_x-m_a)*m_w.t())+(S*m_w.t())*(m_w*S.t())+one_vector*(hadamardProd(m_w)*S_tilde.t())) - M*(2*pow(sigma,2));
+    double E_K= -1/(2*pow(m_sigma,4))*((m_x-m_a)*(m_x-m_a).t() - 2*S*(m_w.t()*(m_x-m_a).t())+(S*m_w.t())*(m_w*S.t())+one_vector*(hadamardProd(m_w)*S_tilde.t())) - M*(2*pow(sigma,2));
 
     return E_k;
 }
