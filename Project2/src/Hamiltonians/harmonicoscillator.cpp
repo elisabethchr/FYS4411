@@ -41,13 +41,14 @@ double HarmonicOscillator::computeLocalEnergy(arma::vec X) {
     }
 
 
+//Uncomment to include interaction part:
 
-    for (int p=0; p<nPart-1; p++){
-        for(int q=p+1; q<nPart; q++){
-            double distance = m_system->getWaveFunction()->getDistance(p,q);
-            interactionEnergy+= 1/distance;
-        }
-    }
+//    for (int p=0; p<nPart-1; p++){
+//        for(int q=p+1; q<nPart; q++){
+//            double distance = m_system->getWaveFunction()->getDistance(p,q);
+//            interactionEnergy+= 1/distance;
+//        }
+//    }
 
     return kineticEnergy + potentialEnergy + interactionEnergy;
 }
