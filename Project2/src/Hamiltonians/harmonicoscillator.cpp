@@ -1,11 +1,10 @@
 #include "harmonicoscillator.h"
 #include <cassert>
 #include <iostream>
-#include "../system.h"
-#include "../particle.h"
-#include "../WaveFunctions/wavefunction.h"
 #include <vector>
 #include <armadillo>
+#include "../system.h"
+#include "../WaveFunctions/wavefunction.h"
 
 using std::cout;
 using std::endl;

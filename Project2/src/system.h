@@ -7,9 +7,9 @@ public:
 //    bool metropolisStep             (unsigned gen);
     bool bruteForce                 ();     // Standard Metropolis
     bool importanceSampling         ();     // Metropolis-Hastings
-    void runMetropolisSteps         (std::vector<int> numberOfMetropolisSteps);
-    void setNumberHiddenNodes       (int n_hidden);
-    void setNumberVisibleNodes      (int n_visible);
+    void runMetropolisSteps         (int RBM_cycles, std::vector<int> numberOfMetropolisSteps);
+    void setNumberHiddenNodes       (int n_hidden){ m_numberHiddenNodes = n_hidden; }
+    void setNumberVisibleNodes      (int n_visible){ m_numberVisibleNodes = n_visible; }
     void setNumberParticles         (int nPart);
     void setNumberDimensions        (int nDim);
     void setStepLength              (double stepLength);
@@ -46,16 +46,17 @@ public:
 
 
 private:
-    int                             m_numberHiddenNodes = 0;
-    int                             m_numberVisibleNodes = 0;
+    int                             m_numberHiddenNodes;
+    int                             m_numberVisibleNodes;
     int                             m_numberOfMetropolisSteps = 0;
+    int                             m_RBMcycles = 0;
     int                             m_numberParticles = 0;
     int                             m_numberDimensions = 0;
     int                             m_timestep = 0;
     int                             m_acceptedSteps = 0;
     int                             m_stepMetropolis = 0;
     int                             m_stepImportance = 0;
-    int                             m_MCstep = 0;
+    int                             m_MCstep;
     double                          m_acceptedSteps_ratio = 0.0;
     double                          m_equilibrationFraction = 0.0;
     double                          m_stepLength = 0.1;

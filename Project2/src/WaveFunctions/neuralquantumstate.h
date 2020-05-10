@@ -18,18 +18,18 @@ public:
     arma::vec get_b(){ return m_b; }
     arma::mat get_w(){ return m_w; }
 
+
     double computeDoubleDerivative_analytic();
     double getDistance(int p, int q);
-
+    double getSigma(){ return m_sigma; }
 
 private:
     void setupInitialState();
-//    void setupWeights(){}
-//    void setupPositions(){}
 
     double sigmoid(double x); // the logistic function
     double v(int j);          // for simplification
     arma::mat hadamardProd(arma::mat w); // calculates the hadamard product of w with itself
+
     arma::vec O;        // vector exponent in wavefunction
     arma::vec m_x;      // visible nodes (i.e. position)
     arma::vec m_a;      // visible bias
@@ -39,5 +39,6 @@ private:
     double m_term1;
     double m_term2;
     double m_sigma;
+
 
 };

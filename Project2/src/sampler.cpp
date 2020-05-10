@@ -11,6 +11,7 @@
 #include "particle.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "WaveFunctions/wavefunction.h"
+#include "Optimizers/optimizer.h"
 
 using namespace std;
 
@@ -73,7 +74,11 @@ void Sampler::computeAverages() {
     m_variance = (m_energy2 - m_energy*m_energy) / m_stepNumber;
     m_error = pow(abs(m_variance), 0.5);
 
-    // optimize weights
+}
+
+/* optimize weights */
+void Sampler::optimizeWeights(){
+    m_system->getOptimizer()->computeWeights(m_gradE);
 }
 
 /* Display variables to terminal */

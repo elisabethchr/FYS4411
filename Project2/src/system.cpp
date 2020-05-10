@@ -10,6 +10,7 @@
 #include "WaveFunctions/wavefunction.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "InitialStates/initialstate.h"
+#include "Optimizers/optimizer.h"
 #include "Math/random.h"
 
 using namespace std;
@@ -23,7 +24,7 @@ bool System::bruteForce() {
 
     if(m_MCstep == 0){
         m_wfValue = m_waveFunction->evaluate(Xtrial);
-//        cout << "m_wfValue = " << m_wfValue << endl;
+        //        cout << "m_wfValue = " << m_wfValue << endl;
     }
 
     // draw a random coordinate
@@ -35,8 +36,8 @@ bool System::bruteForce() {
     // compute change in coordinates from uniform distribution
     randu = getUniform(-1.0, 1.0);
 
-//    cout << "Current Xtrial: " << endl;
-//    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
+    //    cout << "Current Xtrial: " << endl;
+    //    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
 
     // evaluate wavefunction before and after change of coordinates
     double oldWaveFunction = m_waveFunction->evaluate(Xtrial);
@@ -45,8 +46,8 @@ bool System::bruteForce() {
 
     double ratio = (newWaveFunction*newWaveFunction)/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
 
-//    cout << "New Xtrial: " << endl;
-//    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
+    //    cout << "New Xtrial: " << endl;
+    //    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
 
 
     // if true, allow the new state with adjusted positions
@@ -70,7 +71,7 @@ bool System::bruteForce() {
 
 /* Algorithm for Metropolis-Hastings (importance sampling): change one coordinate at a time per MC cycle */
 bool System::importanceSampling(){
-/*
+    /*
     int random_i;
     double s, change;
     double D = 0.5;
@@ -132,15 +133,16 @@ bool System::importanceSampling(){
 }
 
 
-void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
+void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropolisSteps) {
 
     m_timestep = 0;
     m_numberOfMetropolisSteps = numberOfMetropolisSteps[0];
+    m_RBMcycles = RBM_cycles;
+    m_MCstep = 0;
     m_stepMetropolis = 0.0;
     m_stepImportance = 0.0;
     m_acceptedSteps = 0.0;
-    m_MCstep = 0;
-    m_particles                 = m_initialState->getParticles();
+    //    m_particles                 = m_initialState->getParticles();
     m_sampler                   = new Sampler(this);
     m_sampler->setNumberOfMetropolisSteps(m_numberOfMetropolisSteps);
 
@@ -150,37 +152,42 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
     mt19937_64 gen(seed());
     m_randomengine = gen;
 
-    // run Metropolis algorithm
-    for (int i=0; i < m_numberOfMetropolisSteps; i++) {
+    // sampling cycles
+    for (int cycle = 0; cycle < m_RBMcycles; cycle++){
+        // run Metropolis algorithm
+        for (int i=0; i < m_numberOfMetropolisSteps; i++) {
 
-        bool acceptedStep;
+            bool acceptedStep;
 
-        // set the solver
-        if (m_solver==true){ acceptedStep = bruteForce(); }
-        else if (m_solver==false){ acceptedStep = importanceSampling(); }
+            // set the solver
+            if (m_solver==true){ acceptedStep = bruteForce(); }
+            else if (m_solver==false){ acceptedStep = importanceSampling(); }
 
-        // sample accepted steps
-        if (acceptedStep == true){
-            m_acceptedSteps++;
-            // allow for equilibration of energy (~5% of Metropolis steps)
-            if (i >= m_equilibrationFraction - 100){
-                m_sampler->sample(acceptedStep);
-                steps++;
-                m_stepMetropolis++;
+            // sample accepted steps
+            if (acceptedStep == true){
+                m_acceptedSteps++;
+                // allow for equilibration of energy (~5% of Metropolis steps)
+                if (i >= m_equilibrationFraction - 100){
+                    m_sampler->sample(acceptedStep);
+                    steps++;
+                    m_stepMetropolis++;
+                }
             }
+
+            if (i>= m_equilibrationFraction){ m_sampler->writeStepToFile(m_stepMetropolis, i); }
+
+            // Only interested in sampling the final optimization cycle
+            if (i == m_numberOfMetropolisSteps - 1){ m_sampler->writeToFile(); }
+
         }
+        m_sampler->computeAverages();
+        m_sampler->printOutputToTerminal();
+        m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
+        cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 
-        if (i>= m_equilibrationFraction){ m_sampler->writeStepToFile(m_stepMetropolis, i); }
-
-        // Only interested in sampling the final optimization cycle
-        if (i == m_numberOfMetropolisSteps - 1){ m_sampler->writeToFile(); }
-
-        m_MCstep++;
+        // optimize weights at end of cycle
+        m_sampler->optimizeWeights();
     }
-    m_sampler->computeAverages();
-    m_sampler->printOutputToTerminal();
-    m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
-    cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 }
 
 
@@ -191,7 +198,6 @@ void System::setNumberParticles(int nPart) {
 void System::setNumberDimensions(int nDim) {
     m_numberDimensions = nDim;
 }
-
 
 void System::setStepLength(double stepLength) {
     assert(stepLength >= 0);

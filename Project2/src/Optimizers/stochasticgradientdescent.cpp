@@ -1,6 +1,13 @@
 #include "stochasticgradientdescent.h"
+#include <cassert>
+#include <iostream>
+#include <vector>
+#include <armadillo>
 #include "optimizer.h"
-#include "WaveFunctions/wavefunction.h"
+#include "../system.h"
+#include "../WaveFunctions/wavefunction.h"
+#include "../Hamiltonians/hamiltonian.h"
+
 
 StochasticGradientDescent::StochasticGradientDescent(System* system, double eta) :
     Optimizer(system){
@@ -8,7 +15,7 @@ StochasticGradientDescent::StochasticGradientDescent(System* system, double eta)
 }
 
 /* Calculate optimized weights via stochastic gradient descent */
-void StochasticGradientDescent::computeWeights(arma::vec gradE, int cycle){
+void StochasticGradientDescent::computeWeights(arma::vec gradE){
     int m_nv = m_system->getNumberVisibleNodes();
     int m_nh = m_system->getNumberHiddenNodes();
 

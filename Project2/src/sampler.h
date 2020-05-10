@@ -11,6 +11,7 @@ public:
     void sampleOneBodyDensity();
     void printOutputToTerminal();
     void computeAverages();
+    void optimizeWeights();
     double getEnergy()              { return m_energy; }
     double getEnergyDerivative()    { return m_derivativeE; }
     double getEnergyAnalytic()      { return m_energyAnalytic;}
