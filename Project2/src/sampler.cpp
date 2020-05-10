@@ -26,43 +26,57 @@ void Sampler::setNumberOfMetropolisSteps(int steps) {
 
 
 void Sampler::sample(bool acceptedStep) {
-    // Make sure the sampling variable(s) are initialized at the first step.
+    // make sure the sampling variable(s) are initialized at the first step
     if (m_stepNumber == 0) {
-        m_cumulativeEnergy = 0;
-        m_cumulativeEnergyAnalytic = 0;
+        m_cumulativeEnergy = 0.0;
+        m_cumulativeEnergy2 = 0.0;
+        m_dPsi = 0.0;
+        m_EdPsi = 0.0;
         t_anal = 0;
     }
 
     //calculate cpu-time
     clock_t c_start1 = clock();
 
+    // compute local energy and energy gradient
     arma::vec X = m_system->getWaveFunction()->get_X();
-    double localEnergy = m_system->getHamiltonian()->
-            computeLocalEnergy(X);
-    m_system->setEnergy(localEnergy);
+    double localEnergy = m_system->getHamiltonian()->computeLocalEnergy(X);
+    arma::vec dPsi = m_system->getHamiltonian()->computeLocalEnergyGradient();
 
+    m_system->setEnergy(localEnergy);
 
     clock_t c_end1 = clock();
     double t = (c_end1 - c_start1);
     t_num += t;
 
-
     m_cumulativeEnergy  += localEnergy;
     m_cumulativeEnergy2 += localEnergy*localEnergy;
+    m_cumulative_dPsi   += dPsi;
+    m_cumulative_EdPsi  += localEnergy*dPsi;
 
-//    m_derivativePsi_alpha = m_system->getWaveFunction()->computeDerivativePsi_alpha(m_system->getParticles());
     m_deltaEnergy = localEnergy;
-    m_cumulativeDeltaPsi += m_derivativePsi_alpha;
-    m_cumulativeDerivativePsiE += m_derivativePsi_alpha*m_deltaEnergy;
-
-    //    cout << "m_cumulativeEnergy_sample = " << m_cumulativeEnergy << endl;
-    //    cout << "m_stepNumber_sample = " << m_stepNumber << endl;
-    //    cout << "m_energy_sample = " << m_cumulativeEnergy/((double)m_stepNumber) << endl;
 
     m_stepNumber++;
 }
 
+void Sampler::computeAverages() {
+    // Compute the averages of sampled quantities
+    m_energy = m_cumulativeEnergy / m_stepNumber;
+    m_energy2 = m_cumulativeEnergy2 / m_stepNumber;
+    m_dPsi = m_cumulative_dPsi / m_stepNumber;
+    m_EdPsi = m_cumulative_EdPsi / m_stepNumber;
 
+    // compute gradient
+    m_gradE = 2*(m_EdPsi - m_energy*m_dPsi);
+
+    // compute variance and error
+    m_variance = (m_energy2 - m_energy*m_energy) / m_stepNumber;
+    m_error = pow(abs(m_variance), 0.5);
+
+    // optimize weights
+}
+
+/* Display variables to terminal */
 void Sampler::printOutputToTerminal() {
     int     nv = m_system->getNumberVisibleNodes();
     int     nh = m_system->getNumberHiddenNodes();
@@ -81,25 +95,6 @@ void Sampler::printOutputToTerminal() {
     cout << "Variance: " << m_variance << endl;
     cout << "Error: " << m_error << endl;
 }
-
-void Sampler::computeAverages() {
-    // Compute the averages of the sampled quantities
-
-    int m_metropolisStep = m_system->getMetropolisStep();
-
-    // test to make sure m_energy != nan
-    if(m_stepNumber==0){m_energy = m_cumulativeEnergy; cout << "m_stepNumber = 0" << endl; }
-    else {m_energy = m_cumulativeEnergy / ((double) m_stepNumber);}
-
-    m_energy2 = m_cumulativeEnergy2 / ((double )m_stepNumber);
-    m_derivativePsiE = m_cumulativeDerivativePsiE / ((double) m_stepNumber);
-    m_deltaPsi = m_cumulativeDeltaPsi / ((double) m_stepNumber);
-    m_derivativeE = 2*(m_derivativePsiE - m_deltaPsi*m_energy);
-
-    m_variance = (m_energy2 - m_energy*m_energy) / ((double) m_stepNumber);
-    m_error = pow(abs(m_variance), 0.5);
-}
-
 
 /* Write values to file when on last MC cycle */
 void Sampler::writeToFile(){

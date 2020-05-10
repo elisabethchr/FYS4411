@@ -24,9 +24,9 @@ public:
 
 private:
     int     m_numberOfMetropolisSteps = 0;
-    int     m_stepNumber = 0;
-    double  m_energy = 0;   // mean energy
-    double  m_energy2 = 0;  // mean energy^2
+    double  m_stepNumber = 0;
+    double  m_energy;   // mean energy
+    double  m_energy2;  // mean energy^2
     double  m_energyAnalytic = 0;
     double  m_cumulativeEnergy = 0;
     double  m_cumulativeEnergy2 = 0;
@@ -36,11 +36,11 @@ private:
     double  m_deltaPsi = 0;
     double  m_deltaEnergy = 0;  // change in energy
     double  m_derivativeE = 0;  // derivative of energy wrt. variational parameter alpha
-    double  m_derivativePsiE = 0;   // (derivative of psi) * (change in energy)
-    double  m_derivativePsi_alpha = 0;  // derivative of psi wrt. variational parameter alpha
-    double  m_cumulativeDeltaPsi = 0;
-    double  m_cumulativeDerivativePsiE = 0;
-
+    arma::vec  m_gradE;
+    arma::vec  m_EdPsi = 0;   // (derivative of psi) * (change in energy)
+    arma::vec  m_dPsi = 0;  // derivative of psi wrt. variational parameter alpha
+    arma::vec  m_cumulative_dPsi = 0;
+    arma::vec  m_cumulative_EdPsi = 0;
 
     int                             m_nBins;
     double                          m_Rmax;

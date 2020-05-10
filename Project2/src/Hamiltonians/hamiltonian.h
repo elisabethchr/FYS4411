@@ -11,6 +11,7 @@ public:
     virtual double getOmega() = 0;
     virtual double computeLocalEnergy(arma::vec X) = 0;
 
+    virtual vec computeLocalEnergyGradient() = 0;
     virtual vec computeQuantumForce(arma::vec X, int i) = 0;
     virtual vec computeGradientPsi(arma::vec X) = 0;
 

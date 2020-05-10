@@ -20,10 +20,12 @@ public:
     void setEnergy                  (double localEnergy){m_energy = localEnergy;}
     void setHamiltonian             (class Hamiltonian* hamiltonian);
     void setWaveFunction            (class WaveFunction* waveFunction);
+    void setOptimizer               (class Optimizer* optimizer);
     void setInitialState            (class InitialState* initialState);
     class WaveFunction*             getWaveFunction()   { return m_waveFunction; }
     class Hamiltonian*              getHamiltonian()    { return m_hamiltonian; }
     class Sampler*                  getSampler()        { return m_sampler; }
+    class Optimizer*                getOptimizer()      { return m_optimizer; }
     std::vector<class Particle*>    getParticles()      { return m_particles; }
     int getNumberHiddenNodes()          { return m_numberHiddenNodes; }
     int getNumberVisibleNodes()         { return m_numberVisibleNodes; }
@@ -65,6 +67,7 @@ private:
     class Hamiltonian*              m_hamiltonian = nullptr;
     class InitialState*             m_initialState = nullptr;
     class Sampler*                  m_sampler = nullptr;
+    class Optimizer*                m_optimizer = nullptr;
     std::vector<class Particle*>    m_particles = std::vector<class Particle*>();
     std::vector<double>             m_timesteps;
 

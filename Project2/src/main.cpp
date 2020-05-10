@@ -64,18 +64,19 @@ int main() {
     int D = 1;      // number of dimensions
 
     int nVisible  = P*D;    // number of visible nodes
-    int nHidden   = 2;     // number of hidden nodes
-    double omega            = 1.0;          // Oscillator frequency.
-    double stepLength       = 1.0;          // Metropolis step length.
-    double sigma            = 1.0;
-    double equilibration    = pow(2, 12);          // Amount of the total steps used for equilibration.
-
+    int nHidden   = 2;      // number of hidden nodes
+    double omega            = 1.0;          // Oscillator frequency
+    double stepLength       = 1.0;          // Metropolis step length
+    double sigma            = 1.0;          // error of Gaussian distribution
+    double equilibration    = pow(2, 12);   // Amount of the total steps used for equilibration.
+    double eta            = 0.1;          // Learning rate
 
     System* system = new System();
-    system->setTimeSteps                (timestep);
+//    system->setTimeSteps                (timestep);
     system->setSolver                   (bruteForce);
     system->setHamiltonian              (new HarmonicOscillator(system, omega, interaction));
     system->setWaveFunction             (new NeuralQuantumState(system, nHidden, nVisible, P, D, sigma));
+    system->setOptimizer                (new StochasticGradientDescent(system, eta));
     system->setEquilibrationFraction    (equilibration);
     system->setStepLength               (stepLength);
     system->runMetropolisSteps          (MC_cycles);

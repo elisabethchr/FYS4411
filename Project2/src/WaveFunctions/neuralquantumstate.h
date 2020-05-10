@@ -1,5 +1,6 @@
 #pragma once
 #include <armadillo>
+#include "../system.h"
 #include "wavefunction.h"
 
 class NeuralQuantumState : public WaveFunction {
@@ -17,11 +18,18 @@ public:
     arma::vec get_b(){ return m_b; }
     arma::mat get_w(){ return m_w; }
 
+    double computeDoubleDerivative_analytic();
+    double getDistance(int p, int q);
+
+
 private:
     void setupInitialState();
-    void setupWeights(){}
-    void setupPositions(){}
+//    void setupWeights(){}
+//    void setupPositions(){}
 
+    double sigmoid(double x); // the logistic function
+    double v(int j);          // for simplification
+    arma::mat hadamardProd(arma::mat w); // calculates the hadamard product of w with itself
     arma::vec O;        // vector exponent in wavefunction
     arma::vec m_x;      // visible nodes (i.e. position)
     arma::vec m_a;      // visible bias
@@ -33,5 +41,3 @@ private:
     double m_sigma;
 
 };
-
-

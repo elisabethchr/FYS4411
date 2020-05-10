@@ -4,25 +4,29 @@ CONFIG  -= app_bundle
 CONFIG  -= qt
 
 SOURCES += main.cpp \
-    WaveFunctions/neuralquantumstate.cpp \
+    Optimizers/optimizer.cpp \
+    Optimizers/stochasticgradientdescent.cpp \
     system.cpp \
+    particle.cpp \
+    sampler.cpp \
     Hamiltonians/hamiltonian.cpp \
     Hamiltonians/harmonicoscillator.cpp \
-    particle.cpp \
     WaveFunctions/wavefunction.cpp \
+    WaveFunctions/neuralquantumstate.cpp \
     InitialStates/initialstate.cpp \
     InitialStates/initalizestate.cpp \
     Math/random.cpp \
-    sampler.cpp \
 
 HEADERS += \
-    WaveFunctions/neuralquantumstate.h \
+    Optimizers/optimizer.h \
+    Optimizers/stochasticgradientdescent.h \
     system.h \
+    particle.h \
+    sampler.h \
     Hamiltonians/hamiltonian.h \
     Hamiltonians/harmonicoscillator.h \
-    particle.h \
     WaveFunctions/wavefunction.h \
+    WaveFunctions/neuralquantumstate.h \
     InitialStates/initialstate.h \
     InitialStates/initalizestate.h \
     Math/random.h \
-    sampler.h \

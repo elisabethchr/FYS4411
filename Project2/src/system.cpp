@@ -179,7 +179,6 @@ void System::runMetropolisSteps(std::vector<int> numberOfMetropolisSteps) {
     }
     m_sampler->computeAverages();
     m_sampler->printOutputToTerminal();
-    m_sampler->writeAlphaToFile();
     m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
     cout << "Acceptance rate: " << m_acceptedSteps_ratio << endl;
 }
@@ -214,4 +213,8 @@ void System::setWaveFunction(WaveFunction* waveFunction) {
 
 void System::setInitialState(InitialState* initialState) {
     m_initialState = initialState;
+}
+
+void System::setOptimizer(Optimizer* optimizer){
+    m_optimizer = optimizer;
 }

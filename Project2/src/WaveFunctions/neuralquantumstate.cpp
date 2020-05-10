@@ -53,7 +53,6 @@ void NeuralQuantumState::setupInitialState(){
     }
 }
 
-
 /* Evaluate wavefunction at a certain position */
 double NeuralQuantumState::evaluate(arma::vec position){
     m_term1 = 0.0;
@@ -69,4 +68,64 @@ double NeuralQuantumState::evaluate(arma::vec position){
     }
 
     return exp(m_term1)*m_term2;
+}
+
+/* Compute the logistic function of x */
+double NeuralQuantumState::sigmoid(double x){
+    return (1/(1+exp(-x)));
+}
+
+/* Compute the exponent of the exponential in the sigmoid function */
+double NeuralQuantumState::v(int j){
+
+    return (m_b[j] + m_x.t()*m_w.col(j)).eval()(0,0);
+}
+
+/* Compute the squared of the interaction matrix w */
+arma::mat NeuralQuantumState::hadamardProd(arma::mat w){
+    int M = m_system->getNumberVisibleNodes();
+    int N = m_system->getNumberHiddenNodes();
+
+    arma::mat w_Hadamard;
+    w_Hadamard.zeros(M,N);
+    for(int i; i<M; i++){
+        for(int j; j<N; j++){
+            w_Hadamard(i,j) = w(i,j)*w(i,j);
+        }
+    }
+    return w_Hadamard;
+}
+
+/* Get distance between particles */
+double NeuralQuantumState::getDistance(int p, int q){
+    int dim = m_system->getNumberDimensions();
+    double dist = 0;
+
+    for(int d = 0; d<dim; d++){
+        dist+= (m_x[dim*p+d]-m_x[dim*q+d])*(m_x[dim*p+d]-m_x[dim*q+d]); //Assumes particle index starts at 0
+    }
+
+    return sqrt(dist);
+
+}
+
+/* Compute the double derivative of psi wrt. position coordinates*/
+double NeuralQuantumState::computeDoubleDerivative_analytic(){
+
+    int M = m_system->getNumberVisibleNodes();
+    int N = m_system->getNumberHiddenNodes();
+
+    arma::vec S; S.zeros(N);
+    arma::vec S_tilde; S_tilde.zeros(N);
+    arma::vec one_vector; one_vector.ones(M);
+
+    for (int j = 0; j<N; j++){
+        S[j] = sigmoid(v(j));
+        S_tilde[j] = sigmoid(v(j))*sigmoid(-v(j));
+    }
+
+
+    double E_K= (-1/(2*pow(m_sigma,4))*((m_x-m_a).t()*(m_x-m_a) - 2*S*(m_w.t()*(m_x-m_a))+(S.t()*m_w.t())*(m_w*S)+one_vector.t()*(hadamardProd(m_w)*S_tilde)) - M*(2*pow(m_sigma,2))).eval()(0,0);
+
+    return E_K;
 }
