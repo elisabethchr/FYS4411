@@ -22,6 +22,7 @@ public:
     void setWaveFunction            (class WaveFunction* waveFunction);
     void setOptimizer               (class Optimizer* optimizer);
     void setInitialState            (class InitialState* initialState);
+//    void setSampler                 (class Sampler* sampler);
     class WaveFunction*             getWaveFunction()   { return m_waveFunction; }
     class Hamiltonian*              getHamiltonian()    { return m_hamiltonian; }
     class Sampler*                  getSampler()        { return m_sampler; }

@@ -8,7 +8,6 @@
 #include <algorithm>
 #include "sampler.h"
 #include "system.h"
-#include "particle.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "WaveFunctions/wavefunction.h"
 #include "Optimizers/optimizer.h"
@@ -16,9 +15,9 @@
 using namespace std;
 
 Sampler::Sampler(System* system) {
+//    cout << "so far so good" << endl;
     m_system = system;
     m_stepNumber = 0;
-
 }
 
 void Sampler::setNumberOfMetropolisSteps(int steps) {
@@ -28,6 +27,7 @@ void Sampler::setNumberOfMetropolisSteps(int steps) {
 
 void Sampler::sample(bool acceptedStep) {
     // make sure the sampling variable(s) are initialized at the first step
+
     if (m_stepNumber == 0) {
         m_cumulativeEnergy = 0.0;
         m_cumulativeEnergy2 = 0.0;
@@ -56,8 +56,10 @@ void Sampler::sample(bool acceptedStep) {
     m_cumulative_EdPsi  += localEnergy*dPsi;
 
     m_deltaEnergy = localEnergy;
+    cout << m_deltaEnergy << endl;
 
     m_stepNumber++;
+
 }
 
 void Sampler::computeAverages() {
@@ -76,9 +78,9 @@ void Sampler::computeAverages() {
 
 }
 
-/* optimize weights */
+/* Optimize weights */
 void Sampler::optimizeWeights(){
-    m_system->getOptimizer()->computeWeights(m_gradE);
+//    m_system->getOptimizer()->computeWeights(m_gradE);
 }
 
 /* Display variables to terminal */
@@ -103,6 +105,7 @@ void Sampler::printOutputToTerminal() {
 
 /* Write values to file when on last MC cycle */
 void Sampler::writeToFile(){
+
     int nv = m_system->getNumberVisibleNodes();
     int nh = m_system->getNumberVisibleNodes();
     int nP = m_system->getNumberParticles();
@@ -158,6 +161,7 @@ void Sampler::writeToFile(){
 
 
 /* Write sampled quantities for each Metropolis step to file */
+
 void Sampler::writeStepToFile(int step, int steps){
 
     int nv = m_system->getNumberHiddenNodes();

@@ -12,6 +12,7 @@
 #include "Optimizers/optimizer.h"
 #include "Optimizers/stochasticgradientdescent.h"
 #include "Math/random.h"
+#include "sampler.h"
 
 using std::cout;
 using std::endl;
@@ -65,7 +66,7 @@ int main() {
     int P = 1;      // number of particles
     int D = 1;      // number of dimensions
 
-    int RBM_cycles = 100;       // number of sampling cycles
+    int RBM_cycles = 2;       // number of sampling cycles
     int nVisible  = P*D;    // number of visible nodes
     int nHidden   = 2;      // number of hidden nodes
     double omega            = 1.0;          // Oscillator frequency
@@ -80,6 +81,7 @@ int main() {
     system->setHamiltonian              (new HarmonicOscillator(system, omega, interaction));
     system->setWaveFunction             (new NeuralQuantumState(system, nHidden, nVisible, P, D, sigma));
     system->setOptimizer                (new StochasticGradientDescent(system, eta));
+    //system->setSampler                  (new Sampler(system));
     system->setEquilibrationFraction    (equilibration);
     system->setStepLength               (stepLength);
     system->runMetropolisSteps          (RBM_cycles, MC_cycles);

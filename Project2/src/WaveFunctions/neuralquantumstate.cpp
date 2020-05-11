@@ -37,12 +37,13 @@ void NeuralQuantumState::setupInitialState(){
     m_b.zeros(m_nh);
     m_w.zeros(m_nv, m_nh);
 
-    std::uniform_real_distribution<double> uniform_weights(-1.0,1.0);
+    std::uniform_int_distribution<int> uniform_weights(0,1.0);
     std::uniform_real_distribution<double> uniform_position(-0.5,0.5);
 
     for (int i=0; i<m_nv; i++){
         m_x[i] = uniform_position(m_randomEngine);
         m_a[i] = uniform_weights(m_randomEngine);
+        cout << "m_a[" << i << "] = " << m_a[i] << endl;
         for (int j=0; j<m_nh; j++){
             m_w(i, j) = uniform_weights(m_randomEngine);
         }
@@ -50,6 +51,7 @@ void NeuralQuantumState::setupInitialState(){
 
     for (int j=0; j<m_nh; j++){
         m_b[j] = uniform_weights(m_randomEngine);
+        cout << "m_b[" << j << "] = " << m_b[j] << endl;
     }
 }
 
@@ -75,7 +77,7 @@ double NeuralQuantumState::sigmoid(double x){
     return (1/(1+exp(-x)));
 }
 
-/* Compute the exponent of the exponential in the sigmoid function */
+/* Compute the exponent of the exponential in the logistic function */
 double NeuralQuantumState::v(int j){
 
     return (m_b[j] + m_x.t()*m_w.col(j)).eval()(0,0);
@@ -102,7 +104,7 @@ double NeuralQuantumState::getDistance(int p, int q){
     double dist = 0;
 
     for(int d = 0; d<dim; d++){
-        dist+= (m_x[dim*p+d]-m_x[dim*q+d])*(m_x[dim*p+d]-m_x[dim*q+d]); //Assumes particle index starts at 0
+        dist+= (m_x[dim*p+d]-m_x[dim*q+d])*(m_x[dim*p+d]-m_x[dim*q+d]); // assumes particle index starts at 0
     }
 
     return sqrt(dist);
