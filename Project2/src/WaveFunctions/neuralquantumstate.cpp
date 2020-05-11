@@ -43,7 +43,7 @@ void NeuralQuantumState::setupInitialState(){
     for (int i=0; i<m_nv; i++){
         m_x[i] = uniform_position(m_randomEngine);
         m_a[i] = uniform_weights(m_randomEngine);
-        cout << "m_a[" << i << "] = " << m_a[i] << endl;
+//        cout << "m_a[" << i << "] = " << m_a[i] << endl;
         for (int j=0; j<m_nh; j++){
             m_w(i, j) = uniform_weights(m_randomEngine);
         }
@@ -51,7 +51,7 @@ void NeuralQuantumState::setupInitialState(){
 
     for (int j=0; j<m_nh; j++){
         m_b[j] = uniform_weights(m_randomEngine);
-        cout << "m_b[" << j << "] = " << m_b[j] << endl;
+//        cout << "m_b[" << j << "] = " << m_b[j] << endl;
     }
 }
 
@@ -59,6 +59,8 @@ void NeuralQuantumState::setupInitialState(){
 double NeuralQuantumState::evaluate(arma::vec position){
     m_term1 = 0.0;
     for (int i=0; i<m_nv; i++){
+//        cout << "position[" << i << "] = " << position[i] << endl;
+//        cout << "m_x[" << i << "] = " << m_x[i] << endl;
         m_term1 -= (m_x[i] - m_a[i])*(m_x[i] - m_a[i]);
     }
     m_term1 = m_term1/(2*m_sigma*m_sigma);
@@ -79,7 +81,7 @@ double NeuralQuantumState::sigmoid(double x){
 
 /* Compute the exponent of the exponential in the logistic function */
 double NeuralQuantumState::v(int j){
-
+    double a = (m_b[j] + m_x.t()*m_w.col(j)).eval()(0,0);
     return (m_b[j] + m_x.t()*m_w.col(j)).eval()(0,0);
 }
 
@@ -126,8 +128,16 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
         S_tilde[j] = sigmoid(v(j))*sigmoid(-v(j));
     }
 
+//    double term1 = ((m_x-m_a).t()*(m_x-m_a)).eval()(0, 0);
+//    double term2 = - 2*(S.t()*(m_w.t()*(m_x-m_a))).eval()(0, 0);
+//    double term3 = ((S.t()*m_w.t())*(m_w*S)).eval()(0, 0);
+//    double term4 = (one_vector.t()*(hadamardProd(m_w)*S_tilde)).eval()(0, 0);
+//    double term5 = M*(2*pow(m_sigma,2));
 
-    double E_K= (-1/(2*pow(m_sigma,4))*((m_x-m_a).t()*(m_x-m_a) - 2*S*(m_w.t()*(m_x-m_a))+(S.t()*m_w.t())*(m_w*S)+one_vector.t()*(hadamardProd(m_w)*S_tilde)) - M*(2*pow(m_sigma,2))).eval()(0,0);
+//    double E = (-1/(2*pow(m_sigma,4))*(term1 + term2 + term3 + term4)) - M*(2*pow(m_sigma, 2));
+    double E_K = -1/(2*pow(m_sigma,4))*((m_x-m_a).t()*(m_x-m_a) - 2*S.t()*(m_w.t()*(m_x-m_a)) + (S.t()*m_w.t())*(m_w*S) + one_vector.t()*(hadamardProd(m_w)*S_tilde)).eval()(0, 0) - M*(2*pow(m_sigma,2));
 
+//    cout << "E = " << E << endl;
+//    cout << "E_K = " << E_K << endl;
     return E_K;
 }

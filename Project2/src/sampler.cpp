@@ -56,7 +56,6 @@ void Sampler::sample(bool acceptedStep) {
     m_cumulative_EdPsi  += localEnergy*dPsi;
 
     m_deltaEnergy = localEnergy;
-    cout << m_deltaEnergy << endl;
 
     m_stepNumber++;
 

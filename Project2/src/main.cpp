@@ -25,6 +25,8 @@ int main() {
 
     int m = 10;     // number of values for time steps dt
     int k = 10;     // length of array for the number of Metropolis steps
+    int MC = pow(2, 17);
+    double eq = round(log2(0.1*MC));
     double timestep_max = 1.0;
     double timestep_min = 0.1;
     double dt = (timestep_max - timestep_min)/m;
@@ -57,7 +59,7 @@ int main() {
     if (nSteps){
         for(int i=0; i<k+1; i++){ MC_cycles.push_back(pow(2, 10+i)); cout << "2^" << 10+i << " = " << MC_cycles[i] << endl;}
     }else{
-      MC_cycles.push_back(pow(2,20));  //Set scalar numberOfSteps value here
+      MC_cycles.push_back(pow(2,17));  //Set scalar numberOfSteps value here
     }
 
 
@@ -66,13 +68,14 @@ int main() {
     int P = 1;      // number of particles
     int D = 1;      // number of dimensions
 
-    int RBM_cycles = 2;       // number of sampling cycles
+    int RBM_cycles = 20;       // number of sampling cycles
     int nVisible  = P*D;    // number of visible nodes
     int nHidden   = 2;      // number of hidden nodes
     double omega            = 1.0;          // Oscillator frequency
     double stepLength       = 1.0;          // Metropolis step length
     double sigma            = 1.0;          // error of Gaussian distribution
-    double equilibration    = pow(2, 12);   // Amount of the total steps used for equilibration.
+    double equilibration    = pow(2, eq);   // Amount of the total steps used for equilibration.
+    cout << "Equilibration: 2^" << eq << " = " << equilibration << endl;
     double eta            = 0.1;          // Learning rate
 
     System* system = new System();

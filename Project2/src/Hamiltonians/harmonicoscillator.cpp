@@ -56,10 +56,11 @@ arma::vec HarmonicOscillator::computeLocalEnergyGradient(){
     // get necessary variables
     arma::vec m_a = m_system->getWaveFunction()->get_a();
     arma::vec m_b = m_system->getWaveFunction()->get_b();
-    arma::vec m_w = m_system->getWaveFunction()->get_w();
+    arma::mat m_w = m_system->getWaveFunction()->get_w();
     arma::vec m_x = m_system->getWaveFunction()->get_X();
     m_sigma = m_system->getWaveFunction()->getSigma();
     m_sigma2 = m_sigma*m_sigma;
+
 
     arma::vec O = m_b + (m_x.t()*m_w).t()*(1/((double) m_sigma*m_sigma));
     arma::vec dPsi; dPsi.zeros(m_nv + m_nh + m_nv*m_nh);
@@ -81,6 +82,10 @@ arma::vec HarmonicOscillator::computeLocalEnergyGradient(){
             dPsi[i] = m_x[i]/(exp(-O[j]) + 1)*(1/m_sigma2);
             i++;
         }
+    }
+
+    for (int k=0; k<dPsi.size(); k++){
+        cout << dPsi[k] << endl;
     }
 
     return dPsi;

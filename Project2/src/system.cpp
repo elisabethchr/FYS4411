@@ -39,22 +39,26 @@ bool System::bruteForce() {
     //    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
 
     // evaluate wavefunction before and after change of coordinates
-    double oldWaveFunction = m_waveFunction->evaluate(Xtrial);
+//    double oldWaveFunction = m_waveFunction->evaluate(Xtrial);
+
+    double currentWaveFunction = m_wfValue;
     Xtrial[coor] += randu*m_stepLength;
-    double newWaveFunction = m_waveFunction->evaluate(Xtrial);
+    m_waveFunction->set_X(Xtrial);
+
+    double trialWaveFunction = m_waveFunction->evaluate(Xtrial);
 //    cout << "oldWavefunction = " << oldWaveFunction << endl;
 //    cout << "newWavefunction = " << newWaveFunction << endl;
 
-    double ratio = (newWaveFunction*newWaveFunction)/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
+    double ratio = (trialWaveFunction*trialWaveFunction)/(currentWaveFunction*currentWaveFunction); //Fix: can simplify expression to save cpu cycles
 
-    //    cout << "New Xtrial: " << endl;
-    //    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
+//    cout << "New Xtrial: " << endl;
+//    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
 
 
     // if true, allow the new state with adjusted positions
     if(s<ratio){
-        m_waveFunction->set_X(Xtrial);
-        m_wfValue = newWaveFunction;
+//        m_waveFunction->set_X(Xtrial);
+        m_wfValue = trialWaveFunction;
 
         return true;
     }
@@ -63,7 +67,7 @@ bool System::bruteForce() {
     else{
         Xtrial[coor] -= randu*m_stepLength;
         m_waveFunction->set_X(Xtrial);
-        m_wfValue = oldWaveFunction;
+        m_wfValue = currentWaveFunction;
 
         return false;
     }
@@ -159,6 +163,7 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
         cout << "RBM cycle = " << cycle << endl;
         cout << "---------------------------------------" << endl;
         // run Metropolis algorithm
+        m_acceptedSteps = 0;
         for (int i=0; i < m_numberOfMetropolisSteps; i++) {
 
             bool acceptedStep;
@@ -171,7 +176,7 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
             if (acceptedStep == true){
                 m_acceptedSteps++;
                 // allow for equilibration of energy (~5% of Metropolis steps)
-                if (i >= m_equilibrationFraction - 100){
+                if (i >= m_equilibrationFraction){        // m_equilibrationFraction - 100
                     m_sampler->sample(acceptedStep);
                     steps++;
                     m_stepMetropolis++;
