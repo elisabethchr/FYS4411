@@ -135,7 +135,7 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
 //    double term5 = M*(2*pow(m_sigma,2));
 
 //    double E = (-1/(2*pow(m_sigma,4))*(term1 + term2 + term3 + term4)) - M*(2*pow(m_sigma, 2));
-    double E_K = -1/(2*pow(m_sigma,4))*((m_x-m_a).t()*(m_x-m_a) - 2*S.t()*(m_w.t()*(m_x-m_a)) + (S.t()*m_w.t())*(m_w*S) + one_vector.t()*(hadamardProd(m_w)*S_tilde)).eval()(0, 0) - M*(2*pow(m_sigma,2));
+    double E_K = -1/(2*pow(m_sigma,4))*((m_x-m_a).t()*(m_x-m_a) - 2*S.t()*(m_w.t()*(m_x-m_a)) + (S.t()*m_w.t())*(m_w*S) + one_vector.t()*(hadamardProd(m_w)*S_tilde)).eval()(0, 0)*(- M*(2*pow(m_sigma,2)));
 
 //    cout << "E = " << E << endl;
 //    cout << "E_K = " << E_K << endl;

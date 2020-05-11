@@ -24,7 +24,7 @@ double HarmonicOscillator::computeLocalEnergy(arma::vec X) {
     double potentialEnergy = 0;
     double interactionEnergy = 0;
     int dim = m_system->getNumberDimensions();
-    int nPart= m_system->getNumberParticles();
+    int nPart = m_system->getNumberParticles();
     int M = m_system->getNumberVisibleNodes();
 
     //    arma::vec X = m_system->getWaveFunction()->get_X(); //Gets visible nodes
@@ -61,6 +61,8 @@ arma::vec HarmonicOscillator::computeLocalEnergyGradient(){
     m_sigma = m_system->getWaveFunction()->getSigma();
     m_sigma2 = m_sigma*m_sigma;
 
+    m_nv = m_system->getNumberVisibleNodes();
+    m_nh = m_system->getNumberHiddenNodes();
 
     arma::vec O = m_b + (m_x.t()*m_w).t()*(1/((double) m_sigma*m_sigma));
     arma::vec dPsi; dPsi.zeros(m_nv + m_nh + m_nv*m_nh);
@@ -79,13 +81,9 @@ arma::vec HarmonicOscillator::computeLocalEnergyGradient(){
     int i = m_nv + m_nh;
     for (int j=0; j<m_nv; j++){
         for (int k=0; k<m_nh; k++){
-            dPsi[i] = m_x[i]/(exp(-O[j]) + 1)*(1/m_sigma2);
+            dPsi[i] = m_x[i]/(exp(-O[k]) + 1)*(1/m_sigma2);
             i++;
         }
-    }
-
-    for (int k=0; k<dPsi.size(); k++){
-        cout << dPsi[k] << endl;
     }
 
     return dPsi;

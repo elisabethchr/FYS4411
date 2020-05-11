@@ -18,10 +18,11 @@ public:
     arma::vec get_b(){ return m_b; }
     arma::mat get_w(){ return m_w; }
 
-
     double computeDoubleDerivative_analytic();
     double getDistance(int p, int q);
     double getSigma(){ return m_sigma; }
+    double getNumberVisibleNodes(){ return m_nv; }
+    double getNumberHiddenNodes(){ return m_nh; }
 
 private:
     void setupInitialState();
@@ -39,6 +40,8 @@ private:
     double m_term1;
     double m_term2;
     double m_sigma;
+    double m_nv;
+    double m_nh;
 
 
 };

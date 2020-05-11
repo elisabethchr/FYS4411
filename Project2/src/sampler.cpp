@@ -29,11 +29,15 @@ void Sampler::sample(bool acceptedStep) {
     // make sure the sampling variable(s) are initialized at the first step
 
     if (m_stepNumber == 0) {
+        m_nv = m_system->getNumberVisibleNodes();
+        m_nh = m_system->getNumberHiddenNodes();
         m_cumulativeEnergy = 0.0;
         m_cumulativeEnergy2 = 0.0;
         m_dPsi = 0.0;
         m_EdPsi = 0.0;
         t_anal = 0;
+        m_cumulative_dPsi.zeros(m_nh + m_nv + m_nh*m_nv);
+        m_cumulative_EdPsi.zeros(m_nh + m_nv + m_nh*m_nv);
     }
 
     //calculate cpu-time
@@ -69,6 +73,8 @@ void Sampler::computeAverages() {
     m_EdPsi = m_cumulative_EdPsi / m_stepNumber;
 
     // compute gradient
+//    cout << "<E x (1/psi)*dpsi/dx> = " << m_EdPsi << endl;
+//    cout << "<E> x <(1/psi)*dpsi/dx> = " << m_energy*m_dPsi << endl;
     m_gradE = 2*(m_EdPsi - m_energy*m_dPsi);
 
     // compute variance and error
@@ -79,7 +85,7 @@ void Sampler::computeAverages() {
 
 /* Optimize weights */
 void Sampler::optimizeWeights(){
-//    m_system->getOptimizer()->computeWeights(m_gradE);
+    m_system->getOptimizer()->computeWeights(m_gradE);
 }
 
 /* Display variables to terminal */
@@ -109,12 +115,14 @@ void Sampler::writeToFile(){
     int nh = m_system->getNumberVisibleNodes();
     int nP = m_system->getNumberParticles();
     int nD = m_system->getNumberDimensions();
-//    int timestep = m_system->getTimeStepIndex();
+    int h  = m_system->getStepLength();
+    //    int timestep = m_system->getTimeStepIndex();
 //    double dt = m_system->getTimeSteps()[timestep];
+    double eta    = m_system->getLearningRate();
     double nSteps = m_system->getNumberOfMetropolisSteps();
     bool solv = m_system->getSolver();
 
-    double energy = m_system->getEnergy();
+//    double energy = m_system->getEnergy();
 
     string solver;
     if(solv==true){ solver = "bruteForce"; }
@@ -127,31 +135,38 @@ void Sampler::writeToFile(){
     string arg3 = to_string(int(nSteps));
     string arg4 = to_string(int(nP));
     string arg5 = to_string(int(nD));
+    string arg6 = to_string(int(h));
+    string arg7 = to_string(int(eta));
 //    string arg4 = to_string(double(dt));
     filename.append(solver);
     filename.append("_");
-    filename.append("_nVisible_");
+    filename.append("_nv_");
     filename.append(arg1);
-    filename.append("_nHidden_");
+    filename.append("_nh_");
     filename.append(arg2);
-    filename.append("_nSteps_");
+    filename.append("_nMCsteps_");
     filename.append(arg3);
     filename.append("_nPart_");
     filename.append(arg4);
     filename.append("_nDim_");
     filename.append(arg5);
+    filename.append("_stepL_");
+    filename.append(arg6);
+    filename.append("_eta_");
+    filename.append(arg7);
     filename.append("_.txt");
 
-    if (m_system->getMetropolisStep() == 0){
+    if (m_system->getRBMstep() == 0){
         ofile.open(filename, ios::trunc | ios::out);
-        ofile << setw(10) << "M_{visible}" <<setw(15) << "N_{hidden}" << setw(15)<< "E" << endl;
+        ofile << setw(10) << "M_{visible}" <<setw(15) << "N_{hidden}" << setw(15)<< "<E>" << setw(15) << "<sigma2>" << endl;
     }else{ofile.open(filename, ios::app | ios::out);}
 
     if (ofile.is_open()){
         ofile << setiosflags(ios::showpoint | ios::uppercase);
         ofile << setw(10) << setprecision(8) << nv;
         ofile << setw(10) << setprecision(8) << nh;
-        ofile << setw(10) << setprecision(8) << energy;
+        ofile << setw(10) << setprecision(8) << m_energy;
+        ofile << setw(10) << setprecision(8) << m_variance;
         ofile.close();
     }else{
         cout << "Error opening file "<<filename << endl;

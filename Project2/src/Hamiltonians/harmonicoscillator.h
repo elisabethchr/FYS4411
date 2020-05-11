@@ -19,7 +19,7 @@ private:
     double m_sigma;         // error of gaussian distribution
     double m_sigma2;        // variance of gaussian distribution
     bool m_interaction;     // boolean for whether or not to include interaction
-    int m_nv = m_system->getNumberVisibleNodes();
-    int m_nh = m_system->getNumberHiddenNodes();
+    int m_nv;
+    int m_nh;
 };
 

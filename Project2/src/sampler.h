@@ -19,6 +19,7 @@ public:
 
 private:
     int     m_numberOfMetropolisSteps = 0;
+    int     m_nh, m_nv;
     double  m_stepNumber = 0;
     double  m_energy;   // mean energy
     double  m_energy2;  // mean energy^2

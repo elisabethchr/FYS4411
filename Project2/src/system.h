@@ -18,6 +18,7 @@ public:
     void setTimeSteps               (std::vector<double> timesteps){ m_timesteps = timesteps; }
     void setSolver                  (bool bruteForce){ m_solver = bruteForce; }
     void setEnergy                  (double localEnergy){m_energy = localEnergy;}
+    void setLearningRate            (double eta){ m_eta = eta; }
     void setHamiltonian             (class Hamiltonian* hamiltonian);
     void setWaveFunction            (class WaveFunction* waveFunction);
     void setOptimizer               (class Optimizer* optimizer);
@@ -34,11 +35,13 @@ public:
     int getNumberDimensions()           { return m_numberDimensions; }
     int getNumberOfMetropolisSteps()    { return m_numberOfMetropolisSteps; }
     int getTimeStepIndex()              { return m_timestep; }
+    int getRBMstep()                    { return m_RBMstep; }
     int getMetropolisStep()             { return m_stepMetropolis; }
     bool getSolver()                    { return m_solver; }
     double getEquilibrationFraction()   { return m_equilibrationFraction; }
     double getStepLength()              { return m_stepLength; }
     double getEnergy()                  { return m_energy; }
+    double getLearningRate()            { return m_eta; }
     double getEnergyDerivative()        { return m_derivativeE; }
     double getWaveFunctionValue()       { return m_wfValue; }
     double getUniform(double min, double max)    { std::uniform_real_distribution<float> gen(min, max); return gen(m_randomengine); }
@@ -47,8 +50,8 @@ public:
 
 
 private:
-    int                             m_numberHiddenNodes;
-    int                             m_numberVisibleNodes;
+    int                             m_numberHiddenNodes = 0;
+    int                             m_numberVisibleNodes = 0;
     int                             m_numberOfMetropolisSteps = 0;
     int                             m_RBMcycles = 0;
     int                             m_numberParticles = 0;
@@ -56,7 +59,7 @@ private:
     int                             m_timestep = 0;
     int                             m_acceptedSteps = 0;
     int                             m_stepMetropolis = 0;
-    int                             m_stepImportance = 0;
+    int                             m_RBMstep = 0;
     int                             m_MCstep;
     double                          m_acceptedSteps_ratio = 0.0;
     double                          m_equilibrationFraction = 0.0;
@@ -64,6 +67,7 @@ private:
     double                          m_energy = 0.0;
     double                          m_derivativeE = 0.0;
     double                          m_wfValue = 0.0;
+    double                          m_eta = 0.0;        // learning rate
     bool                            m_solver;
     class WaveFunction*             m_waveFunction = nullptr;
     class Hamiltonian*              m_hamiltonian = nullptr;

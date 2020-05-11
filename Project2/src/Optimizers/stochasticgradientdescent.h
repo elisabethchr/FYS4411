@@ -14,7 +14,7 @@ public:
 
 private:
     double m_eta;
-    arma::vec m_a;
-    arma::vec m_b;
-    arma::vec m_w;
+    arma::vec a;
+    arma::vec b;
+    arma::mat w;
 };
