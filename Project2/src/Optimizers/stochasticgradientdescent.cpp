@@ -25,6 +25,7 @@ void StochasticGradientDescent::computeWeights(arma::vec gradE){
     b = m_system->getWaveFunction()->get_b();
     w = m_system->getWaveFunction()->get_w();
 
+//    cout << "a = " << a << endl;
 
     for (int i=0; i<m_nv; i++){
         a[i] = a[i] - m_eta*gradE[i];
@@ -46,4 +47,8 @@ void StochasticGradientDescent::computeWeights(arma::vec gradE){
     m_system->getWaveFunction()->set_a(a);
     m_system->getWaveFunction()->set_b(b);
     m_system->getWaveFunction()->set_w(w);
+
+//    cout << "a = " << a << endl;
+//    cout << "get_a = " << m_system->getWaveFunction()->get_a() << endl;
+
 }

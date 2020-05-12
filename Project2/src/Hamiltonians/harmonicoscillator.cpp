@@ -34,7 +34,7 @@ double HarmonicOscillator::computeLocalEnergy(arma::vec X) {
 
     //    int particleCounter = 0;
     for(int i = 0; i<M; i++){
-        potentialEnergy += m_omega*m_omega*X[i]*X[i];
+        potentialEnergy += 0.5*m_omega*m_omega*X[i]*X[i];
     }
 
     // add interaction term if stated so
@@ -74,14 +74,14 @@ arma::vec HarmonicOscillator::computeLocalEnergyGradient(){
 
     // compute d(psi)/d(b)*1/psi
     for (int i=m_nv; i<m_nv+m_nh; i++){
-        dPsi[i] = 1/(exp(-O[i]) + 1);
+        dPsi[i] = 1.0/(exp(-O[i - m_nv]) + 1);
     }
 
     // compute d(psi)/d(w)*1/psi
     int i = m_nv + m_nh;
     for (int j=0; j<m_nv; j++){
         for (int k=0; k<m_nh; k++){
-            dPsi[i] = m_x[i]/(exp(-O[k]) + 1)*(1/m_sigma2);
+            dPsi[i] = m_x[j]/(exp(-O[k]) + 1)*(1.0/m_sigma2);
             i++;
         }
     }

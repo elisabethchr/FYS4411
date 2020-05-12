@@ -10,7 +10,7 @@
 using namespace std;
 using namespace arma;
 
-NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visible, int part, int dim, double sigma) :
+NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visible, int part, int dim, double sigma, bool gaussian) :
     WaveFunction(system) {
     assert(n_hidden > 0 && n_visible > 0);
     m_nh = n_hidden;
@@ -18,9 +18,11 @@ NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visib
     m_part = part;
     m_dim = dim;
     m_sigma = sigma;
+    m_gaussian = gaussian;
 
-    std::random_device rd;
-    m_randomEngine = std::mt19937_64(rd());
+    std::random_device seed;
+    mt19937_64 gen(seed());
+    mt19937_64 m_randomengine = gen;
 
     m_system->setNumberHiddenNodes(n_hidden);
     m_system->setNumberVisibleNodes(n_visible);
@@ -37,42 +39,66 @@ void NeuralQuantumState::setupInitialState(){
     m_b.zeros(m_nh);
     m_w.zeros(m_nv, m_nh);
 
-    std::uniform_int_distribution<int> uniform_weights(0,1.0);
-    std::uniform_real_distribution<double> uniform_position(-0.5,0.5);
+    std::uniform_real_distribution<double> uniform_weights(-1.0,1.0);
+    std::uniform_real_distribution<double> uniform_position(-1.0,1.0);
+    std::normal_distribution<double> normal_weights(0, 0.001);
 
-    for (int i=0; i<m_nv; i++){
-        m_x[i] = uniform_position(m_randomEngine);
-        m_a[i] = uniform_weights(m_randomEngine);
-//        cout << "m_a[" << i << "] = " << m_a[i] << endl;
+    // initialize weights according to either a uniform or gaussian distribution
+    if (m_gaussian == false){
+        for (int i=0; i<m_nv; i++){
+            m_a[i] = uniform_weights(m_randomEngine);
+            for (int j=0; j<m_nh; j++){
+                m_w(i, j) = uniform_weights(m_randomEngine);
+            }
+        }
+
         for (int j=0; j<m_nh; j++){
-            m_w(i, j) = uniform_weights(m_randomEngine);
+            m_b[j] = uniform_weights(m_randomEngine);
         }
     }
 
-    for (int j=0; j<m_nh; j++){
-        m_b[j] = uniform_weights(m_randomEngine);
-//        cout << "m_b[" << j << "] = " << m_b[j] << endl;
+    else if (m_gaussian == true){
+        for (int i=0; i<m_nv; i++){
+            m_a[i] = normal_weights(m_randomEngine);
+            for (int j=0; j<m_nh; j++){
+                m_w(i, j) = normal_weights(m_randomEngine);
+            }
+        }
+
+        for (int j=0; j<m_nh; j++){
+            m_b[j] = normal_weights(m_randomEngine);
+        }
     }
+
+    for (int i=0; i<m_nv; i++){
+        m_x[i] = uniform_position(m_randomEngine);
+    }
+
+    cout << "m_x = " << m_x << endl;
+    cout << "m_a = " << m_a << endl;
+    cout << "m_b = " << m_b << endl;
+    cout << "m_w = " << m_w << endl;
 }
+
 
 /* Evaluate wavefunction at a certain position */
 double NeuralQuantumState::evaluate(arma::vec position){
     m_term1 = 0.0;
     for (int i=0; i<m_nv; i++){
-//        cout << "position[" << i << "] = " << position[i] << endl;
-//        cout << "m_x[" << i << "] = " << m_x[i] << endl;
-        m_term1 -= (m_x[i] - m_a[i])*(m_x[i] - m_a[i]);
+        m_term1 += (position[i] - m_a[i])*(position[i] - m_a[i]);
     }
-    m_term1 = m_term1/(2*m_sigma*m_sigma);
+    m_term1 = exp(-m_term1/(2*m_sigma*m_sigma));
 
     m_term2 = 1.0;
-    O = m_b + ((m_x.t()*m_w).t()) / ((double) m_sigma*m_sigma);
+    O = m_b + ((position.t()*m_w).t()) / ((double) m_sigma*m_sigma);
     for (int j=0; j<m_nh; j++){
         m_term2 *= (1 + exp(O[j]));
     }
 
-    return exp(m_term1)*m_term2;
+    return m_term1*m_term2;
 }
+
+
 
 /* Compute the logistic function of x */
 double NeuralQuantumState::sigmoid(double x){
@@ -128,16 +154,36 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
         S_tilde[j] = sigmoid(v(j))*sigmoid(-v(j));
     }
 
-//    double term1 = ((m_x-m_a).t()*(m_x-m_a)).eval()(0, 0);
-//    double term2 = - 2*(S.t()*(m_w.t()*(m_x-m_a))).eval()(0, 0);
-//    double term3 = ((S.t()*m_w.t())*(m_w*S)).eval()(0, 0);
-//    double term4 = (one_vector.t()*(hadamardProd(m_w)*S_tilde)).eval()(0, 0);
-//    double term5 = M*(2*pow(m_sigma,2));
+    //double E_K = -1/(2*pow(m_sigma,4))*(((m_x-m_a).t()*(m_x-m_a) - 2*S.t()*(m_w.t()*(m_x-m_a)) + (S.t()*m_w.t())*(m_w*S) + one_vector.t()*(hadamardProd(m_w)*S_tilde)).eval()(0, 0) - M*(2*pow(m_sigma, 2)));
 
-//    double E = (-1/(2*pow(m_sigma,4))*(term1 + term2 + term3 + term4)) - M*(2*pow(m_sigma, 2));
-    double E_K = -1/(2*pow(m_sigma,4))*((m_x-m_a).t()*(m_x-m_a) - 2*S.t()*(m_w.t()*(m_x-m_a)) + (S.t()*m_w.t())*(m_w*S) + one_vector.t()*(hadamardProd(m_w)*S_tilde)).eval()(0, 0)*(- M*(2*pow(m_sigma,2)));
+    arma::vec O = m_b + (m_x.t()*m_w).t()/(m_sigma*m_sigma);
 
-//    cout << "E = " << E << endl;
+    double Ek = 0.0;
+    double term1 = 0.0;
+    double term2 = 0.0;
+    double term3 = 0.0;
+    double term4 = 0.0;
+    for (int i=0; i<m_nv; i++){
+        double sum1 = 0.0;
+        double sum2 = 0.0;
+        double sum3 = 0.0;
+        for (int j=0; j<m_nh; j++){
+            sum1 += m_w(i, j)*S[j];
+            sum2 += m_w(i, j)*m_w(i, j)*S[j];
+            sum3 += m_w(i, j)*m_w(i, j)*S_tilde[j];
+        }
+        term1 += (m_x[i] - m_a[i])*(m_x[i] - m_a[i]);
+        term2 += -2*(m_x[i] - m_a[i])*sum1;
+        term3 += sum2;
+        term4 += sum3;
+    }
+
+    Ek = -1.0/(2*pow(m_sigma, 4))*(term1 + term2 + term3 + term4) + m_nv/(2*m_sigma*m_sigma);
+//    cout << "Ek = " << E << endl;
 //    cout << "E_K = " << E_K << endl;
-    return E_K;
+    return Ek;
+
 }
+
+
+

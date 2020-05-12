@@ -27,7 +27,6 @@ void Sampler::setNumberOfMetropolisSteps(int steps) {
 
 void Sampler::sample(bool acceptedStep) {
     // make sure the sampling variable(s) are initialized at the first step
-
     if (m_stepNumber == 0) {
         m_nv = m_system->getNumberVisibleNodes();
         m_nh = m_system->getNumberHiddenNodes();
@@ -100,7 +99,7 @@ void Sampler::printOutputToTerminal() {
     cout << " Number of visible nodes  : " << nv << endl;
     cout << " Number of hidden nodes : " << nh << endl;
     cout << " Number of Metropolis steps run : 10^" << std::log10(ms) << endl;
-    cout << " Number of equilibration steps  : 10^" << std::log10(std::round(ms*ef)) << endl;
+    cout << " Number of equilibration steps  : 10^" << std::log10(std::round(ef)) << endl;
     cout << endl;
     cout << "  -- Results -- " << endl;
     cout << " Energy : " << m_energy << endl;
@@ -135,8 +134,8 @@ void Sampler::writeToFile(){
     string arg3 = to_string(int(nSteps));
     string arg4 = to_string(int(nP));
     string arg5 = to_string(int(nD));
-    string arg6 = to_string(int(h));
-    string arg7 = to_string(int(eta));
+    string arg6 = to_string(float(h));
+    string arg7 = to_string(float(eta));
 //    string arg4 = to_string(double(dt));
     filename.append(solver);
     filename.append("_");
@@ -164,9 +163,9 @@ void Sampler::writeToFile(){
     if (ofile.is_open()){
         ofile << setiosflags(ios::showpoint | ios::uppercase);
         ofile << setw(10) << setprecision(8) << nv;
-        ofile << setw(10) << setprecision(8) << nh;
-        ofile << setw(10) << setprecision(8) << m_energy;
-        ofile << setw(10) << setprecision(8) << m_variance;
+        ofile << setw(15) << setprecision(8) << nh;
+        ofile << setw(15) << setprecision(8) << m_energy;
+        ofile << setw(15) << setprecision(8) << m_variance << endl;
         ofile.close();
     }else{
         cout << "Error opening file "<<filename << endl;

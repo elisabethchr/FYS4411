@@ -5,7 +5,7 @@
 
 class NeuralQuantumState : public WaveFunction {
 public:
-    NeuralQuantumState(class System* system, int n_hidden, int n_visible, int part, int dim, double sigma);
+    NeuralQuantumState(class System* system, int n_hidden, int n_visible, int part, int dim, double sigma, bool gaussian);
     double evaluate(arma::vec position);
 
     arma::vec set_X(arma::vec X){ m_x = X; }
@@ -43,5 +43,5 @@ private:
     double m_nv;
     double m_nh;
 
-
+    bool m_gaussian;      // determines distribution of weights (either uniform or normal)
 };

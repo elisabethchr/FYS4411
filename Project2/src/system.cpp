@@ -35,19 +35,15 @@ bool System::bruteForce() {
     // compute change in coordinates from uniform distribution
     randu = getUniform(-1.0, 1.0);
 
-    //    cout << "Current Xtrial: " << endl;
-    //    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
-
     // evaluate wavefunction before and after change of coordinates
-    //    double oldWaveFunction = m_waveFunction->evaluate(Xtrial);
 
     double currentWaveFunction = m_wfValue;
     Xtrial[coor] += randu*m_stepLength;
-    m_waveFunction->set_X(Xtrial);
+    //    m_waveFunction->set_X(Xtrial);
 
     double trialWaveFunction = m_waveFunction->evaluate(Xtrial);
-    //    cout << "oldWavefunction = " << currentWaveFunction << endl;
-    //    cout << "newWavefunction = " << trialWaveFunction << endl;
+//    cout << "oldWavefunction = " << currentWaveFunction << endl;
+//    cout << "newWavefunction = " << trialWaveFunction << endl;
 
     double ratio = (trialWaveFunction*trialWaveFunction)/(currentWaveFunction*currentWaveFunction); //Fix: can simplify expression to save cpu cycles
 
@@ -57,7 +53,7 @@ bool System::bruteForce() {
 
     // if true, allow the new state with adjusted positions
     if(s<ratio){
-        //        m_waveFunction->set_X(Xtrial);
+        m_waveFunction->set_X(Xtrial);
         m_wfValue = trialWaveFunction;
 
         return true;
@@ -65,8 +61,8 @@ bool System::bruteForce() {
 
     // if false, reject the new state and reset positions
     else{
-        Xtrial[coor] -= randu*m_stepLength;
-        m_waveFunction->set_X(Xtrial);
+        //        Xtrial[coor] -= randu*m_stepLength;
+        //        m_waveFunction->set_X(Xtrial);
         m_wfValue = currentWaveFunction;
 
         return false;
@@ -181,7 +177,7 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
             //            if (i>= m_equilibrationFraction){ m_sampler->writeStepToFile(m_stepMetropolis, i); }
 
             // Only interested in sampling the final optimization cycle
-            if (i == m_numberOfMetropolisSteps - 1){ m_sampler->writeToFile(); }
+            //            if (i == m_numberOfMetropolisSteps - 1){ m_sampler->writeToFile(); }
 
             m_MCstep++;
         }
@@ -224,14 +220,6 @@ void System::setWaveFunction(WaveFunction* waveFunction) {
     m_waveFunction = waveFunction;
 }
 
-void System::setInitialState(InitialState* initialState) {
-    m_initialState = initialState;
-}
-
 void System::setOptimizer(Optimizer* optimizer){
     m_optimizer = optimizer;
 }
-
-//void System::setSampler(Sampler* sampler){
-//    m_sampler = sampler;
-//}

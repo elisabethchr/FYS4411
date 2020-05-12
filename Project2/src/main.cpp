@@ -38,10 +38,10 @@ int main() {
 
 /////////////////////////////////////////////////////////////////////////////
 /// Bools to determine program flow
-    bool bruteForce = true;         // set type of solver (brute force or importance sampling)
-    bool interaction = false;       // if interaction should be included or not
+    bool bruteForce = true;             // set type of solver (brute force or importance sampling)
+    bool interaction = false;           // if interaction should be included or not
+    bool GaussianDistribution = false;   // distribution of weights (either uniform or gaussian)
 
-    bool alphaVec = false;          // sets alpha to a vector
     bool dtVec = false;             // sets dt to a vector
     bool nSteps = false;            // sets numberOfSteps to a vector
 
@@ -69,14 +69,14 @@ int main() {
     int P = 1;      // number of particles
     int D = 1;      // number of dimensions
 
-    int RBM_cycles = pow(2, 10);  // number of sampling cycles
+    int RBM_cycles = 100; // pow(2, 10);  // number of sampling cycles
     int nVisible  = P*D;    // number of visible nodes
     int nHidden   = 2;      // number of hidden nodes
     double omega            = 1.0;          // Oscillator frequency
-    double stepLength       = 2.5;          // Metropolis step length
+    double stepLength       = 0.45;          // Metropolis step length
     double sigma            = 1.0;          // error of Gaussian distribution
     double equilibration    = pow(2, eq);   // Amount of the total steps used for equilibration.
-    double eta            = 0.01;          // Learning rate
+    double eta            = 0.001;          // Learning rate
 
     cout << "********************************************************" << endl;
     cout << endl;
@@ -91,9 +91,8 @@ int main() {
 //    system->setTimeSteps                (timestep);
     system->setSolver                   (bruteForce);
     system->setHamiltonian              (new HarmonicOscillator(system, omega, interaction));
-    system->setWaveFunction             (new NeuralQuantumState(system, nHidden, nVisible, P, D, sigma));
+    system->setWaveFunction             (new NeuralQuantumState(system, nHidden, nVisible, P, D, sigma, GaussianDistribution));
     system->setOptimizer                (new StochasticGradientDescent(system, eta));
-    //system->setSampler                  (new Sampler(system));
     system->setEquilibrationFraction    (equilibration);
     system->setStepLength               (stepLength);
     system->runMetropolisSteps          (RBM_cycles, MC_cycles);
