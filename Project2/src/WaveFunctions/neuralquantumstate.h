@@ -23,6 +23,7 @@ public:
     double getSigma(){ return m_sigma; }
     double getNumberVisibleNodes(){ return m_nv; }
     double getNumberHiddenNodes(){ return m_nh; }
+    bool getGaussian(){ return m_gaussian; }
 
 private:
     void setupInitialState();

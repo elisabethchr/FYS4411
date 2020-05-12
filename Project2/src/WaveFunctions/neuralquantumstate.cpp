@@ -5,7 +5,6 @@
 #include "neuralquantumstate.h"
 #include "wavefunction.h"
 #include "../system.h"
-#include "../particle.h"
 
 using namespace std;
 using namespace arma;

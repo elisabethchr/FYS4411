@@ -21,6 +21,7 @@ public:
     virtual double computeDoubleDerivative_analytic() = 0;
     virtual double getDistance(int p, int q) = 0;
     virtual double getSigma() = 0;
+    virtual bool getGaussian() = 0;
 
 protected:
     class System* m_system = nullptr;
