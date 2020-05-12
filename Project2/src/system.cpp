@@ -6,7 +6,6 @@
 #include <armadillo>
 #include <algorithm>    // std::max
 #include "sampler.h"
-#include "particle.h"
 #include "WaveFunctions/wavefunction.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "Optimizers/optimizer.h"
@@ -23,33 +22,19 @@ bool System::bruteForce() {
 
     if(m_MCstep == 0){
         m_wfValue = m_waveFunction->evaluate(Xtrial);
-        cout << "m_wfValue0 = " << m_wfValue << endl;
+        //        cout << "m_wfValue0 = " << m_wfValue << endl;
     }
-
+    double currentWaveFunction = m_wfValue;
     // draw a random coordinate
     coor = Random::nextInt(m_numberVisibleNodes);        // number of visible nodes
-
     // compute weight
     s = Random::nextDouble();
-
     // compute change in coordinates from uniform distribution
     randu = getUniform(-1.0, 1.0);
-
-    // evaluate wavefunction before and after change of coordinates
-
-    double currentWaveFunction = m_wfValue;
     Xtrial[coor] += randu*m_stepLength;
-    //    m_waveFunction->set_X(Xtrial);
-
+    // evaluate wavefunction after change of coordinates
     double trialWaveFunction = m_waveFunction->evaluate(Xtrial);
-//    cout << "oldWavefunction = " << currentWaveFunction << endl;
-//    cout << "newWavefunction = " << trialWaveFunction << endl;
-
     double ratio = (trialWaveFunction*trialWaveFunction)/(currentWaveFunction*currentWaveFunction); //Fix: can simplify expression to save cpu cycles
-
-    //    cout << "New Xtrial: " << endl;
-    //    for (int i=0; i<Xtrial.size(); i++){ cout << Xtrial[i] << endl; }
-
 
     // if true, allow the new state with adjusted positions
     if(s<ratio){
@@ -59,10 +44,8 @@ bool System::bruteForce() {
         return true;
     }
 
-    // if false, reject the new state and reset positions
+    // if false, reject the new state and change of coordinates
     else{
-        //        Xtrial[coor] -= randu*m_stepLength;
-        //        m_waveFunction->set_X(Xtrial);
         m_wfValue = currentWaveFunction;
 
         return false;
@@ -154,6 +137,7 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
         cout << "---------------------------------------" << endl;
         cout << "RBM cycle = " << cycle << endl;
         cout << "---------------------------------------" << endl;
+        m_stepMetropolis = 0;
         // run Metropolis algorithm
         m_acceptedSteps = 0;
         for (int i=0; i < m_numberOfMetropolisSteps; i++) {
@@ -164,23 +148,26 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
             if (m_solver==true){ acceptedStep = bruteForce(); }
             else if (m_solver==false){ acceptedStep = importanceSampling(); }
 
-            // sample accepted steps
+            // sample steps
             if (acceptedStep == true){
                 m_acceptedSteps++;
-                // allow for equilibration of energy (~5% of Metropolis steps)
-                if (i >= m_equilibrationFraction){        // m_equilibrationFraction - 100
-                    m_sampler->sample(acceptedStep);
-                    m_stepMetropolis++;
-                }
             }
 
-            //            if (i>= m_equilibrationFraction){ m_sampler->writeStepToFile(m_stepMetropolis, i); }
+            // allow for equilibration of energy (~10% of Metropolis steps)
+            if (i >= m_equilibrationFraction){        // m_equilibrationFraction - 100
+                m_sampler->sample(acceptedStep);
 
-            // Only interested in sampling the final optimization cycle
-            //            if (i == m_numberOfMetropolisSteps - 1){ m_sampler->writeToFile(); }
+                // Only interested in sampling the final optismization cycle
+                if (cycle == RBM_cycles - 1 ){//|| cycle == 1){
+                    string filename_blocking = "../data/b/2b_blockingSteps_";// + to_string(cycle) + "_";
+                    m_sampler->writeStepToFile(m_stepMetropolis, m_stepMetropolis, filename_blocking); }
 
+                m_stepMetropolis++;
+            }
             m_MCstep++;
         }
+        string filename_RBM = "../data/b/2b_RBMcycles_";
+        m_sampler->writeToFile(cycle, cycle, filename_RBM);
         m_sampler->computeAverages();
         m_sampler->printOutputToTerminal();
         m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
