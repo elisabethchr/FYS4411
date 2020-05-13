@@ -135,7 +135,6 @@ double NeuralQuantumState::getDistance(int p, int q){
     }
 
     return sqrt(dist);
-
 }
 
 /* Compute the double derivative of psi wrt. position coordinates*/
@@ -157,6 +156,8 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
 
     arma::vec O = m_b + (m_x.t()*m_w).t()/(m_sigma*m_sigma);
 
+
+    /* (Vår form for energi fra rapporten) */
     double Ek = 0.0;
     double term1 = 0.0;
     double term2 = 0.0;
@@ -178,9 +179,30 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
     }
 
     Ek = -1.0/(2*pow(m_sigma, 4))*(term1 + term2 + term3 + term4) + m_nv/(2*m_sigma*m_sigma);
-//    cout << "Ek = " << E << endl;
+
+
+
+    /* (Morten's form for energi) */
+    double E_K = 0.0;
+    double term1_ = 0.0;
+    double term2_ = 0.0;
+    for(int i=0; i<m_nv; i++){
+        double sum1 = 0.0;
+        double sum2 = 0.0;
+        for (int j=0; j<m_nh; j++){
+            sum1 += m_w(i, j)*S[j];
+            sum2 += m_w(i, j)*m_w(i, j)*S_tilde[j];
+        }
+        term1_ += -(m_x[i] - m_a[i])/(m_sigma*m_sigma) + sum1/(m_sigma*m_sigma);
+        term2_ += sum2/(pow(m_sigma,4)) - 1.0/(m_sigma*m_sigma);
+    }
+
+    E_K = -0.5*(term1_*term1_ + term2_);
+//    cout << "Ek = " << Ek << endl;
 //    cout << "E_K = " << E_K << endl;
-    return Ek;
+//    return E_K;
+
+    return E_K;
 
 }
 
