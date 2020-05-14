@@ -55,7 +55,6 @@ int main() {
         timestep.push_back(0.45);       //Set scalar dt value here
     }
 
-
     // set number of Metropolis steps
     if (nSteps){
         for(int i=0; i<k+1; i++){ MC_cycles.push_back(pow(2, 10+i)); cout << "2^" << 10+i << " = " << MC_cycles[i] << endl;}
@@ -81,8 +80,8 @@ int main() {
     arma::vec nh = {2};//{2, 4, 6, 8, 10, 12, 14, 16, 18, 20};
 
     string filename;
-    if (nh.size() > 1){ filename = "../data/b/hiddenNodes/2b_hiddenNodes_"; }
-    else if(rates.size() > 1){ filename = "../data/b/learningRate/2b_learningRate_"; }
+    if (nh.size() > 1){ filename = "../data/b/hiddenNodes/2bNewInitialization_hiddenNodes_newInitialization"; }
+    else if(rates.size() > 1){ filename = "../data/b/learningRate/2bNewInitialization_learningRate_"; }
 
     string solver;
     if(bruteForce==true){ solver = "bruteForce"; }

@@ -159,15 +159,15 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
 
                 // Only interested in sampling the final optismization cycle
                 if (cycle == RBM_cycles - 1 ){//|| cycle == 1){
-                    string filename_blocking = "../data/b/blocking/2b_blockingSteps_";// + to_string(cycle) + "_";
-                    m_sampler->writeStepToFile(m_sampleStep, m_sampleStep, filename_blocking);
+                    string filename_blocking = "../data/b/blocking/2bNewInitialization_blockingSteps_";// + to_string(cycle) + "_";
+                    //m_sampler->writeStepToFile(m_sampleStep, m_sampleStep, filename_blocking);
                 }
                 m_sampleStep++;
             }
             m_MCstep++;
         }
-        string filename_RBM = "../data/b/RBM/2b_RBMcycles_";
-        m_sampler->writeToFile(cycle, cycle, filename_RBM);
+        string filename_RBM = "../data/b/RBM/2bNewInitialization_RBMcycles_";
+//        m_sampler->writeToFile(cycle, cycle, filename_RBM);
         m_sampler->computeAverages();
         m_sampler->printOutputToTerminal();
         m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);

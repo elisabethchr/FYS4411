@@ -38,7 +38,8 @@ void NeuralQuantumState::setupInitialState(){
     m_b.zeros(m_nh);
     m_w.zeros(m_nv, m_nh);
 
-    std::uniform_real_distribution<double> uniform_weights(-1.0,1.0);
+//    std::uniform_real_distribution<double> uniform_weights(-0.10 ,0.10);
+    std::uniform_real_distribution<double> uniform_weights(-0.10 ,0.10);
     std::uniform_real_distribution<double> uniform_position(-0.5, 0.5);
     std::normal_distribution<double> normal_weights(0, 0.001);
 
