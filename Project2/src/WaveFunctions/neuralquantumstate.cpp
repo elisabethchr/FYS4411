@@ -39,7 +39,7 @@ void NeuralQuantumState::setupInitialState(){
     m_w.zeros(m_nv, m_nh);
 
     std::uniform_real_distribution<double> uniform_weights(-1.0,1.0);
-    std::uniform_real_distribution<double> uniform_position(-1.0,1.0);
+    std::uniform_real_distribution<double> uniform_position(-0.5, 0.5);
     std::normal_distribution<double> normal_weights(0, 0.001);
 
     // initialize weights according to either a uniform or gaussian distribution
@@ -72,11 +72,6 @@ void NeuralQuantumState::setupInitialState(){
     for (int i=0; i<m_nv; i++){
         m_x[i] = uniform_position(m_randomEngine);
     }
-
-    cout << "m_x = " << m_x << endl;
-    cout << "m_a = " << m_a << endl;
-    cout << "m_b = " << m_b << endl;
-    cout << "m_w = " << m_w << endl;
 }
 
 
@@ -152,12 +147,8 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
         S_tilde[j] = sigmoid(v(j))*sigmoid(-v(j));
     }
 
-    //double E_K = -1/(2*pow(m_sigma,4))*(((m_x-m_a).t()*(m_x-m_a) - 2*S.t()*(m_w.t()*(m_x-m_a)) + (S.t()*m_w.t())*(m_w*S) + one_vector.t()*(hadamardProd(m_w)*S_tilde)).eval()(0, 0) - M*(2*pow(m_sigma, 2)));
-
     arma::vec O = m_b + (m_x.t()*m_w).t()/(m_sigma*m_sigma);
 
-
-    /* (Vår form for energi fra rapporten) */
     double Ek = 0.0;
     double term1 = 0.0;
     double term2 = 0.0;
@@ -169,40 +160,18 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
         double sum3 = 0.0;
         for (int j=0; j<m_nh; j++){
             sum1 += m_w(i, j)*S[j];
-            sum2 += m_w(i, j)*m_w(i, j)*S[j];
+            sum2 += m_w(i, j)*S[j];
             sum3 += m_w(i, j)*m_w(i, j)*S_tilde[j];
         }
         term1 += (m_x[i] - m_a[i])*(m_x[i] - m_a[i]);
         term2 += -2*(m_x[i] - m_a[i])*sum1;
-        term3 += sum2;
+        term3 += sum2*sum2;
         term4 += sum3;
     }
 
     Ek = -1.0/(2*pow(m_sigma, 4))*(term1 + term2 + term3 + term4) + m_nv/(2*m_sigma*m_sigma);
 
-
-
-    /* (Morten's form for energi) */
-    double E_K = 0.0;
-    double term1_ = 0.0;
-    double term2_ = 0.0;
-    for(int i=0; i<m_nv; i++){
-        double sum1 = 0.0;
-        double sum2 = 0.0;
-        for (int j=0; j<m_nh; j++){
-            sum1 += m_w(i, j)*S[j];
-            sum2 += m_w(i, j)*m_w(i, j)*S_tilde[j];
-        }
-        term1_ += -(m_x[i] - m_a[i])/(m_sigma*m_sigma) + sum1/(m_sigma*m_sigma);
-        term2_ += sum2/(pow(m_sigma,4)) - 1.0/(m_sigma*m_sigma);
-    }
-
-    E_K = -0.5*(term1_*term1_ + term2_);
-//    cout << "Ek = " << Ek << endl;
-//    cout << "E_K = " << E_K << endl;
-//    return E_K;
-
-    return E_K;
+    return Ek;
 
 }
 

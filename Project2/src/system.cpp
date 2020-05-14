@@ -123,7 +123,6 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
     m_numberOfMetropolisSteps = numberOfMetropolisSteps[0];
     m_RBMcycles = RBM_cycles;
     m_MCstep = 0;
-    m_stepMetropolis = 0.0;
     m_acceptedSteps = 0.0;
     m_sampler = new Sampler(this);
     m_sampler->setNumberOfMetropolisSteps(m_numberOfMetropolisSteps);
@@ -137,7 +136,8 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
         cout << "---------------------------------------" << endl;
         cout << "RBM cycle = " << cycle << endl;
         cout << "---------------------------------------" << endl;
-        m_stepMetropolis = 0;
+        m_MCstep = 0;
+        m_sampleStep = 0;
         // run Metropolis algorithm
         m_acceptedSteps = 0;
         for (int i=0; i < m_numberOfMetropolisSteps; i++) {
@@ -159,14 +159,14 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
 
                 // Only interested in sampling the final optismization cycle
                 if (cycle == RBM_cycles - 1 ){//|| cycle == 1){
-                    string filename_blocking = "../data/b/2b_blockingSteps_";// + to_string(cycle) + "_";
-                    m_sampler->writeStepToFile(m_stepMetropolis, m_stepMetropolis, filename_blocking); }
-
-                m_stepMetropolis++;
+                    string filename_blocking = "../data/b/blocking/2b_blockingSteps_";// + to_string(cycle) + "_";
+                    m_sampler->writeStepToFile(m_sampleStep, m_sampleStep, filename_blocking);
+                }
+                m_sampleStep++;
             }
             m_MCstep++;
         }
-        string filename_RBM = "../data/b/2b_RBMcycles_";
+        string filename_RBM = "../data/b/RBM/2b_RBMcycles_";
         m_sampler->writeToFile(cycle, cycle, filename_RBM);
         m_sampler->computeAverages();
         m_sampler->printOutputToTerminal();

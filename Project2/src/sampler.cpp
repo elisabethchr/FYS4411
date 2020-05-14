@@ -46,8 +46,6 @@ void Sampler::sample(bool acceptedStep) {
     double localEnergy = m_system->getHamiltonian()->computeLocalEnergy(X);
     arma::vec dPsi = m_system->getHamiltonian()->computeLocalEnergyGradient();
 
-    m_system->setEnergy(localEnergy);
-
     clock_t c_end1 = clock();
     double t = (c_end1 - c_start1);
     t_num += t;
@@ -89,14 +87,17 @@ void Sampler::printOutputToTerminal() {
     int     nv = m_system->getNumberVisibleNodes();
     int     nh = m_system->getNumberHiddenNodes();
     int     ms = m_system->getNumberOfMetropolisSteps();
+    int     bm = m_system->getNumberRBMcycles();
     double  ef = m_system->getEquilibrationFraction();
 
     cout << endl;
     cout << "  -- System info -- " << endl;
     cout << " Number of visible nodes  : " << nv << endl;
     cout << " Number of hidden nodes : " << nh << endl;
+    cout << " Number of RBM cycles run : " << bm << endl;
     cout << " Number of Metropolis steps run : 10^" << std::log10(ms) << endl;
     cout << " Number of equilibration steps  : 10^" << std::log10(std::round(ef)) << endl;
+    cout << "Learning rate: " << m_system->getLearningRate() << endl;
     cout << endl;
     cout << "  -- Results -- " << endl;
     cout << " Energy : " << m_energy << endl;
@@ -108,7 +109,7 @@ void Sampler::printOutputToTerminal() {
 void Sampler::writeToFile(int step, int steps, string filename){
 
     int nv = m_system->getNumberVisibleNodes();
-    int nh = m_system->getNumberVisibleNodes();
+    int nh = m_system->getNumberHiddenNodes();
     int nP = m_system->getNumberParticles();
     int nD = m_system->getNumberDimensions();
     int h  = m_system->getStepLength();
@@ -126,6 +127,8 @@ void Sampler::writeToFile(int step, int steps, string filename){
     string gaussian;
     if(gauss == true){ gaussian = "normal"; }
     else if(gauss == false){ gaussian = "uniform"; }
+
+    cout << "nh = " << nh << endl;
 
     ofstream ofile;
 //    string filename = "../data/b/Steps_";
@@ -174,7 +177,7 @@ void Sampler::writeToFile(int step, int steps, string filename){
 /* Write sampled quantities for each Metropolis step to file */
 void Sampler::writeStepToFile(int step, int steps, string filename){
     int nv = m_system->getNumberVisibleNodes();
-    int nh = m_system->getNumberVisibleNodes();
+    int nh = m_system->getNumberHiddenNodes();
     int nP = m_system->getNumberParticles();
     int nD = m_system->getNumberDimensions();
     int h  = m_system->getStepLength();
@@ -192,6 +195,8 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
     string gaussian;
     if(gauss == true){ gaussian = "normal"; }
     else if(gauss == false){ gaussian = "uniform"; }
+
+    cout << nh << endl;
 
     ofstream ofile;
 //    string filename = "../data/b/Steps_";
@@ -225,12 +230,13 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
     if (steps == 0){
         ofile.open(filename, ios::trunc | ios::out);
         ofile << setw(10) << "steps" <<setw(15) << "Energy" << endl;
+        cout << "step = " << step << ", m_deltaEnergy = " << m_deltaEnergy << endl;
     }
     else{ofile.open(filename, ios::app | ios::out);}
 
     ofile << setiosflags(ios::showpoint | ios::uppercase);
     ofile << setw(10) << setprecision(8) << step;
-    ofile << setw(15) << setprecision(8) << m_deltaEnergy;
+    ofile << setw(15) << setprecision(8) << m_deltaEnergy << endl;
     ofile.close();
 }
 
@@ -240,7 +246,7 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
 void Sampler::writeTimeStepToFile(string filename){
 
     int i = m_system->getTimeStepIndex();
-    int step = m_system->getMetropolisStep();
+    int step = m_system->getSampleStep();
     double nParticles = m_system->getNumberParticles();
     double nDim = m_system->getNumberDimensions();
     double nSteps = m_system->getNumberOfMetropolisSteps();

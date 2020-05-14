@@ -17,6 +17,7 @@ public:
     void writeToFile(int step, int steps, string filename);
     void writeStepToFile(int step, int steps, string filename);
     void writeTimeStepToFile(string filename);
+    double getEnergy(){ return m_energy; }
 
 
 

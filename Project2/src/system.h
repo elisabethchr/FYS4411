@@ -17,7 +17,6 @@ public:
     void setWaveFunctionValue       (double waveFunction);
     void setTimeSteps               (std::vector<double> timesteps){ m_timesteps = timesteps; }
     void setSolver                  (bool bruteForce){ m_solver = bruteForce; }
-    void setEnergy                  (double localEnergy){m_energy = localEnergy;}
     void setLearningRate            (double eta){ m_eta = eta; }
     void setHamiltonian             (class Hamiltonian* hamiltonian);
     void setWaveFunction            (class WaveFunction* waveFunction);
@@ -34,13 +33,14 @@ public:
     int getNumberParticles()            { return m_numberParticles; }
     int getNumberDimensions()           { return m_numberDimensions; }
     int getNumberOfMetropolisSteps()    { return m_numberOfMetropolisSteps; }
+    int getNumberRBMcycles()            { return m_RBMcycles; }
     int getTimeStepIndex()              { return m_timestep; }
     int getRBMstep()                    { return m_RBMstep; }
-    int getMetropolisStep()             { return m_stepMetropolis; }
+    int getMetropolisStep()             { return m_MCstep; }
+    int getSampleStep()                 { return m_sampleStep; }
     bool getSolver()                    { return m_solver; }
     double getEquilibrationFraction()   { return m_equilibrationFraction; }
     double getStepLength()              { return m_stepLength; }
-    double getEnergy()                  { return m_energy; }
     double getLearningRate()            { return m_eta; }
     double getEnergyDerivative()        { return m_derivativeE; }
     double getWaveFunctionValue()       { return m_wfValue; }
@@ -58,13 +58,12 @@ private:
     int                             m_numberDimensions = 0;
     int                             m_timestep = 0;
     int                             m_acceptedSteps = 0;
-    int                             m_stepMetropolis = 0;
     int                             m_RBMstep = 0;
     int                             m_MCstep;
+    int                             m_sampleStep;
     double                          m_acceptedSteps_ratio = 0.0;
     double                          m_equilibrationFraction = 0.0;
     double                          m_stepLength = 0.1;
-    double                          m_energy = 0.0;
     double                          m_derivativeE = 0.0;
     double                          m_wfValue = 0.0;
     double                          m_eta = 0.0;        // learning rate

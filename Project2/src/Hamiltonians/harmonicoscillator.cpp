@@ -62,9 +62,9 @@ arma::vec HarmonicOscillator::computeLocalEnergyGradient(){
     m_sigma2 = m_sigma*m_sigma;
 
     m_nv = m_system->getNumberVisibleNodes();
+    arma::vec O = m_b + (m_x.t()*m_w).t()*(1/((double) m_sigma*m_sigma));
     m_nh = m_system->getNumberHiddenNodes();
 
-    arma::vec O = m_b + (m_x.t()*m_w).t()*(1/((double) m_sigma*m_sigma));
     arma::vec dPsi; dPsi.zeros(m_nv + m_nh + m_nv*m_nh);
 
     // compute d(psi)/d(a)*1/psi
