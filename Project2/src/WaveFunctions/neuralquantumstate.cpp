@@ -9,7 +9,7 @@
 using namespace std;
 using namespace arma;
 
-NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visible, int part, int dim, double sigma, bool gaussian) :
+NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visible, int part, int dim, double sigma, bool gaussian, double initialization) :
     WaveFunction(system) {
     assert(n_hidden > 0 && n_visible > 0);
     m_nh = n_hidden;
@@ -18,6 +18,7 @@ NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visib
     m_dim = dim;
     m_sigma = sigma;
     m_gaussian = gaussian;
+    m_initialization = initialization;
 
     std::random_device seed;
     mt19937_64 gen(seed());
@@ -38,10 +39,12 @@ void NeuralQuantumState::setupInitialState(){
     m_b.zeros(m_nh);
     m_w.zeros(m_nv, m_nh);
 
-//    std::uniform_real_distribution<double> uniform_weights(-0.10 ,0.10);
-    std::uniform_real_distribution<double> uniform_weights(-0.10 ,0.10);
+//    std::uniform_real_distribution<double> uniform_weights(-1.0 ,1.0); //original
+//    std::uniform_real_distribution<double> uniform_weights(-0.10 ,0.10); // new initialization
+//    std::uniform_real_distribution<double> uniform_weights(-1e-7, 1e-7); // new initialization 1e-7
+    std::uniform_real_distribution<double> uniform_weights(-m_initialization, m_initialization);
     std::uniform_real_distribution<double> uniform_position(-0.5, 0.5);
-    std::normal_distribution<double> normal_weights(0, 0.001);
+    std::normal_distribution<double> normal_weights(0, m_initialization);
 
     // initialize weights according to either a uniform or gaussian distribution
     if (m_gaussian == false){
@@ -133,7 +136,22 @@ double NeuralQuantumState::getDistance(int p, int q){
     return sqrt(dist);
 }
 
-/* Compute the double derivative of psi wrt. position coordinates*/
+/* Compute the derivative of psi wrt. position coordinates (d(ln psi)/d(X_i)) */
+double NeuralQuantumState::computeDerivative_analytic(arma::vec position, int coor){
+
+    arma::vec O = m_b + (m_x.t()*m_w).t()/(m_sigma*m_sigma);
+
+    double deriv=0.0;
+    double sum1 = 0.0;
+    for(int j=0; j<m_nh; j++){
+        sum1 += m_w(coor, j)/(m_sigma*m_sigma*(1.0+exp(-O[j])));
+    }
+    deriv = -(position[coor]-m_a[coor])/(m_sigma*m_sigma) + sum1/(m_sigma*m_sigma);
+
+    return deriv;
+}
+
+/* Compute the double derivative of psi wrt. position coordinates */
 double NeuralQuantumState::computeDoubleDerivative_analytic(){
 
     int M = m_system->getNumberVisibleNodes();
@@ -175,6 +193,8 @@ double NeuralQuantumState::computeDoubleDerivative_analytic(){
     return Ek;
 
 }
+
+
 
 
 

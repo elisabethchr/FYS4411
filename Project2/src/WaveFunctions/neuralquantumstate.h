@@ -5,7 +5,7 @@
 
 class NeuralQuantumState : public WaveFunction {
 public:
-    NeuralQuantumState(class System* system, int n_hidden, int n_visible, int part, int dim, double sigma, bool gaussian);
+    NeuralQuantumState(class System* system, int n_hidden, int n_visible, int part, int dim, double sigma, bool gaussian, double initialization);
     double evaluate(arma::vec position);
 
     arma::vec set_X(arma::vec X){ m_x = X; }
@@ -18,9 +18,11 @@ public:
     arma::vec get_b(){ return m_b; }
     arma::mat get_w(){ return m_w; }
 
+    double computeDerivative_analytic(arma::vec position, int coor);
     double computeDoubleDerivative_analytic();
     double getDistance(int p, int q);
     double getSigma(){ return m_sigma; }
+    double getInitializationInterval() {return m_initialization; }
     double getNumberVisibleNodes(){ return m_nv; }
     double getNumberHiddenNodes(){ return m_nh; }
     bool getGaussian(){ return m_gaussian; }
@@ -43,6 +45,7 @@ private:
     double m_sigma;
     double m_nv;
     double m_nh;
+    double m_initialization;
 
     bool m_gaussian;      // determines distribution of weights (either uniform or normal)
 };

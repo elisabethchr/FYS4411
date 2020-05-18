@@ -25,8 +25,8 @@ bool System::bruteForce() {
         //        cout << "m_wfValue0 = " << m_wfValue << endl;
     }
     double currentWaveFunction = m_wfValue;
-    // draw a random coordinate
-    coor = Random::nextInt(m_numberVisibleNodes);        // number of visible nodes
+    // draw a random visible node
+    coor = Random::nextInt(m_numberVisibleNodes);
     // compute weight
     s = Random::nextDouble();
     // compute change in coordinates from uniform distribution
@@ -55,65 +55,63 @@ bool System::bruteForce() {
 
 /* Algorithm for Metropolis-Hastings (importance sampling): change one coordinate at a time per MC cycle */
 bool System::importanceSampling(){
-    /*
-    int random_i;
-    double s, change;
+
+    int coor;
+    double randg, s, deriv;
+    double QForceCurrent, QForceTrial;
     double D = 0.5;
     double GreensFunction = 0.0;
     double timestep = m_timesteps[0];
-    double oldWaveFunction, newWaveFunction;
-    arma::vec change_vec(m_numberOfDimensions); change_vec.zeros();
-    arma::vec QForceOld(m_numberOfDimensions); QForceOld.zeros();
-    arma::vec QForceNew(m_numberOfDimensions); QForceNew.zeros();
+    double currentWaveFunction, trialWaveFunction;
 
-    // draw random particle i
-    random_i = Random::nextInt(m_numberOfParticles);
+    arma::vec Xcurrent = m_waveFunction->get_X();
+    arma::vec Xtrial = m_waveFunction->get_X();
+    if(m_MCstep == 0){
+        m_wfValue = m_waveFunction->evaluate(Xcurrent);
+    }
+    currentWaveFunction = m_wfValue;
+
+    // draw a random visible node
+    coor = Random::nextInt(m_numberVisibleNodes);
     // compute weight
     s = Random::nextDouble();
 
+    // compute current quantum force and wavefunction
+    deriv = m_waveFunction->computeDerivative_analytic(Xcurrent, coor);
+    QForceCurrent = 2*deriv;
 
-    // Old position
-    std::vector<Particle *> posOld = m_particles;
-    oldWaveFunction = m_waveFunction->evaluate(m_particles);
-    m_wfValue = oldWaveFunction;
-    QForceOld = m_hamiltonian->computeQuantumForce(m_particles, random_i); // (dividing by m_wfValue in computeQuantumForce for harmonic oscillator)
+    // compute change in coordinates from uniform distribution
+    randg = getGaussian(0, 1);
+    Xtrial[coor] += D*QForceCurrent*timestep + randg*sqrt(timestep);
 
-    // Move a random distance in every dimension according to a Gaussian distribution
-    for (int dim=0; dim<m_numberOfDimensions; dim++){
-        change = getGaussian(0, 1)*pow(timestep, 0.5) + QForceOld[dim]*timestep*D;
+    // compute trial quantum force and wavefunction after change of coordinates
+    trialWaveFunction = m_waveFunction->evaluate(Xtrial);
+    deriv = m_waveFunction->computeDerivative_analytic(Xtrial, coor);
+    QForceTrial = 2*deriv;
 
-        m_particles[random_i]->adjustPosition(change, dim);
-        change_vec[dim] = change;
-    }
+    //Greens ratio
+    double part1 = Xcurrent[coor] - Xtrial[coor] - timestep*QForceTrial;
+    double part2 = Xtrial[coor] - Xcurrent[coor] - timestep*QForceCurrent;
+    GreensFunction = exp(-(part1*part1 - part2*part2)/(4*D*timestep));
 
-    // New position
-    std::vector<Particle *> posNew = m_particles;
-    newWaveFunction = m_waveFunction->evaluate(m_particles);
-    m_wfValue = newWaveFunction;
-    QForceNew = m_hamiltonian->computeQuantumForce(m_particles, random_i); // (dividing by m_wfValue in computeQuantumForce for harmonic oscillator)
+    double probRatio = GreensFunction*trialWaveFunction*trialWaveFunction/(currentWaveFunction*currentWaveFunction);
 
-    // Compute Green's function by looping over all dimensions, where m_stepLength ~= timestep
-    for (int j=0; j<m_numberOfDimensions; j++){
-        GreensFunction += 0.5 * (QForceOld[j] + QForceNew[j]) *(D*timestep*0.5 * (QForceOld[j] - QForceNew[j]) - posNew[random_i]->getPosition()[j] + posOld[random_i]->getPosition()[j]);
-    }
+    // if true, allow the new state with adjusted positions
+    if(s<probRatio){
+        m_waveFunction->set_X(Xtrial);
+        m_wfValue = trialWaveFunction;
 
-    GreensFunction = exp(GreensFunction);
-
-    double ratio = GreensFunction*newWaveFunction*newWaveFunction/(oldWaveFunction*oldWaveFunction); //Fix: can simplify expression to save cpu cycles
-
-    if(s<=ratio){
-        m_stepImportance++;
         return true;
     }
+
+    // if false, reject the new state and change of coordinates
     else{
-        m_wfValue = oldWaveFunction;
-        for(int dim=0; dim<m_numberOfDimensions; dim++){
-            m_particles[random_i]->adjustPosition(-change_vec(dim), dim);
-        }
+        m_wfValue = currentWaveFunction;
+
         return false;
     }
-*/
-    return true;
+
+    //    return true;
 }
 
 
@@ -126,6 +124,7 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
     m_acceptedSteps = 0.0;
     m_sampler = new Sampler(this);
     m_sampler->setNumberOfMetropolisSteps(m_numberOfMetropolisSteps);
+    double m_initialization = m_waveFunction->getInitializationInterval();
 
     std::random_device seed;
     mt19937_64 gen(seed());
@@ -158,16 +157,21 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
                 m_sampler->sample(acceptedStep);
 
                 // Only interested in sampling the final optismization cycle
-                if (cycle == RBM_cycles - 1 ){//|| cycle == 1){
-                    string filename_blocking = "../data/b/blocking/2bNewInitialization_blockingSteps_";// + to_string(cycle) + "_";
-                    //m_sampler->writeStepToFile(m_sampleStep, m_sampleStep, filename_blocking);
+                if (cycle == RBM_cycles - 1 ){
+                    string filename_blocking = "../data/c/blocking/2c-Initialization-";
+                    filename_blocking.append(to_string(m_initialization));
+                    filename_blocking.append("_blockingSteps_");
+                    m_sampler->writeStepToFile(m_sampleStep, m_sampleStep, filename_blocking);
                 }
                 m_sampleStep++;
             }
             m_MCstep++;
         }
-        string filename_RBM = "../data/b/RBM/2bNewInitialization_RBMcycles_";
-//        m_sampler->writeToFile(cycle, cycle, filename_RBM);
+        // write energies of RBM cycles to file
+        string filename_RBM = "../data/c/RBM/2c-Initialization-";
+        filename_RBM.append(to_string(m_initialization));
+        filename_RBM.append("_RBMcycles_");
+        m_sampler->writeToFile(cycle, cycle, filename_RBM);
         m_sampler->computeAverages();
         m_sampler->printOutputToTerminal();
         m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);

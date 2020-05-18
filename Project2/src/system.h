@@ -15,7 +15,7 @@ public:
     void setStepLength              (double stepLength);
     void setEquilibrationFraction   (double equilibrationFraction);
     void setWaveFunctionValue       (double waveFunction);
-    void setTimeSteps               (std::vector<double> timesteps){ m_timesteps = timesteps; }
+    void setTimeSteps               (arma::vec timesteps){ m_timesteps = timesteps; }
     void setSolver                  (bool bruteForce){ m_solver = bruteForce; }
     void setLearningRate            (double eta){ m_eta = eta; }
     void setHamiltonian             (class Hamiltonian* hamiltonian);
@@ -46,7 +46,7 @@ public:
     double getWaveFunctionValue()       { return m_wfValue; }
     double getUniform(double min, double max)    { std::uniform_real_distribution<float> gen(min, max); return gen(m_randomengine); }
     double getGaussian(double mean, double std)  { std::normal_distribution<float> gen(mean, std); return gen(m_randomengine); }
-    std::vector<double> getTimeSteps()           { return m_timesteps; }
+    arma::vec getTimeSteps()           { return m_timesteps; }
 
 
 private:
@@ -74,7 +74,7 @@ private:
     class Sampler*                  m_sampler = nullptr;
     class Optimizer*                m_optimizer = nullptr;
     std::vector<class Particle*>    m_particles = std::vector<class Particle*>();
-    std::vector<double>             m_timesteps;
+    arma::vec                       m_timesteps;
 
     std::mt19937_64 m_randomengine;
 

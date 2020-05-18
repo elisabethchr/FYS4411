@@ -18,9 +18,11 @@ public:
 
     virtual double evaluate(arma::vec position) = 0;
 
+    virtual double computeDerivative_analytic(arma::vec position, int coor) = 0;
     virtual double computeDoubleDerivative_analytic() = 0;
     virtual double getDistance(int p, int q) = 0;
     virtual double getSigma() = 0;
+    virtual double getInitializationInterval() = 0;
     virtual bool getGaussian() = 0;
 
 protected:

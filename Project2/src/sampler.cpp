@@ -113,10 +113,10 @@ void Sampler::writeToFile(int step, int steps, string filename){
     int nP = m_system->getNumberParticles();
     int nD = m_system->getNumberDimensions();
     int h  = m_system->getStepLength();
-    //    int timestep = m_system->getTimeStepIndex();
-//    double dt = m_system->getTimeSteps()[timestep];
+    double dt = m_system->getTimeSteps()[0];
+    int nSteps = m_system->getNumberOfMetropolisSteps();
+    int nRBMcycles = m_system->getNumberRBMcycles();
     double eta    = m_system->getLearningRate();
-    double nSteps = m_system->getNumberOfMetropolisSteps();
     bool gauss = m_system->getWaveFunction()->getGaussian();
     bool solv = m_system->getSolver();
 
@@ -128,10 +128,7 @@ void Sampler::writeToFile(int step, int steps, string filename){
     if(gauss == true){ gaussian = "normal"; }
     else if(gauss == false){ gaussian = "uniform"; }
 
-    cout << "nh = " << nh << endl;
-
     ofstream ofile;
-//    string filename = "../data/b/Steps_";
     string arg1 = to_string(int(nv));
     string arg2 = to_string(int(nh));
     string arg3 = to_string(int(nSteps));
@@ -139,7 +136,8 @@ void Sampler::writeToFile(int step, int steps, string filename){
     string arg5 = to_string(int(nD));
     string arg6 = to_string(float(h));
     string arg7 = to_string(float(eta));
-    //    string arg4 = to_string(double(dt));
+    string arg8 = to_string(int(nRBMcycles));
+    string arg9 = to_string(double(dt));
     filename.append(solver);
     filename.append("_");
     filename.append(gaussian);
@@ -157,6 +155,12 @@ void Sampler::writeToFile(int step, int steps, string filename){
     filename.append(arg6);
     filename.append("_eta_");
     filename.append(arg7);
+    filename.append("_RBMcycles_");
+    filename.append(arg8);
+    if(solv==false){
+        filename.append("_dt_");
+        filename.append(arg9);
+    }
     filename.append("_.txt");
 
     if (steps == 0){
@@ -169,7 +173,7 @@ void Sampler::writeToFile(int step, int steps, string filename){
     ofile << setw(10) << setprecision(8) << step;
     ofile << setw(15) << setprecision(8) << m_energy;
     ofile << setw(15) << setprecision(8) << m_variance;
-    ofile << setw(15) << setprecision(8) << m_error << "\n";
+    ofile << setw(15) << setprecision(8) << m_error << endl;
     ofile.close();
 }
 
@@ -181,10 +185,10 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
     int nP = m_system->getNumberParticles();
     int nD = m_system->getNumberDimensions();
     int h  = m_system->getStepLength();
-    //    int timestep = m_system->getTimeStepIndex();
-//    double dt = m_system->getTimeSteps()[timestep];
+    double dt = m_system->getTimeSteps()[0];
     double eta    = m_system->getLearningRate();
     double nSteps = m_system->getNumberOfMetropolisSteps();
+    double nRBMcycles = m_system->getNumberRBMcycles();
     bool gauss = m_system->getWaveFunction()->getGaussian();
     bool solv = m_system->getSolver();
 
@@ -196,10 +200,7 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
     if(gauss == true){ gaussian = "normal"; }
     else if(gauss == false){ gaussian = "uniform"; }
 
-    cout << nh << endl;
-
     ofstream ofile;
-//    string filename = "../data/b/Steps_";
     string arg1 = to_string(int(nv));
     string arg2 = to_string(int(nh));
     string arg3 = to_string(int(nSteps));
@@ -207,7 +208,8 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
     string arg5 = to_string(int(nD));
     string arg6 = to_string(float(h));
     string arg7 = to_string(float(eta));
-    //    string arg4 = to_string(double(dt));
+    string arg8 = to_string(int(nRBMcycles));
+    string arg9 = to_string(double(dt));
     filename.append(solver);
     filename.append("_");
     filename.append(gaussian);
@@ -225,6 +227,12 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
     filename.append(arg6);
     filename.append("_eta_");
     filename.append(arg7);
+    filename.append("_RBMcycles_");
+    filename.append(arg8);
+    if(solv==false){
+        filename.append("_dt_");
+        filename.append(arg9);
+    }
     filename.append("_.txt");
 
     if (steps == 0){
@@ -254,8 +262,6 @@ void Sampler::writeTimeStepToFile(string filename){
     double stepLength = m_system->getStepLength();
 
     ofstream ofile;
-//    string filename = "data/1c_nParticles_";
-
     string arg1 = to_string(int(nParticles));
     string arg2 = to_string(int(nDim));
     string arg3 = to_string(int(nSteps));
