@@ -1,0 +1,3 @@
+solver	<E_L>	sigma2	sigma	sigma2_b	sigma_b
+Importance 0.5000 2.58198E-15 5.08132E-08 7.63933E-15 8.74032E-08
+Brute force 0.5000 4.11836E-15 6.41744E-08 1.61773E-12 1.27190E-06
