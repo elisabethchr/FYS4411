@@ -35,13 +35,11 @@ NeuralQuantumState::NeuralQuantumState(System* system, int n_hidden, int n_visib
 /* Set up initial position, hidden and visible biases, and interaction between hidden and visible biases */
 void NeuralQuantumState::setupInitialState(){
     m_x.zeros(m_nv);
+    m_h.zeros(m_nh);
     m_a.zeros(m_nv);
     m_b.zeros(m_nh);
     m_w.zeros(m_nv, m_nh);
 
-//    std::uniform_real_distribution<double> uniform_weights(-1.0 ,1.0); //original
-//    std::uniform_real_distribution<double> uniform_weights(-0.10 ,0.10); // new initialization
-//    std::uniform_real_distribution<double> uniform_weights(-1e-7, 1e-7); // new initialization 1e-7
     std::uniform_real_distribution<double> uniform_weights(-m_initialization, m_initialization);
     std::uniform_real_distribution<double> uniform_position(-0.5, 0.5);
     std::normal_distribution<double> normal_weights(0, m_initialization);
@@ -76,6 +74,12 @@ void NeuralQuantumState::setupInitialState(){
     for (int i=0; i<m_nv; i++){
         m_x[i] = uniform_position(m_randomEngine);
     }
+
+//    cout << "m_x init = " << endl; m_x.print();
+//    cout << "m_a init = " << endl; m_a.print();
+//    cout << "m_b init = " << endl; m_b.print();
+//    cout << "m_h init = " << endl; m_h.print();
+//    cout << "m_w init = " << endl; m_w.print();
 }
 
 

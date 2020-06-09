@@ -1,12 +1,16 @@
 #pragma once
+#include <iostream>
 #include <vector>
 #include <armadillo>
+
+using namespace std;
 
 class System {
 public:
 //    bool metropolisStep             (unsigned gen);
     bool bruteForce                 ();     // Standard Metropolis
     bool importanceSampling         ();     // Metropolis-Hastings
+    bool Gibbs                      ();
     void runMetropolisSteps         (int RBM_cycles, std::vector<int> numberOfMetropolisSteps);
     void setNumberHiddenNodes       (int n_hidden){ m_numberHiddenNodes = n_hidden; }
     void setNumberVisibleNodes      (int n_visible){ m_numberVisibleNodes = n_visible; }
@@ -16,7 +20,7 @@ public:
     void setEquilibrationFraction   (double equilibrationFraction);
     void setWaveFunctionValue       (double waveFunction);
     void setTimeSteps               (arma::vec timesteps){ m_timesteps = timesteps; }
-    void setSolver                  (bool bruteForce){ m_solver = bruteForce; }
+    void setSolver                  (string solver){ m_solver = solver; }
     void setLearningRate            (double eta){ m_eta = eta; }
     void setHamiltonian             (class Hamiltonian* hamiltonian);
     void setWaveFunction            (class WaveFunction* waveFunction);
@@ -38,7 +42,7 @@ public:
     int getRBMstep()                    { return m_RBMstep; }
     int getMetropolisStep()             { return m_MCstep; }
     int getSampleStep()                 { return m_sampleStep; }
-    bool getSolver()                    { return m_solver; }
+    string getSolver()                  { return m_solver; }
     double getEquilibrationFraction()   { return m_equilibrationFraction; }
     double getStepLength()              { return m_stepLength; }
     double getLearningRate()            { return m_eta; }
@@ -67,7 +71,7 @@ private:
     double                          m_derivativeE = 0.0;
     double                          m_wfValue = 0.0;
     double                          m_eta = 0.0;        // learning rate
-    bool                            m_solver;
+    string                          m_solver;
     class WaveFunction*             m_waveFunction = nullptr;
     class Hamiltonian*              m_hamiltonian = nullptr;
     class InitialState*             m_initialState = nullptr;

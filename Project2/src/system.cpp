@@ -110,8 +110,46 @@ bool System::importanceSampling(){
 
         return false;
     }
+}
 
-    //    return true;
+/* Algorithm for Gibbs sampling */
+bool System::Gibbs(){
+    double randu, P, sigma;
+    arma::vec O;
+
+    sigma = m_waveFunction->getSigma();
+    arma::vec X = m_waveFunction->get_X();
+    arma::vec m_h = m_waveFunction->get_h();
+    arma::vec m_a = m_waveFunction->get_a();
+    arma::vec m_b = m_waveFunction->get_b();
+    arma::mat m_w = m_waveFunction->get_w();
+
+    // Get probability, P(h=1|x), of hidden values to equal 1, given the logistic sigmoid function
+    // Set hidden values equal to 0 if probability less than a randuom uniform variable
+    O = m_b + ((X.t()*m_w).t()) / (sigma*sigma);
+    for (int j=0; j < m_numberHiddenNodes; j++){
+        randu = getUniform(0, 1);
+        P = 1.0/(1+exp(-O[j]));     // probability from logistic sigmoid
+        if (P < randu){ m_h[j] = 0; }
+        else{ m_h[j] = 1; }
+    }
+
+    // Set the new positions according to the hidden nodes
+    double randn, x_mean;
+    arma::vec new_pos, wh;
+    new_pos.zeros(m_numberVisibleNodes);
+
+    wh = m_w*m_h;
+    for (int i=0; i<m_numberVisibleNodes; i++){
+        x_mean = m_a[i] + wh[i];
+        new_pos[i] = getGaussian(x_mean, sigma);
+    }
+
+//    cout << "X before: " << endl; m_waveFunction->get_X().print();
+    m_waveFunction->set_X(new_pos);
+//    cout << "X after: " << endl; m_waveFunction->get_X().print();
+
+    return true;
 }
 
 
@@ -144,8 +182,12 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
             bool acceptedStep;
 
             // set the solver
-            if (m_solver==true){ acceptedStep = bruteForce(); }
-            else if (m_solver==false){ acceptedStep = importanceSampling(); }
+//            if (m_solver==true){ acceptedStep = bruteForce(); }
+//            else if (m_solver==false){ acceptedStep = importanceSampling(); }
+            if (m_solver=="bruteForce"){ acceptedStep = bruteForce(); }
+            else if (m_solver=="importance"){ acceptedStep = importanceSampling(); }
+            else if (m_solver=="gibbs"){ acceptedStep = Gibbs(); }
+
 
             // sample steps
             if (acceptedStep == true){
@@ -156,22 +198,22 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
             if (i >= m_equilibrationFraction){        // m_equilibrationFraction - 100
                 m_sampler->sample(acceptedStep);
 
-                // Only interested in sampling the final optismization cycle
+                // Only interested in sampling the final optimisation cycle
                 if (cycle == RBM_cycles - 1 ){
-                    string filename_blocking = "../data/c/blocking/2c-Initialization-";
+                    string filename_blocking = "../data/b/blocking/2b-Initialization-";
                     filename_blocking.append(to_string(m_initialization));
                     filename_blocking.append("_blockingSteps_");
-                    m_sampler->writeStepToFile(m_sampleStep, m_sampleStep, filename_blocking);
+//                    m_sampler->writeStepToFile(m_sampleStep, m_sampleStep, filename_blocking);
                 }
                 m_sampleStep++;
             }
             m_MCstep++;
         }
         // write energies of RBM cycles to file
-        string filename_RBM = "../data/c/RBM/2c-Initialization-";
+        string filename_RBM = "../data/b/RBM/2b-Initialization-";
         filename_RBM.append(to_string(m_initialization));
         filename_RBM.append("_RBMcycles_");
-        m_sampler->writeToFile(cycle, cycle, filename_RBM);
+//        m_sampler->writeToFile(cycle, cycle, filename_RBM);
         m_sampler->computeAverages();
         m_sampler->printOutputToTerminal();
         m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);

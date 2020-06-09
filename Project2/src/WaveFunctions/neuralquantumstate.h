@@ -9,11 +9,13 @@ public:
     double evaluate(arma::vec position);
 
     arma::vec set_X(arma::vec X){ m_x = X; }
+    arma::vec set_h(arma::vec h){ m_h = h; }
     arma::vec set_a(arma::vec a){ m_a = a; }
     arma::vec set_b(arma::vec b){ m_b = b; }
     arma::mat set_w(arma::mat w) {m_w = w; }
 
     arma::vec get_X(){ return m_x; }
+    arma::vec get_h(){ return m_h; }
     arma::vec get_a(){ return m_a; }
     arma::vec get_b(){ return m_b; }
     arma::mat get_w(){ return m_w; }
@@ -36,6 +38,7 @@ private:
 
     arma::vec O;        // vector exponent in wavefunction
     arma::vec m_x;      // visible nodes (i.e. position)
+    arma::vec m_h;      // hidden nodes
     arma::vec m_a;      // visible bias
     arma::vec m_b;      // hidden bias
     arma::mat m_w;      // interaction of biases

@@ -24,7 +24,7 @@ int main() {
 
     int m = 10;     // number of values for time steps dt
     int k = 10;     // length of array for the number of Metropolis steps
-    int MC = 17;    // log2 of number of Monte Carlo cycles
+    int MC = 19;    // log2 of number of Monte Carlo cycles
     int MC_pow2 = pow(2, MC);   // total number of Monte Carlo cycles
     double eq = round(log2(0.1*MC_pow2));
     double timestep_max = 1.0;
@@ -35,8 +35,13 @@ int main() {
 
 
     /////////////////////////////////////////////////////////////////////////////
-    /// Bools to determine program flow
-    bool bruteForce = false;             // set type of solver (brute force or importance sampling)
+    /// Options to determine program flow
+
+    // Only one solver can be true at a time (!)
+    bool bruteForce = true;             // set type of solver to brute force
+    bool importance = false;             // set type of solver to importance sampling
+    bool gibbs = false;                   // set type of solver to Gibbs sampling
+
     bool interaction = false;           // if interaction should be included or not
     bool GaussianDistribution = true;   // distribution of weights (either uniform or gaussian)
 
@@ -57,12 +62,12 @@ int main() {
 
     /////////////////////////////////////////////////////////////////////////////////
     /// set main system
-    int P = 1;      // number of particles
+    int P = 2;      // number of particles
     int D = 1;      // number of dimensions
 
     int RBM_cycles = 100;    // number of sampling cycles
     int nVisible   = P*D;    // number of visible nodes
-    int nHidden    = 8;      // number of hidden nodes
+    int nHidden    = 2;      // number of hidden nodes
     double initialization = 0.01;    // initialization interval for weights (if uniform distribution -> uniform(-init, +init), if normal distribution -> normal(sigma = init))
     double omega            = 1.0;          // Oscillator frequency
     double stepLength       = 2.0;          // Metropolis step length
@@ -71,7 +76,11 @@ int main() {
     double eta              = 0.1;          // Learning rate
     arma::vec rates = {0.1}; //{1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 1e-1, 1.0, 1.1, 1.2};
     arma::vec nh = {2};//{4, 6, 8, 10, 12, 14, 16, 18, 20};
-    arma::vec timestep = {0.01};    // timestep (dt) used in importance sampling
+    arma::vec timestep = {1.35};    // timestep (dt) used in importance sampling
+
+
+    /////////////////////////////////////////////////////////////////////////////////
+    /// the rest is automatic (unless any changes to filenames are wanted)
 
     string filename;
     string arg0 = to_string(initialization);
@@ -87,8 +96,9 @@ int main() {
     }
 
     string solver;
-    if(bruteForce==true){ solver = "bruteForce"; }
-    else if (bruteForce==false){ solver = "importance"; }
+    if (bruteForce==true){ solver = "bruteForce"; }
+    else if (importance==true){ solver = "importance"; }
+    else if (gibbs == true){ solver = "gibbs"; }
 
     string gaussian;
     if(GaussianDistribution == true){ gaussian = "normal"; }
@@ -146,7 +156,7 @@ int main() {
 
     System* system = new System();
     system->setTimeSteps                (timestep);
-    system->setSolver                   (bruteForce);
+    system->setSolver                   (solver);
     system->setHamiltonian              (new HarmonicOscillator(system, omega, interaction));
     system->setWaveFunction             (new NeuralQuantumState(system, a, nVisible, P, D, sigma, GaussianDistribution, initialization));
     system->setOptimizer                (new StochasticGradientDescent(system, b));
@@ -156,24 +166,24 @@ int main() {
 
     double m_energy = system->getSampler()->getEnergy();
 
-    //        if (i == 0){
-    //            ofile.open(filename, ios::trunc | ios::out);
-    //            ofile << setw(10) << "steps" <<setw(15) << "Energy" << endl;
-    //        }
-    //        else{ofile.open(filename, ios::app | ios::out);}
+//    if (i == 0){
+//        ofile.open(filename, ios::trunc | ios::out);
+//        ofile << setw(10) << "steps" <<setw(15) << "Energy" << endl;
+//    }
+//    else{ofile.open(filename, ios::app | ios::out);}
 
-    //        if (nh.size()>1){ cout << "nh = " << a << ", E_L = " << m_energy << endl; }
-    //        else if (rates.size()>1){ cout << "eta = " << b << ", E_L = " << m_energy << endl; }
+//    if (nh.size()>1){ cout << "nh = " << a << ", E_L = " << m_energy << endl; }
+//    else if (rates.size()>1){ cout << "eta = " << b << ", E_L = " << m_energy << endl; }
 
-    //        ofile << setiosflags(ios::showpoint | ios::uppercase);
-    //        if (nh.size()>1){ ofile << setw(10) << setprecision(8) << nh[i]; }
-    //        else if (rates.size()>1){ ofile << setw(10) << setprecision(10) << rates[i]; }
-    //        ofile << setw(15) << setprecision(8) << m_energy << endl;
-    //        ofile.close();
-    //  }
-    clock_t c_end = clock();
+//    ofile << setiosflags(ios::showpoint | ios::uppercase);
+//    if (nh.size()>1){ ofile << setw(10) << setprecision(8) << nh[i]; }
+//    else if (rates.size()>1){ ofile << setw(10) << setprecision(10) << rates[i]; }
+//    ofile << setw(15) << setprecision(8) << m_energy << endl;
+//    ofile.close();
+//}
+clock_t c_end = clock();
 
-    cout << "\n Total CPU-time used: " << (c_end - c_start)/CLOCKS_PER_SEC << " s" << endl;
+cout << "\n Total CPU-time used: " << (c_end - c_start)/CLOCKS_PER_SEC << " s" << endl;
 
-    return 0;
+return 0;
 }
