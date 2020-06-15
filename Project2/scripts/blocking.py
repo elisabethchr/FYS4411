@@ -15,15 +15,15 @@ def block(x):
     # estimate the auto-covariance and variances
     # for each blocking transformation
     for i in arange(0,d):
-        print "Transformation", i
+#        print "Transformation", i
         n = len(x)
-        print "length of block:", n
+#        print "length of block:", n
         # estimate autocovariance of x
         gamma[i] = (n)**(-1)*sum( (x[0:(n-1)]-mu)*(x[1:n]-mu) )
         # estimate variance of x
         s[i] = np.var(x)
         # perform blocking transformation
-        print np.log2(len(x))
+        #print np.log2(len(x))
         x = 0.5*(x[0::2] + x[1::2])
 
     # generate the test observator M_k ferr2rom the theorem
@@ -41,8 +41,9 @@ def block(x):
             break
     if (k >= d-1):
         print("Warning: Use more data")
-    ans = s[k]/2**(d-k)
+    variance = s[k]/2**(d-k)
     print("Runtime: %g sec" % (time()-t0)); print("Blocking Statistics :")
     print("average            iterations      std. error")
-    print("%8g %20g %15g" % (mu, k, ans**.5))
-    return ans
+    print("%8g %20g %15g" % (mu, k, variance**.5))
+    print "variance block= ", variance
+    return variance

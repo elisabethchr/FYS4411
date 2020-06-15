@@ -10,8 +10,12 @@ import csv
 #********************************************************
 
 # example filename:
-# filename = 2b_RBMcycles_bruteForce_x_nv_x_nh_x_nMCsteps_x_nPart_x_nDim_x_stepL_x_eta_x_RBMcycles_x.txt
+# filename = 2b-Initialization-x_RBMcycles_bruteForce_x_nv_x_nh_x_nMCsteps_x_nPart_x_nDim_x_stepL_x_eta_x_RBMcycles_x.txt
 # where x represents an integer or float number
+
+def initialization(filename):
+    init = (filename.split('_')[0]).split('-')[2]
+    return float(init)
 
 def distribution(filename):
     dist = filename.split('_')[3]
@@ -19,6 +23,12 @@ def distribution(filename):
 
 def solver(filename):
     solv = filename.split('_')[2]
+    if solv=="bruteForce":
+        solv = "Brute force"
+    elif solv=="importance":
+        solv = "Importance"
+    elif solv=="gibbs":
+        solv=="Gibbs"
     return solv
 
 def nNodes(filename):
@@ -59,9 +69,9 @@ Plotting of local energies as a function of RBM cycles
 **********************************************************
 """
 
-#***************************************************
-# Uniform vs normal weight distribution
-#***************************************************
+#**************************************************************************
+# Uniform vs normal weight distribution, with different initializations
+#**************************************************************************
 
 # Function for plotting energies vs. RBM cycles for distinct learning rate, with distribution as legend
 def RBM_distribution(filenames, datafile_path, ofile):
@@ -91,6 +101,7 @@ def RBM_distribution(filenames, datafile_path, ofile):
     plt.xlabel('cycles')
     plt.ylabel(r'$E_L$')
     plt.title(r'$E_L$ dependence on distributions of weights, $\eta = %.1E$' %Decimal(eta))
+#    plt.title(r'Local energy, $\eta = %.1E$' %Decimal(eta))
     plt.legend()
     # Show the minor grid lines with very faint and almost transparent grey lines
     plt.minorticks_on()
@@ -99,19 +110,53 @@ def RBM_distribution(filenames, datafile_path, ofile):
     plt.savefig(datafile_path+ofile+'_.pdf')
     plt.show()
 
-    header = "Distribution  <E_L>   sigma2  error"
-
-    # write to file
-    dataset = np.array([distributions, mean, variance, error])
-    dataset = dataset.T
-    print dataset
-
-    datafile = datafile_path+ofile+'_.txt'
-    with open(datafile, "w+") as datafile:
-        np.savetxt(datafile, dataset, fmt = ['%s', '%s', '%s', '%s'], header=header, delimiter = '\t')
+    # header = "Distribution  <E_L>   sigma2  error"
+    #
+    # # write to file
+    # dataset = np.array([distributions, mean, variance, error])
+    # dataset = dataset.T
+    # print dataset
+    #
+    # datafile = datafile_path+ofile+'_.txt'
+    # with open(datafile, "w+") as datafile:
+    #     np.savetxt(datafile, dataset, fmt = ['%s', '%s', '%s', '%s'], header=header, delimiter = '\t')
 
     return dataset
 
+
+#*************************************************************
+# Energies vs. RBM cycles for different distributions and
+# distinct learning rate as title, with initialization
+# intervals as legends
+# (uniform or normal distributions)
+#*************************************************************
+def plotRBM_distributionIntervals(filenames, datafile_path, ofile):
+    for file in filenames:
+        dist = distribution(file)
+        solv = solver(file)
+        eta = learningRate(file)
+        init = initialization(file)
+        if (dist=="uniform"):
+            linestyle = '--'
+            label = "(-%.3f, %.3f)" %(init, init)
+        elif (dist=="normal"):
+            linestyle = '-'
+            label = r"$\sigma$ = %.3f" %init
+        print "File: ", file
+        data = np.loadtxt(file, skiprows=1)
+        cycles = data[1:, 0]
+        energies = data[1:, 1]
+        plt.plot(cycles, energies, linestyle=linestyle, label=label)
+    plt.xlabel("cycles")
+    plt.ylabel(r'$E_L$')
+    plt.title(r"Energy dependence on %s distribution initializations, $\eta = $%.1E" %(dist, Decimal(eta)))
+    plt.legend()
+    # Show the minor grid lines with very faint and almost transparent grey lines
+    plt.minorticks_on()
+    plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+    plt.tight_layout()
+    plt.savefig(datafile_path+ofile+"_"+solv+"_"+dist+'_.pdf')
+    plt.show()
 
 #****************************************************
 # Energies vs. RBM cycles, variables as legends
@@ -121,11 +166,11 @@ def RBM_distribution(filenames, datafile_path, ofile):
 # Function for plotting energies vs. RBM cycles for distinct distributions, with learning rate as legend
 def plotRBM_learningrate(filenames, datafile_path, ofile):
     dist = distribution(filenames[0])
-    if (dist=="uniform"):
-        linestyle = '--'
-    elif (dist=="normal"):
-        linestyle = '-'
     for file in filenames:
+        if (dist=="uniform"):
+            linestyle = '--'
+        elif (dist=="normal"):
+            linestyle = '-'
         print "File:", file
         data = np.loadtxt(file, skiprows=1)
         cycles = data[1:, 0]
@@ -134,7 +179,7 @@ def plotRBM_learningrate(filenames, datafile_path, ofile):
         plt.plot(cycles, energies, linestyle=linestyle, label="%.1E" %Decimal(eta))
     plt.xlabel("cycles")
     plt.ylabel(r'$E_L$')
-    plt.title("Energy dependece on learning rates")
+    plt.title("Energy dependence on learning rates")
     plt.legend()
     # Show the minor grid lines with very faint and almost transparent grey lines
     plt.minorticks_on()
@@ -156,10 +201,13 @@ def plotRBM_hiddenNodes(filenames, datafile_path, ofile):
         cycles = data[1:, 0]
         energies = data[1:, 1]
         nv, nh = nNodes(file)
+        # if nh==8:
+        #     print cycles
+        #     print energies
         plt.plot(cycles, energies, linestyle=linestyle, label="%d" %Decimal(nh))
     plt.xlabel("cycles")
     plt.ylabel(r"$E_L$")
-    plt.title("Energy dependece on learning rates")
+    plt.title("Energy dependence on hidden nodes")
     plt.legend()
     # Show the minor grid lines with very faint and almost transparent grey lines
     plt.minorticks_on()
@@ -169,6 +217,50 @@ def plotRBM_hiddenNodes(filenames, datafile_path, ofile):
     plt.show()
 
 
+"""
+**********************************************************
+
+Plotting of local energies as a function of MC steps
+
+**********************************************************
+"""
+#*********************************************************
+# Energies vs. MC steps, with type of solver as legend
+# (brute force, importance)
+#*********************************************************
+
+# Function for plotting energies vs. MC steps, with solvers as legends.
+# Save wrt. learningrate, distribution, number hidden nodes and visible nodes,
+# and number RBM cycles. PLotting every 1000'th step
+# (MC steps are from the final optimization cycle)
+def plotEnergy_MCsteps(filenames, datafile_path, ofile):
+    RBM = RBMCycles(filenames[0])
+    eta = learningRate(filenames[0])
+    for file in filenames:
+        print "File: ", file
+        dist = distribution(file)
+        nv, nh = nNodes(file)
+        init = initialization(file)
+        solv = solver(file)
+        if (dist=="bruteForce"):
+            linestyle = '--'
+        elif (dist=="importance"):
+            linestyle = '-'
+        data = np.loadtxt(file, skiprows=1)
+        step = data[:, 0]
+        steps = step[0::1000]
+        energy = data[:, 1]
+        energies = energy[0::1000]
+        plt.plot(steps, energies, linestyle='none', marker='.', label=solv)
+    plt.legend()
+    plt.xlabel("Metropolis steps")
+    plt.ylabel(r"$E_L$")
+    plt.title("Relation between energy and solver")
+    plt.legend()
+    plt.grid('on')
+    plt.tight_layout()
+    plt.savefig(datafile_path+ofile+"_"+dist+"_eta_"+str(eta)+"_nh_"+str(nh)+"_nv_"+str(nv)+"_RBM_"+str(RBM)+"_.pdf")
+    plt.show()
 
 """
 **********************************************************
@@ -183,49 +275,56 @@ Plotting of local energies as a function of variables
 # with distribution as legend
 #******************************************************************
 
-# Function for plotting energies vs. learningrate, save wrt. number hidden nodes
+# Function for plotting energies vs. learningrate, with initializations as legends.
+# Save wrt. number hidden nodes and number RBM cycles
 def plotEnergy_learningrate(filenames, datafile_path, ofile):
-    dist = distribution(filenames[0])
-    nv, nh = nNodes(filenames[0])
-    if (dist=="uniform"):
-        linestyle = '--'
-        color = 'r'
-    elif (dist=="normal"):
-        linestyle = '-'
-        color = 'b'
+    solv = solver(filenames[0])
+    RBM = RBMCycles(filenames[0])
     for file in filenames:
         print "File:", file
+        dist = distribution(file)
+        nv, nh = nNodes(file)
+        init = initialization(file)
+        if (dist=="uniform"):
+            linestyle = '--'
+            label = "(-%.3f, %.3f)" %(init, init)
+        elif (dist=="normal"):
+            linestyle = '-'
+            label = r"$\sigma=%.3f$" %init
         data = np.loadtxt(file, skiprows=1)
         learningrates = data[1:, 0]
         energies = data[1:, 1]
-        plt.semilogx(learningrates, energies, marker='+', color=color, markersize='7', label=dist, linestyle='none')
+        plt.semilogx(learningrates, energies, marker='+', markersize='7', label=label, linestyle='none')
     plt.xlabel(r"$\eta$")
     plt.ylabel(r"$E_L$")
-    plt.title(r"Relation between energy and learning rate, $\eta$")
+    plt.title(r"Relation between energy and learning rate, $\eta$ (%s distribution)" %dist)
     plt.legend()
     # Show the minor grid lines with very faint and almost transparent grey lines
     plt.minorticks_on()
     plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
     plt.tight_layout()
-    plt.savefig(datafile_path+ofile+"_"+dist+'_nh_'+str(nh)+'_.pdf')
+    plt.savefig(datafile_path+ofile+"_"+solv+"_"+dist+'_nh_'+str(nh)+"_RBM_"+str(RBM)+'_.pdf')
     plt.show()
 
-# Function for plotting energies vs. number of hidden nodes, save wrt. learning rate
+# Function for plotting energies vs. number of hidden nodes, with initializations as legends
+# Save wrt. learning rate
 def plotEnergy_hiddenNodes(filenames, datafile_path, ofile):
     dist = distribution(filenames[0])
     learningrate = learningRate(filenames[0])
-    if (dist=="uniform"):
-        linestyle = '--'
-        color = 'r'
-    elif (dist=="normal"):
-        linestyle = '-'
-        color = 'b'
+    RBM = RBMCycles(filenames[0])
     for file in filenames:
+        init = initialization(file)
+        if (dist=="uniform"):
+            linestyle = '--'
+            label = "(-%.3f, %.3f)" %(init, init)
+        elif (dist=="normal"):
+            linestyle = '-'
+            label = r"$\sigma=%.3f$" %init
         print "File:", file
         data = np.loadtxt(file, skiprows=1)
         nh = data[1:, 0]
         energies = data[1:, 1]
-        plt.plot(nh, energies, marker='+', color=color, markersize='7', label=dist, linestyle='none')
+        plt.plot(nh, energies, marker='+', markersize='7', label=label, linestyle='none')
     plt.xlabel(r"Number hidden nodes")
     plt.ylabel(r"$E_L$")
     plt.title("Energy as a function of hidden nodes")
@@ -234,40 +333,69 @@ def plotEnergy_hiddenNodes(filenames, datafile_path, ofile):
     plt.minorticks_on()
     plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
     plt.tight_layout()
-    plt.savefig(datafile_path+ofile+"_"+dist+'_eta_'+str(learningrate)+'_.pdf')
+    plt.savefig(datafile_path+ofile+"_"+dist+'_eta_'+str(learningrate)+"_RBM_"+str(RBM)+'_.pdf')
     plt.show()
 
-"""
-# Plot variance as a function of learningrate
-filenames = sorted(glob.glob("../data/plots_and_data/b/RBM/uniform_vs_normal*.txt"))
-print filenames
-ofile = "variance_vs_learningrate.pdf"
-learningRates = []
-variances_uniform = []
-variances_normal = []
-for file in filenames:
-    eta = float(file.split('_')[6])
-    learningRates.append(eta)
-    with open(file, 'r') as f:
-        next(f)
-        reader = csv.reader(f, delimiter='\t')
-        for line in reader:
-            if line[0]=='uniform':
-                variances_uniform.append(float(line[2]))
-            elif line[0]=='normal':
-                variances_normal.append(float(line[2]))
 
-plt.semilogx(learningRates, variances_uniform, 'bx', label='Uniform', markersize='5')
-plt.semilogx(learningRates, variances_normal, 'rx', label='Normal', markersize='5')
-plt.xlabel(r'$\eta$')
-plt.ylabel(r'$\sigma^2$')
-plt.title(r'Variance as a function of learning rate $\eta$')
-plt.legend()
-# Show the minor grid lines with very faint and almost transparent grey lines
-#plt.minorticks_on()
-#plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
-plt.grid('on')
-plt.tight_layout()
-plt.savefig(datafile_path+ofile)
-plt.show()
-"""
+# Function for plotting energies vs. learning rates, with solvers as legends
+# Save wrt. learning rate
+def plotEnergy_learningrate_legendSolvers(filenames, datafile_path, ofile):
+    dist = distribution(filenames[0])
+    RBM = RBMCycles(filenames[0])
+    nv, nh = nNodes(filenames[0])
+    for file in filenames:
+        global markerstyle
+        markerstyle = '+'
+        solv = solver(file)
+        if (solv=="bruteForce"):
+            markerstyle = '+'
+        elif (solv=="Importance"):
+            markerstyle = 'o'
+        elif (solv=="Gibbs"):
+            markerstyle = '.'
+        data = np.loadtxt(file, skiprows=1)
+        nh = data[1:, 0]
+        energies= data[1:, 1]
+        plt.plot(nh, energies, marker=markerstyle, linestyle='none', label=solv)
+    plt.xlabel(r"$\eta$")
+    plt.ylabel(r"$E_L$")
+    plt.title("Energy as a function of learning rates")
+    plt.legend()
+    # Show the minor grid lines with very faint and almost transparent grey lines
+    plt.minorticks_on()
+    plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+    plt.tight_layout()
+    plt.savefig(datafile_path+ofile+"_"+solv+"_"+dist+'_nh_'+str(nh)+"_RBM_"+str(RBM)+'_.pdf')
+    plt.show()
+
+
+# Function for plotting energies vs. number of hidden nodes, with solvers as legends
+# Save wrt. learning rate
+def plotEnergy_hiddenNodes_legendSolvers(filenames, datafile_path, ofile):
+    dist = distribution(filenames[0])
+    learningrate = learningRate(filenames[0])
+    RBM = RBMCycles(filenames[0])
+    for file in filenames:
+        global markerstyle
+        markerstyle = '+'
+        solv = solver(file)
+        if (solv=="bruteForce"):
+            markerstyle = '+'
+        elif (solv=="Importance"):
+            markerstyle = 'o'
+        elif (solv=="Gibbs"):
+            markerstyle = '.'
+        data = np.loadtxt(file, skiprows=1)
+        nh = data[1:, 0]
+        energies= data[1:, 1]
+        plt.plot(nh, energies, marker=markerstyle, linestyle='none', label=solv)
+    plt.xlabel(r"Number hidden nodes")
+    plt.ylabel(r"$E_L$")
+    plt.title("Energy as a function of hidden nodes")
+    plt.legend()
+    # Show the minor grid lines with very faint and almost transparent grey lines
+    plt.minorticks_on()
+    plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+    plt.tight_layout()
+    plt.savefig(datafile_path+ofile+"_"+dist+'_eta_'+str(learningrate)+"_RBM_"+str(RBM)+'_.pdf')
+    plt.show()
