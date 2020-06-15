@@ -38,17 +38,43 @@ double HarmonicOscillator::computeLocalEnergy(arma::vec X) {
     }
 
     // add interaction term if stated so
-    if (m_interaction = true){
+    if (m_interaction == true){
         for (int p=0; p<nPart-1; p++){
             for(int q=p+1; q<nPart; q++){
                 double distance = m_system->getWaveFunction()->getDistance(p,q);
-                interactionEnergy+= 1/distance;
+                interactionEnergy+= 1.0/distance;
             }
         }
     }
 
+    arma::vec pos = m_system->getWaveFunction()->get_X();
+//    cout << "\nkineticEnergy + potentialEnergy = " << kineticEnergy + potentialEnergy << endl;
+//    cout << "interaction energy = " << interactionEnergy << endl;
+//    cout << "interaction energy test = " << interaction(pos, M, dim) << endl;
+
+//    cout << "Local energy = " << kineticEnergy + potentialEnergy + interactionEnergy << endl;
     return kineticEnergy + potentialEnergy + interactionEnergy;
 }
+
+/*
+double HarmonicOscillator::interaction(arma::vec x, int nx, int dim) {
+    double interactionTerm = 0;
+    double rDistance;
+    // Loop over each particle
+    for (int r=0; r<nx-dim; r+=dim) {
+        // Loop over each particle s that particle r hasn't been paired with
+        for (int s=(r+dim); s<nx; s+=dim) {
+            rDistance = 0;
+            // Loop over each dimension
+            for (int i=0; i<dim; i++) {
+                rDistance += (x(r+i) - x(s+i))*(x(r+i) - x(s+i));
+            }
+            interactionTerm += 1.0/sqrt(rDistance);
+        }
+    }
+    return interactionTerm;
+}
+*/
 
 
 /* Compute the gradient of the local energy wrt. the RBM parameters, i.e. (1/psi)*d(psi)/d(alpha_i) */
@@ -62,9 +88,9 @@ arma::vec HarmonicOscillator::computeLocalEnergyGradient(){
     m_sigma2 = m_sigma*m_sigma;
 
     m_nv = m_system->getNumberVisibleNodes();
-    arma::vec O = m_b + (m_x.t()*m_w).t()*(1/((double) m_sigma*m_sigma));
     m_nh = m_system->getNumberHiddenNodes();
 
+    arma::vec O = m_b + (m_x.t()*m_w).t()*(1/((double) m_sigma*m_sigma));
     arma::vec dPsi; dPsi.zeros(m_nv + m_nh + m_nv*m_nh);
 
     // compute d(psi)/d(a)*1/psi
@@ -93,16 +119,7 @@ arma::vec HarmonicOscillator::computeLocalEnergyGradient(){
 /* Compute the drift force experienced by particles */
 vec HarmonicOscillator::computeQuantumForce(arma::vec X, int i){
 
-    /*
-//    int nDim = m_system->getNumberOfDimensions();
-    int nDim = 2;
-    vec force(nDim); force.zeros();
-    vec gradient = m_system->getWaveFunction()->computeGradient(particles, i);
-    // obtain current value for the wavefunction
-    double psi = m_system->getWaveFunctionValue();
-    force = 2*gradient / psi;
-    return force;
-*/
-    arma::vec a = zeros(2);
+    arma::vec a = zeros(1);
+
     return a;
 }

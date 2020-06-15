@@ -120,8 +120,8 @@ arma::mat NeuralQuantumState::hadamardProd(arma::mat w){
 
     arma::mat w_Hadamard;
     w_Hadamard.zeros(M,N);
-    for(int i; i<M; i++){
-        for(int j; j<N; j++){
+    for(int i=0; i<M; i++){
+        for(int j=0; j<N; j++){
             w_Hadamard(i,j) = w(i,j)*w(i,j);
         }
     }

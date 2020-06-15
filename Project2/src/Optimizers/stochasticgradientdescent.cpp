@@ -21,12 +21,12 @@ void StochasticGradientDescent::computeWeights(arma::vec gradE){
     int m_nv = m_system->getNumberVisibleNodes();
     int m_nh = m_system->getNumberHiddenNodes();
 
+    // get current biases
     a = m_system->getWaveFunction()->get_a();
     b = m_system->getWaveFunction()->get_b();
     w = m_system->getWaveFunction()->get_w();
 
-//    cout << "a = " << a << endl;
-
+    // optimize biases
     for (int i=0; i<m_nv; i++){
         a[i] = a[i] - m_eta*gradE[i];
     }
@@ -44,11 +44,8 @@ void StochasticGradientDescent::computeWeights(arma::vec gradE){
         }
     }
 
+    // set optimized biases as new weights
     m_system->getWaveFunction()->set_a(a);
     m_system->getWaveFunction()->set_b(b);
     m_system->getWaveFunction()->set_w(w);
-
-//    cout << "a = " << a << endl;
-//    cout << "get_a = " << m_system->getWaveFunction()->get_a() << endl;
-
 }

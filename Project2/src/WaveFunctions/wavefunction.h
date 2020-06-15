@@ -7,11 +7,13 @@ public:
     WaveFunction(class System* system);
 
     virtual arma::vec set_X(arma::vec X) = 0;    // set visible nodes vector (i.e. position vector)
+    virtual arma::vec set_h(arma::vec h) = 0;    // set hidden nodes vector
     virtual arma::vec set_a(arma::vec a) = 0;    // set visible bias vector
     virtual arma::vec set_b(arma::vec b) = 0;    // set hidden bias vector
     virtual arma::mat set_w(arma::mat w) = 0;    // set interaction of biases matrix
 
     virtual arma::vec get_X() = 0;    // get visible nodes vector (i.e. position vector)
+    virtual arma::vec get_h() = 0;    // get hidden nodes vector
     virtual arma::vec get_a() = 0;    // get visible bias vector
     virtual arma::vec get_b() = 0;    // get hidden bias vector
     virtual arma::mat get_w() = 0;    // get interaction of biases matrix
@@ -23,6 +25,9 @@ public:
     virtual double getDistance(int p, int q) = 0;
     virtual double getSigma() = 0;
     virtual double getInitializationInterval() = 0;
+    virtual double getNumberVisibleNodes() = 0;
+    virtual double getNumberHiddenNodes() = 0;
+
     virtual bool getGaussian() = 0;
 
 protected:

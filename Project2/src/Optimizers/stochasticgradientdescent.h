@@ -13,8 +13,8 @@ public:
     void computeWeights(arma::vec gradE);
 
 private:
-    double m_eta;
-    arma::vec a;
-    arma::vec b;
-    arma::mat w;
+    double m_eta;   // learning rate
+    arma::vec a;    // visible bias
+    arma::vec b;    // hidden bias
+    arma::mat w;    // interaction matrix between biases
 };

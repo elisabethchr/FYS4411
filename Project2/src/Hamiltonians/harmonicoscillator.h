@@ -9,6 +9,7 @@ public:
 
     double getOmega() { return m_omega; }
     double computeLocalEnergy(arma::vec X);     // compute local energy as a function of visible nodes X
+    double interaction(arma::vec X, int nx, int dim){};
 
     vec computeLocalEnergyGradient();
     vec computeQuantumForce(arma::vec X, int i);

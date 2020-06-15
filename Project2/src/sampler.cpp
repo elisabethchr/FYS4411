@@ -113,16 +113,17 @@ void Sampler::writeToFile(int step, int steps, string filename){
     int nP = m_system->getNumberParticles();
     int nD = m_system->getNumberDimensions();
     int h  = m_system->getStepLength();
-    double dt = m_system->getTimeSteps()[0];
     int nSteps = m_system->getNumberOfMetropolisSteps();
     int nRBMcycles = m_system->getNumberRBMcycles();
-    double eta    = m_system->getLearningRate();
+    double dt = m_system->getTimeSteps()[0];
+    double eta = m_system->getLearningRate();
+    double sigma = m_system->getWaveFunction()->getSigma();
     bool gauss = m_system->getWaveFunction()->getGaussian();
-    bool solv = m_system->getSolver();
+    string solver = m_system->getSolver();
 
-    string solver;
-    if(solv==true){ solver = "bruteForce"; }
-    else if (solv==false){ solver = "importance"; }
+//    string solver;
+//    if(solv==true){ solver = "bruteForce"; }
+//    else if (solv==false){ solver = "importance"; }
 
     string gaussian;
     if(gauss == true){ gaussian = "normal"; }
@@ -138,6 +139,7 @@ void Sampler::writeToFile(int step, int steps, string filename){
     string arg7 = to_string(float(eta));
     string arg8 = to_string(int(nRBMcycles));
     string arg9 = to_string(double(dt));
+    string arg10 = to_string(double(sigma));
     filename.append(solver);
     filename.append("_");
     filename.append(gaussian);
@@ -157,9 +159,13 @@ void Sampler::writeToFile(int step, int steps, string filename){
     filename.append(arg7);
     filename.append("_RBMcycles_");
     filename.append(arg8);
-    if(solv==false){
+    if(solver=="importance"){
         filename.append("_dt_");
         filename.append(arg9);
+    }
+    if(solver=="gibbs"){
+        filename.append("_sigma_");
+        filename.append(arg10);
     }
     filename.append("_.txt");
 
@@ -189,12 +195,9 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
     double eta    = m_system->getLearningRate();
     double nSteps = m_system->getNumberOfMetropolisSteps();
     double nRBMcycles = m_system->getNumberRBMcycles();
+    double sigma = m_system->getWaveFunction()->getSigma();
     bool gauss = m_system->getWaveFunction()->getGaussian();
-    bool solv = m_system->getSolver();
-
-    string solver;
-    if(solv==true){ solver = "bruteForce"; }
-    else if (solv==false){ solver = "importance"; }
+    string solver = m_system->getSolver();
 
     string gaussian;
     if(gauss == true){ gaussian = "normal"; }
@@ -210,6 +213,7 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
     string arg7 = to_string(float(eta));
     string arg8 = to_string(int(nRBMcycles));
     string arg9 = to_string(double(dt));
+    string arg10 = to_string(double(sigma));
     filename.append(solver);
     filename.append("_");
     filename.append(gaussian);
@@ -229,9 +233,13 @@ void Sampler::writeStepToFile(int step, int steps, string filename){
     filename.append(arg7);
     filename.append("_RBMcycles_");
     filename.append(arg8);
-    if(solv==false){
+    if(solver=="importance"){
         filename.append("_dt_");
         filename.append(arg9);
+    }
+    if(solver=="gibbs"){
+        filename.append("_sigma_");
+        filename.append(arg10);
     }
     filename.append("_.txt");
 

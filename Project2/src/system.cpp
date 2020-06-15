@@ -182,8 +182,6 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
             bool acceptedStep;
 
             // set the solver
-//            if (m_solver==true){ acceptedStep = bruteForce(); }
-//            else if (m_solver==false){ acceptedStep = importanceSampling(); }
             if (m_solver=="bruteForce"){ acceptedStep = bruteForce(); }
             else if (m_solver=="importance"){ acceptedStep = importanceSampling(); }
             else if (m_solver=="gibbs"){ acceptedStep = Gibbs(); }
@@ -200,20 +198,20 @@ void System::runMetropolisSteps(int RBM_cycles, std::vector<int> numberOfMetropo
 
                 // Only interested in sampling the final optimisation cycle
                 if (cycle == RBM_cycles - 1 ){
-                    string filename_blocking = "../data/b/blocking/2b-Initialization-";
+                    string filename_blocking = "../data/g/blocking/2g-Initialization-";
                     filename_blocking.append(to_string(m_initialization));
                     filename_blocking.append("_blockingSteps_");
-//                    m_sampler->writeStepToFile(m_sampleStep, m_sampleStep, filename_blocking);
+                    m_sampler->writeStepToFile(m_sampleStep, m_sampleStep, filename_blocking);
                 }
                 m_sampleStep++;
             }
             m_MCstep++;
         }
         // write energies of RBM cycles to file
-        string filename_RBM = "../data/b/RBM/2b-Initialization-";
+        string filename_RBM = "../data/g/RBM/2g-Initialization-";
         filename_RBM.append(to_string(m_initialization));
         filename_RBM.append("_RBMcycles_");
-//        m_sampler->writeToFile(cycle, cycle, filename_RBM);
+        m_sampler->writeToFile(cycle, cycle, filename_RBM);
         m_sampler->computeAverages();
         m_sampler->printOutputToTerminal();
         m_acceptedSteps_ratio = m_acceptedSteps/((double) m_numberOfMetropolisSteps);
