@@ -14,7 +14,7 @@ In this project, we employ the restricted Boltzmann machine to find the expected
 - Spherical harmonic oscillator (Hamiltonians/harmonicoscillator.h/cpp)
 
 **Wavefunctions**
-Neural quantum state (WaveFunctions/neuralquantumstate.h/cpp)
+- Neural quantum state (WaveFunctions/neuralquantumstate.h/cpp)
 
 **Error analysis**
 - Blocking (blocking.py)
